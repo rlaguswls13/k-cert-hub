@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>정보관리기술사(ITPE) 기출 RDB & 4단 서브노트 학습 플랫폼</title>
+  <style>
+    :root[data-theme="dark"] {
+      --bg-main: #0b0f19;
+      --bg-card: #131b2e;
+      --bg-elevated: #1c2742;
+      --bg-input: #0f1626;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --border: #263554;
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.14);
+      --green: #34d399;
+      --green-soft: rgba(52, 211, 153, 0.14);
+      --amber: #fbbf24;
+      --amber-soft: rgba(251, 191, 36, 0.15);
+      --rose: #fb7185;
+      --rose-soft: rgba(251, 113, 133, 0.15);
+      --purple: #c084fc;
+      --purple-soft: rgba(192, 132, 252, 0.15);
+    }
+    :root[data-theme="light"] {
+      --bg-main: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-elevated: #f1f5f9;
+      --bg-input: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --border: #cbd5e1;
+      --accent: #0284c7;
+      --accent-soft: rgba(2, 132, 199, 0.1);
+      --green: #059669;
+      --green-soft: rgba(5, 150, 105, 0.1);
+      --amber: #d97706;
+      --amber-soft: rgba(217, 119, 6, 0.12);
+      --rose: #e11d48;
+      --rose-soft: rgba(225, 29, 72, 0.1);
+      --purple: #7e22ce;
+      --purple-soft: rgba(126, 34, 206, 0.1);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.65;
+      padding-bottom: 60px;
+    }
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    }
+    .header-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+    }
+    .brand-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand-badge {
+      font-size: 0.75rem;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+    .header-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+    .mode-group {
+      display: inline-flex;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 3px;
+      gap: 4px;
+    }
+    .mode-btn {
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      padding: 7px 13px;
+      border-radius: 7px;
+      font-size: 0.84rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .mode-btn.active {
+      background: var(--accent);
+      color: #0b0f19;
+    }
+    .timer-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+    .timer-display {
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      color: var(--amber);
+      font-size: 0.95rem;
+      min-width: 52px;
+      text-align: center;
+    }
+    .btn-sm {
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      color: var(--text-main);
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.76rem;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .btn-sm:hover { border-color: var(--accent); color: var(--accent); }
+    .container {
+      max-width: 1400px;
+      margin: 20px auto;
+      padding: 0 24px;
+    }
+    .tabs-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 18px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+    }
+    .tab-btn {
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-muted);
+      padding: 9px 16px;
+      border-radius: 9px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .tab-btn.active {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+    .score-banner {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 18px;
+      margin-bottom: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+    .score-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      font-size: 0.88rem;
+      font-weight: 600;
+    }
+    .filter-grid {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 18px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 12px;
+    }
+    .filter-item label {
+      display: block;
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+      font-weight: 700;
+    }
+    .filter-item select, .filter-item input {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      color: var(--text-main);
+      font-size: 0.86rem;
+    }
+    .q-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .q-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      transition: border-color 0.15s;
+    }
+    .q-card:hover { border-color: var(--accent); }
+    .q-meta {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+    .badge {
+      font-size: 0.75rem;
+      padding: 3px 9px;
+      border-radius: 6px;
+      font-weight: 700;
+    }
+    .b-round { background: var(--bg-elevated); color: var(--text-main); border: 1px solid var(--border); }
+    .b-p1 { background: var(--amber-soft); color: var(--amber); }
+    .b-p234 { background: var(--purple-soft); color: var(--purple); }
+    .b-domain { background: var(--accent-soft); color: var(--accent); }
+    .b-format { background: var(--green-soft); color: var(--green); }
+    .q-title {
+      font-size: 1.08rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+      color: var(--text-main);
+    }
+    .sub-prompts {
+      background: var(--bg-input);
+      border-left: 3px solid var(--accent);
+      padding: 10px 14px;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 14px;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+    }
+    .sub-prompts div { margin-bottom: 4px; }
+    .sub-prompts div:last-child { margin-bottom: 0; }
+    .draft-box {
+      margin: 12px 0;
+      padding: 12px;
+      background: var(--bg-input);
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+    }
+    .draft-box label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--amber);
+      margin-bottom: 6px;
+    }
+    .draft-box textarea {
+      width: 100%;
+      min-height: 68px;
+      background: var(--bg-card);
+      color: var(--text-main);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 0.84rem;
+      resize: vertical;
+      font-family: inherit;
+    }
+    .outline-box {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      margin-top: 12px;
+    }
+    .section-label {
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: var(--accent);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .outline-steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .outline-step {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      border-radius: 7px;
+      font-size: 0.83rem;
+      font-weight: 600;
+    }
+    .kw-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+    }
+    .kw-chip {
+      font-size: 0.75rem;
+      background: var(--bg-card);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+    .explain-box {
+      margin-top: 12px;
+      border-top: 1px solid var(--border);
+      padding-top: 14px;
+    }
+    .comp-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0 14px;
+      font-size: 0.84rem;
+    }
+    .comp-table th, .comp-table td {
+      border: 1px solid var(--border);
+      padding: 8px 11px;
+      text-align: left;
+      vertical-align: top;
+    }
+    .comp-table th {
+      background: var(--bg-elevated);
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .answer-prose {
+      background: var(--bg-input);
+      border-left: 3px solid var(--green);
+      padding: 12px 14px;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+    }
+    .escalation-banner {
+      font-size: 0.8rem;
+      background: var(--rose-soft);
+      color: var(--rose);
+      padding: 6px 11px;
+      border-radius: 6px;
+      font-weight: 700;
+      display: inline-block;
+    }
+    .card-actions {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+    .hidden { display: none !important; }
+    @media print {
+      header, .tabs-bar, .filter-grid, .score-banner, .card-actions, .draft-box { display: none !important; }
+      body { background: #fff; color: #000; }
+      .q-card { break-inside: avoid; border: 1px solid #999; margin-bottom: 14px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- K-Cert Hub Global Top Bar -->
+  <div style="background:#090d16; border-bottom:1px solid #1e293b; font-family:Pretendard,system-ui,sans-serif; font-size:12px; color:#cbd5e1;">
+    <div style="max-width:1280px; margin:0 auto; padding:6px 16px; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px;">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <a href="../../index.html" style="display:inline-flex; align-items:center; gap:6px; color:#60a5fa; font-weight:700; text-decoration:none; padding:3px 8px; border-radius:6px; background:rgba(59,130,246,0.12); border:1px solid rgba(59,130,246,0.3);">
+          <span>🏠 K-Cert Hub 통합 자격증 포털</span>
+        </a>
+        <span style="color:#475569;">|</span>
+        <span style="color:#94a3b8;">국가·민간 자격증 RDB 학습 &amp; 정보공유 채널</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+        <a href="../eip/index.html" style="color:#e2e8f0; text-decoration:none; padding:3px 8px; border-radius:6px; background:#1e293b; border:1px solid #334155;">💻 정보처리기사 실기 (380문항)</a>
+        <a href="../itpe/index.html" style="color:#e2e8f0; text-decoration:none; padding:3px 8px; border-radius:6px; background:#1e293b; border:1px solid #334155;">🏛️ 정보관리기술사 (4단 서브노트)</a>
+        <a href="../../index.html#section-community" style="color:#34d399; text-decoration:none; padding:3px 8px; border-radius:6px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3);">💬 합격수기·정보공유 라운지</a>
+      </div>
+    </div>
+  </div>
+
+  <header>
+    <div class="header-inner">
+      <div class="brand-title">
+        <span>🎓 정보관리기술사(ITPE) 기출 RDB & 4단 서브노트</span>
+        <span class="brand-badge">제120회~제140회 (2020~2026)</span>
+      </div>
+      <div class="header-controls">
+        <div class="mode-group" role="group" aria-label="학습 모드 선택">
+          <button class="mode-btn" id="mode-exam" onclick="setStudyMode('exam')" title="단축키 1">① 실전 구상 모드 (문제+목차초안)</button>
+          <button class="mode-btn" id="mode-compare" onclick="setStudyMode('compare')" title="단축키 2">② 목차·키워드 비교 모드</button>
+          <button class="mode-btn active" id="mode-explain" onclick="setStudyMode('explain')" title="단축키 3">③ 서브노트 해설 모드</button>
+        </div>
+        <div class="timer-box">
+          <span>⏱️ 실전 타이머</span>
+          <span class="timer-display" id="timerDisplay">10:00</span>
+          <button class="btn-sm" onclick="startTimer(10)">1교시(10분)</button>
+          <button class="btn-sm" onclick="startTimer(25)">2~4교시(25분)</button>
+          <button class="btn-sm" onclick="stopTimer()">정지</button>
+        </div>
+        <button class="btn-sm" onclick="toggleTheme()" id="themeBtn">☀️ 라이트 모드</button>
+        <button class="btn-sm" onclick="window.print()">🖨️ 서브노트 인쇄</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <nav class="tabs-bar">
+      <button class="tab-btn active" id="tabbtn-bank" onclick="switchTab('bank')">📚 기출 서브노트 문제은행 (<span id="totalQCount">0</span>)</button>
+      <button class="tab-btn" id="tabbtn-analytics" onclick="switchTab('analytics')">📊 8대 도메인 & 교시별 출제경향 분석</button>
+      <button class="tab-btn" id="tabbtn-predict" onclick="switchTab('predict')">🎯 제141회 대비 적중 예상 20선</button>
+      <button class="tab-btn" id="tabbtn-schema" onclick="switchTab('schema')">🗄️ RDB 스키마 & REST API</button>
+    </nav>
+
+    <div class="score-banner">
+      <div class="score-stats">
+        <span>✅ 서브노트 숙지 완료: <strong id="statMastered" style="color:var(--green)">0</strong>문항</span>
+        <span>⚠️ 서브노트 보완 필요: <strong id="statReview" style="color:var(--rose)">0</strong>문항</span>
+        <span>📝 내 목차 초안 작성: <strong id="statDrafted" style="color:var(--amber)">0</strong>문항</span>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button class="btn-sm" id="btnFilterReview" onclick="toggleReviewOnly()">🔍 보완 필요(X) 토픽만 모아보기</button>
+        <button class="btn-sm" onclick="resetProgress()">🔄 학습 기록 초기화</button>
+      </div>
+    </div>
+
+    <!-- TAB 1: 기출 서브노트 문제은행 -->
+    <section id="tab-bank">
+      <div class="filter-grid">
+        <div class="filter-item">
+          <label>시행 회차 (제120회~제140회)</label>
+          <select id="selRound" onchange="renderQuestions()"><option value="ALL">전체 회차 (2020~2026년)</option></select>
+        </div>
+        <div class="filter-item">
+          <label>교시 및 배점 구분 (카테고리2)</label>
+          <select id="selPeriod" onchange="renderQuestions()"><option value="ALL">전체 교시 (1교시 10점 + 2~4교시 25점)</option></select>
+        </div>
+        <div class="filter-item">
+          <label>8대 핵심 기술 도메인 (카테고리1)</label>
+          <select id="selDomain" onchange="renderQuestions()"><option value="ALL">전체 8대 기술 도메인</option></select>
+        </div>
+        <div class="filter-item">
+          <label>세부 출제 방식</label>
+          <select id="selFormat" onchange="renderQuestions()"><option value="ALL">전체 출제 방식</option></select>
+        </div>
+        <div class="filter-item">
+          <label>토픽·키워드·해설 통합 검색 (단축키 /)</label>
+          <input type="text" id="inpSearch" placeholder="예: RAG, 비인간 신원, 투명성, WBS, 동형암호..." oninput="renderQuestions()" />
+        </div>
+      </div>
+      <div id="questionContainer" class="q-list"></div>
+    </section>
+
+    <!-- TAB 2: 출제경향 분석 -->
+    <section id="tab-analytics" class="hidden">
+      <div class="q-card" style="margin-bottom:18px;">
+        <h3 class="q-title">📊 8대 기술 도메인별 출제 빈도 · 교시 비중 · 출제 주기 분석 (클릭 시 해당 도메인 문제로 이동)</h3>
+        <div style="overflow-x:auto;">
+          <table class="comp-table" id="analyticsTable"></table>
+        </div>
+      </div>
+      <div class="q-card">
+        <h3 class="q-title">🗓️ 제120회(2020년) ~ 제140회(2026년) 회차별 핵심 출제 트렌드 연표</h3>
+        <div style="overflow-x:auto;">
+          <table class="comp-table" id="roundsTimelineTable"></table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: 제141회 대비 적중 예상 20선 -->
+    <section id="tab-predict" class="hidden">
+      <div class="q-card" style="margin-bottom:16px; border-color:var(--accent);">
+        <h3 class="q-title">🎯 제141회 정보관리기술사 대비 적중 예상 20선 (1교시→서술형 승격 패턴 & 출제주기 & 최신 법제도 기반)</h3>
+        <p style="font-size:0.88rem; color:var(--text-muted);">
+          상단의 <strong>[① 실전 구상 모드 / ② 목차·키워드 비교 모드 / ③ 서브노트 해설 모드]</strong> 전환이 예상 토픽 20선에도 동일하게 적용됩니다.
+        </p>
+      </div>
+      <div id="predictContainer" class="q-list"></div>
+    </section>
+
+    <!-- TAB 4: RDB 스키마 & API -->
+    <section id="tab-schema" class="hidden">
+      <div class="q-card">
+        <h3 class="q-title">🗄️ 정규화 SQLite RDB (`data/itpe_exam.db`) & REST API 엔드포인트</h3>
+        <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:12px;">
+          본 플랫폼은 6개 정규화 테이블(<code>exam_rounds</code>, <code>categories_period</code>, <code>categories_domain</code>, <code>questions</code>, <code>domain_analytics</code>, <code>predicted_topics</code>)과 3개 학습 모드 전용 SQL View(<code>v_mode_exam</code>, <code>v_mode_compare</code>, <code>v_mode_explanation</code>)로 구동됩니다.
+        </p>
+        <table class="comp-table">
+          <thead>
+            <tr><th>HTTP Method & Endpoint</th><th>연동 SQL View / 테이블</th><th>설명</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><a href="./data/itpe_rdb_export.json" target="_blank" style="color:var(--accent)">GET ./data/itpe_rdb_export.json (또는 /api/init)</a></td><td>전체 RDB 초기 로드</td><td>21개 회차, 8대 도메인 통계, 기출 서브노트, 예상 20선 통합 JSON</td></tr>
+            <tr><td><a href="./data/schema_and_data.sql" download="schema_and_data.sql" style="color:var(--accent)">GET ./data/schema_and_data.sql</a></td><td>SQLite DDL &amp; INSERT</td><td>정규화 RDB 스키마, 3대 학습 모드 SQL View 및 전체 데이터 덤프</td></tr>
+            <tr><td><a href="./data/itpe_exam.db" download="itpe_exam.db" style="color:var(--accent)">GET ./data/itpe_exam.db</a></td><td>SQLite3 Binary DB</td><td>로컬 SQLite 데이터베이스 원본 파일 다운로드</td></tr>
+            <tr><td><code>GET /api/questions?mode=exam&amp;round=140</code></td><td><code>v_mode_exam</code></td><td>실전 구상 모드 (모범 목차 및 서브노트 해설 물리적 마스킹)</td></tr>
+            <tr><td><code>GET /api/questions?mode=compare&amp;round=140</code></td><td><code>v_mode_compare</code></td><td>목차·키워드 비교 모드 (문제 + 모범 4단 목차 + 필수 채점 키워드만 반환)</td></tr>
+            <tr><td><code>GET /api/predictions?mode=explain</code></td><td><code>predicted_topics</code></td><td>제141회 대비 적중 예상 20선 서브노트</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    let RDB = null;
+    let studyMode = 'explain';
+    let reviewOnly = false;
+    let progressMap = JSON.parse(localStorage.getItem('itpe_progress_v1') || '{}');
+    let draftMap = JSON.parse(localStorage.getItem('itpe_drafts_v1') || '{}');
+    let cardReveal = {};
+    let timerInterval = null;
+    let remainingSeconds = 600;
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    async function initApp() {
+      let res = await fetch('./data/itpe_rdb_export.json').catch(() => null);
+      if (!res || !res.ok) {
+        res = await fetch('/api/init');
+      }
+      RDB = await res.json();
+      document.getElementById('totalQCount').textContent = RDB.questions.length;
+
+      const selRound = document.getElementById('selRound');
+      RDB.exam_rounds.forEach(r => {
+        const opt = document.createElement('option');
+        opt.value = r.round_id;
+        opt.textContent = `${r.round_title} — ${r.trend_summary.slice(0, 28)}...`;
+        selRound.appendChild(opt);
+      });
+
+      const selPeriod = document.getElementById('selPeriod');
+      RDB.categories_period.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.period_id;
+        opt.textContent = `${p.period_name} (권장 ${p.recommended_minutes}분)`;
+        selPeriod.appendChild(opt);
+      });
+
+      const selDomain = document.getElementById('selDomain');
+      RDB.categories_domain.forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d.domain_id;
+        opt.textContent = d.domain_name;
+        selDomain.appendChild(opt);
+      });
+
+      const formats = [...new Set(RDB.questions.map(q => q.question_format))];
+      const selFormat = document.getElementById('selFormat');
+      formats.forEach(f => {
+        const opt = document.createElement('option');
+        opt.value = f;
+        opt.textContent = f;
+        selFormat.appendChild(opt);
+      });
+
+      renderQuestions();
+      renderAnalytics();
+      renderPredictions();
+      updateScoreStats();
+    }
+
+    function setStudyMode(mode) {
+      studyMode = mode;
+      cardReveal = {};
+      ['exam', 'compare', 'explain'].forEach(m => {
+        document.getElementById(`mode-${m}`).classList.toggle('active', m === mode);
+      });
+      renderQuestions();
+      renderPredictions();
+    }
+
+    function switchTab(tab) {
+      ['bank', 'analytics', 'predict', 'schema'].forEach(t => {
+        document.getElementById(`tab-${t}`).classList.toggle('hidden', t !== tab);
+        document.getElementById(`tabbtn-${t}`).classList.toggle('active', t === tab);
+      });
+    }
+
+    function toggleCardReveal(key, level) {
+      cardReveal[key] = cardReveal[key] === level ? null : level;
+      renderQuestions();
+      renderPredictions();
+    }
+
+    function saveDraft(key, val) {
+      draftMap[key] = val;
+      localStorage.setItem('itpe_drafts_v1', JSON.stringify(draftMap));
+      updateScoreStats();
+    }
+
+    function markStatus(key, status) {
+      if (progressMap[key] === status) delete progressMap[key];
+      else progressMap[key] = status;
+      localStorage.setItem('itpe_progress_v1', JSON.stringify(progressMap));
+      updateScoreStats();
+      renderQuestions();
+    }
+
+    function toggleReviewOnly() {
+      reviewOnly = !reviewOnly;
+      const btn = document.getElementById('btnFilterReview');
+      btn.style.borderColor = reviewOnly ? 'var(--rose)' : 'var(--border)';
+      btn.style.color = reviewOnly ? 'var(--rose)' : 'var(--text-main)';
+      renderQuestions();
+    }
+
+    function resetProgress() {
+      if (!confirm('저장된 서브노트 숙지 상태와 목차 초안 메모를 초기화하시겠습니까?')) return;
+      progressMap = {};
+      draftMap = {};
+      localStorage.removeItem('itpe_progress_v1');
+      localStorage.removeItem('itpe_drafts_v1');
+      updateScoreStats();
+      renderQuestions();
+    }
+
+    function updateScoreStats() {
+      const vals = Object.values(progressMap);
+      document.getElementById('statMastered').textContent = vals.filter(v => v === 'O').length;
+      document.getElementById('statReview').textContent = vals.filter(v => v === 'X').length;
+      document.getElementById('statDrafted').textContent = Object.values(draftMap).filter(v => v && v.trim().length > 0).length;
+    }
+
+    function renderComparisonTable(comp) {
+      if (!comp || !comp.headers || !comp.headers.length) return '';
+      const ths = comp.headers.map(h => `<th>${escapeHtml(h)}</th>`).join('');
+      const trs = (comp.rows || []).map(row =>
+        `<tr>${row.map(cell => `<td>${escapeHtml(cell)}</td>`).join('')}</tr>`
+      ).join('');
+      return `<table class="comp-table"><thead><tr>${ths}</tr></thead><tbody>${trs}</tbody></table>`;
+    }
+
+    function renderQuestions() {
+      const round = document.getElementById('selRound').value;
+      const period = document.getElementById('selPeriod').value;
+      const domain = document.getElementById('selDomain').value;
+      const format = document.getElementById('selFormat').value;
+      const kw = document.getElementById('inpSearch').value.trim().toLowerCase();
+
+      const filtered = RDB.questions.filter(q => {
+        if (round !== 'ALL' && String(q.round_id) !== String(round)) return false;
+        if (period !== 'ALL' && String(q.period_id) !== String(period)) return false;
+        if (domain !== 'ALL' && String(q.domain_id) !== String(domain)) return false;
+        if (format !== 'ALL' && q.question_format !== format) return false;
+        if (reviewOnly && progressMap[`q_${q.question_id}`] !== 'X') return false;
+        if (kw) {
+          const hay = `${q.question_header} ${q.core_keywords} ${q.model_answer_text} ${(q.sub_prompts || []).join(' ')}`.toLowerCase();
+          if (!hay.includes(kw)) return false;
+        }
+        return true;
+      });
+
+      const container = document.getElementById('questionContainer');
+      if (!filtered.length) {
+        container.innerHTML = `<div class="q-card">조건에 일치하는 기출 토픽이 없습니다. 필터를 초기화해 주세요.</div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(q => {
+        const key = `q_${q.question_id}`;
+        const localMode = cardReveal[key] || studyMode;
+        const showOutline = localMode === 'compare' || localMode === 'explain';
+        const showExplain = localMode === 'explain';
+        const status = progressMap[key];
+        const draftVal = draftMap[key] || '';
+
+        const promptsHtml = (q.sub_prompts || []).map(p => `<div>• ${escapeHtml(p)}</div>`).join('');
+        const outlineHtml = (q.standard_outline || []).map(o => `<div class="outline-step">${escapeHtml(o)}</div>`).join('');
+        const kwChips = (q.core_keywords || '').split(',').map(k => `<span class="kw-chip">${escapeHtml(k.trim())}</span>`).join('');
+
+        return `
+          <article class="q-card">
+            <div class="q-meta">
+              <div class="badge-row">
+                <span class="badge b-round">${escapeHtml(q.round_title)} · ${q.period_id}교시 ${q.question_no}번</span>
+                <span class="badge ${q.period_id === 1 ? 'b-p1' : 'b-p234'}">${escapeHtml(q.period_name)}</span>
+                <span class="badge b-domain">${escapeHtml(q.domain_name)}</span>
+                <span class="badge b-format">${escapeHtml(q.question_format)}</span>
+              </div>
+              <div class="badge-row">
+                <button class="btn-sm" style="${status === 'O' ? 'border-color:var(--green);color:var(--green);' : ''}" onclick="markStatus('${key}', 'O')">✅ 숙지 완료(O)</button>
+                <button class="btn-sm" style="${status === 'X' ? 'border-color:var(--rose);color:var(--rose);' : ''}" onclick="markStatus('${key}', 'X')">⚠️ 보완 필요(X)</button>
+              </div>
+            </div>
+
+            <h3 class="q-title">Q${q.question_id}. ${escapeHtml(q.question_header)}</h3>
+            <div class="sub-prompts">${promptsHtml}</div>
+
+            ${studyMode === 'exam' ? `
+              <div class="draft-box">
+                <label>✍️ 내 4단 목차 & 핵심 키워드 초안 구상 (1. 정의/리드문 → 2. 아키텍처/개념도 → 3. 비교/핵심기술 → 4. 시사점/제언)</label>
+                <textarea placeholder="여기에 1분 목차 초안과 떠오르는 핵심 키워드를 작성한 뒤 [목차·키워드 비교]를 눌러 대조해 보세요..." oninput="saveDraft('${key}', this.value)">${escapeHtml(draftVal)}</textarea>
+              </div>
+            ` : ''}
+
+            ${showOutline ? `
+              <div class="outline-box">
+                <div class="section-label">🧭 모범 4단 서브노트 목차 & 필수 채점 키워드</div>
+                <div class="outline-steps">${outlineHtml}</div>
+                <div class="kw-list">${kwChips}</div>
+              </div>
+            ` : ''}
+
+            ${showExplain ? `
+              <div class="explain-box">
+                <div class="section-label">📊 핵심 비교표 / 구조화 요약표</div>
+                ${renderComparisonTable(q.comparison_table)}
+                <div class="section-label">📘 완결형 서브노트 모범 해설</div>
+                <div class="answer-prose">${escapeHtml(q.model_answer_text)}</div>
+                <span class="escalation-banner">🔗 출제 계보 & 경향: ${escapeHtml(q.escalation_note)}</span>
+              </div>
+            ` : ''}
+
+            <div class="card-actions">
+              <div style="display:flex; gap:8px;">
+                ${studyMode === 'exam' ? `
+                  <button class="btn-sm" onclick="toggleCardReveal('${key}', 'compare')">${localMode === 'compare' ? '🙈 목차·키워드 닫기' : '🧭 목차·키워드만 힌트 보기'}</button>
+                  <button class="btn-sm" onclick="toggleCardReveal('${key}', 'explain')">${localMode === 'explain' ? '🙈 서브노트 해설 닫기' : '📘 서브노트 전체 해설 열기'}</button>
+                ` : ''}
+                ${studyMode === 'compare' ? `
+                  <button class="btn-sm" onclick="toggleCardReveal('${key}', 'explain')">${localMode === 'explain' ? '🙈 상세 해설 닫기' : '📘 비교표 + 서브노트 상세 해설 열기'}</button>
+                ` : ''}
+              </div>
+              <button class="btn-sm" onclick="startTimer(${q.recommended_minutes})">⏱️ 이 문제 실전 타이머 (${q.recommended_minutes}분) 시작</button>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    function filterByDomain(domainId) {
+      document.getElementById('selDomain').value = String(domainId);
+      switchTab('bank');
+      renderQuestions();
+    }
+
+    function renderAnalytics() {
+      const tbl = document.getElementById('analyticsTable');
+      tbl.innerHTML = `
+        <thead>
+          <tr>
+            <th>8대 핵심 기술 도메인 (클릭 시 이동)</th>
+            <th>수록 문항</th>
+            <th>비중</th>
+            <th>1교시(10점)</th>
+            <th>2~4교시(25점)</th>
+            <th>평균 출제주기</th>
+            <th>주요 출제방식</th>
+            <th>최근 급상승 핵심 키워드</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${RDB.domain_analytics.map(a => `
+            <tr style="cursor:pointer;" onclick="filterByDomain(${a.domain_id})">
+              <td><strong style="color:var(--accent)">${escapeHtml(a.domain_name)}</strong></td>
+              <td>${a.total_questions}문항</td>
+              <td>${a.share_pct}%</td>
+              <td>${a.p1_count}문항</td>
+              <td>${a.p234_count}문항</td>
+              <td>${a.avg_interval}회차</td>
+              <td><span class="badge b-format">${escapeHtml(a.primary_format)}</span></td>
+              <td style="font-size:0.8rem; color:var(--text-muted);">${escapeHtml(a.rising_keywords)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      `;
+
+      const rTbl = document.getElementById('roundsTimelineTable');
+      rTbl.innerHTML = `
+        <thead>
+          <tr><th>회차명</th><th>시행일자</th><th>해당 회차 핵심 출제 키워드 및 트렌드 요약</th><th>원문 출처</th></tr>
+        </thead>
+        <tbody>
+          ${RDB.exam_rounds.map(r => `
+            <tr>
+              <td><strong>${escapeHtml(r.round_title)}</strong></td>
+              <td>${escapeHtml(r.exam_date)}</td>
+              <td>${escapeHtml(r.trend_summary)}</td>
+              <td><a href="${escapeHtml(r.source_url)}" target="_blank" style="color:var(--accent)">큐넷 자료실 ↗</a></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      `;
+    }
+
+    function renderPredictions() {
+      const container = document.getElementById('predictContainer');
+      container.innerHTML = RDB.predicted_topics.map(p => {
+        const key = `pred_${p.pred_id}`;
+        const localMode = cardReveal[key] || studyMode;
+        const showOutline = localMode === 'compare' || localMode === 'explain';
+        const showExplain = localMode === 'explain';
+        const outlineHtml = (p.standard_outline || []).map(o => `<div class="outline-step">${escapeHtml(o)}</div>`).join('');
+        const kwChips = (p.core_keywords || '').split(',').map(k => `<span class="kw-chip">${escapeHtml(k.trim())}</span>`).join('');
+
+        return `
+          <article class="q-card">
+            <div class="q-meta">
+              <div class="badge-row">
+                <span class="badge b-round">예상 #${p.pred_id}</span>
+                <span class="badge b-p234">${escapeHtml(p.target_period)}</span>
+                <span class="badge b-domain">${escapeHtml(p.domain_name)}</span>
+                <span class="badge b-format">${escapeHtml(p.imminence_badge)}</span>
+              </div>
+            </div>
+            <h3 class="q-title">[예상 ${p.pred_id}] ${escapeHtml(p.question_header)}</h3>
+            <div class="sub-prompts">
+              <div><strong>📌 출제 예측 근거:</strong> ${escapeHtml(p.basis)}</div>
+            </div>
+
+            ${showOutline ? `
+              <div class="outline-box">
+                <div class="section-label">🧭 권장 4단 서브노트 목차 & 필수 키워드</div>
+                <div class="outline-steps">${outlineHtml}</div>
+                <div class="kw-list">${kwChips}</div>
+              </div>
+            ` : ''}
+
+            ${showExplain ? `
+              <div class="explain-box">
+                <div class="section-label">📊 핵심 비교표 / 아키텍처 요약</div>
+                ${renderComparisonTable(p.comparison_table)}
+                <div class="section-label">📘 모범 서브노트 해설 및 출제 포인트</div>
+                <div class="answer-prose">${escapeHtml(p.model_answer_text)}</div>
+              </div>
+            ` : ''}
+
+            <div class="card-actions">
+              <div style="display:flex; gap:8px;">
+                ${studyMode !== 'explain' ? `
+                  <button class="btn-sm" onclick="toggleCardReveal('${key}', 'compare')">${localMode === 'compare' ? '🙈 목차 닫기' : '🧭 4단 목차·키워드 보기'}</button>
+                  <button class="btn-sm" onclick="toggleCardReveal('${key}', 'explain')">${localMode === 'explain' ? '🙈 서브노트 닫기' : '📘 전체 서브노트 해설 열기'}</button>
+                ` : ''}
+              </div>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    function startTimer(minutes) {
+      stopTimer();
+      remainingSeconds = minutes * 60;
+      updateTimerDisplay();
+      timerInterval = setInterval(() => {
+        if (remainingSeconds > 0) {
+          remainingSeconds--;
+          updateTimerDisplay();
+        } else {
+          stopTimer();
+          alert(`⏰ ${minutes}분 실전 답안 작성 시간이 종료되었습니다!`);
+        }
+      }, 1000);
+    }
+
+    function stopTimer() {
+      if (timerInterval) clearInterval(timerInterval);
+      timerInterval = null;
+    }
+
+    function updateTimerDisplay() {
+      const m = String(Math.floor(remainingSeconds / 60)).padStart(2, '0');
+      const s = String(remainingSeconds % 60).padStart(2, '0');
+      document.getElementById('timerDisplay').textContent = `${m}:${s}`;
+    }
+
+    function toggleTheme() {
+      const root = document.documentElement;
+      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      document.getElementById('themeBtn').textContent = next === 'dark' ? '☀️ 라이트 모드' : '🌙 다크 모드';
+    }
+
+    window.addEventListener('keydown', e => {
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
+      if (e.key === '1') setStudyMode('exam');
+      if (e.key === '2') setStudyMode('compare');
+      if (e.key === '3') setStudyMode('explain');
+      if (e.key === '/') {
+        e.preventDefault();
+        switchTab('bank');
+        document.getElementById('inpSearch').focus();
+      }
+    });
+
+    initApp();
+  </script>
+</body>
+</html>

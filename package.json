@@ -1,0 +1,9 @@
+{
+  "name": "k-cert-hub",
+  "version": "1.0.0",
+  "description": "국가기술자격(정보처리기사, 정보관리기술사, 정보보안기사, 빅데이터분석기사) 및 공인민간자격(SQLD, ADsP) 통합 RDB 학습 & 정보공유 허브",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  }
+}

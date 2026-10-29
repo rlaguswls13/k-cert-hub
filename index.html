@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>K-Cert Hub — 국가·민간 자격증 통합 RDB 학습 & 정보공유 채널</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --background: #0b1120;
+      --foreground: #f8fafc;
+      --card: #151f32;
+      --card-hover: #1e293b;
+      --border: #26354d;
+      --muted-foreground: #94a3b8;
+      --accent: #3b82f6;
+    }
+
+    body {
+      background-color: var(--background);
+      color: var(--foreground);
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    pre, code {
+      font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+    }
+
+    /* Modern Web Guidance: dialog
+       MANDATORY scroll containment on modal and backdrop */
+    dialog:modal {
+      overscroll-behavior: contain;
+    }
+    dialog::backdrop {
+      overflow: hidden;
+      overscroll-behavior: contain;
+      background: rgba(2, 6, 23, 0.78);
+      backdrop-filter: blur(4px);
+    }
+
+    /* Modern Web Guidance: defer-rendering-heavy-content
+       Applied strictly to off-screen sections/cards below the initial fold */
+    .heavy-section-deferred {
+      content-visibility: auto;
+      contain-intrinsic-size: auto none auto 260px;
+    }
+
+    /* Modern Web Guidance: responsive-table */
+    .table-wrapper {
+      overflow: auto;
+      max-inline-size: 100%;
+      max-block-size: min(520px, 78vh);
+      container-type: inline-size;
+    }
+    .responsive-data-table {
+      border-collapse: separate;
+      border-spacing: 0;
+      width: 100%;
+    }
+    .responsive-data-table thead {
+      position: sticky;
+      inset-block-start: 0;
+      z-index: 2;
+      background: var(--card);
+    }
+    .responsive-data-table tbody th {
+      position: sticky;
+      inset-inline-start: 0;
+      z-index: 1;
+      background: var(--card);
+    }
+    @container (width < 600px) {
+      .responsive-data-table,
+      .responsive-data-table thead,
+      .responsive-data-table tbody,
+      .responsive-data-table tr,
+      .responsive-data-table th,
+      .responsive-data-table td {
+        display: block;
+      }
+      .responsive-data-table thead {
+        display: none;
+      }
+      .responsive-data-table tr {
+        margin-block-end: 1rem;
+        border: 1px solid var(--border);
+        border-radius: 0.75rem;
+        padding: 0.5rem;
+      }
+      .responsive-data-table tbody th {
+        position: sticky;
+        inset-block-start: 0;
+        z-index: 2;
+        background: var(--card-hover);
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 0.35rem;
+      }
+      .responsive-data-table {
+        --label-2: "자격 구분";
+        --label-3: "시행 회차";
+        --label-4: "필기/1차 일정";
+        --label-5: "실기/면접 일정";
+        --label-6: "핵심 합격 전략";
+      }
+      .responsive-data-table td:nth-child(2)::before {
+        content: var(--label-2) ": ";
+        font-weight: 700;
+        color: var(--muted-foreground);
+      }
+      .responsive-data-table td:nth-child(3)::before {
+        content: var(--label-3) ": ";
+        font-weight: 700;
+        color: var(--muted-foreground);
+      }
+      .responsive-data-table td:nth-child(4)::before {
+        content: var(--label-4) ": ";
+        font-weight: 700;
+        color: var(--muted-foreground);
+      }
+      .responsive-data-table td:nth-child(5)::before {
+        content: var(--label-5) ": ";
+        font-weight: 700;
+        color: var(--muted-foreground);
+      }
+      .responsive-data-table td:nth-child(6)::before {
+        content: var(--label-6) ": ";
+        font-weight: 700;
+        color: var(--muted-foreground);
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased">
+
+  <!-- Sticky Global Header -->
+  <header class="sticky top-0 z-30 bg-[var(--card)]/95 backdrop-blur border-b border-[var(--border)] shadow-md">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col gap-3">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center font-extrabold text-sm shadow">
+            HUB
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-base sm:text-lg font-extrabold tracking-tight text-white">
+                K-Cert Hub · 국가·민간 자격증 통합 학습 &amp; 정보공유 채널
+              </h1>
+              <span class="hidden sm:inline-block px-2 py-0.5 text-[11px] font-bold rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">
+                Single-Repo RDB Hub
+              </span>
+            </div>
+            <p class="text-xs text-[var(--muted-foreground)] mt-0.5">
+              정보처리기사(380문항) · 정보관리기술사(4단 서브노트) · 정보보안 · 빅데이터 · SQLD · ADsP 통합 기출 RDB 및 커뮤니티
+            </p>
+          </div>
+        </div>
+
+        <!-- Direct Quick-Launch Buttons for Full RDB Apps -->
+        <div class="flex flex-wrap items-center gap-2">
+          <a href="./certs/eip/index.html"
+            class="px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white transition flex items-center gap-1.5 shadow-sm">
+            <span>💻 정보처리기사 실기 RDB</span>
+            <span class="px-1.5 py-0.2 rounded bg-blue-800/80 text-[10px]">380+20문항</span>
+          </a>
+          <a href="./certs/itpe/index.html"
+            class="px-3 py-1.5 rounded-lg text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white transition flex items-center gap-1.5 shadow-sm">
+            <span>🏛️ 정보관리기술사 RDB</span>
+            <span class="px-1.5 py-0.2 rounded bg-indigo-800/80 text-[10px]">서브노트 115선</span>
+          </a>
+          <a href="https://github.com/rlaguswls13/k-cert-hub" target="_blank" rel="noopener"
+            class="px-2.5 py-1.5 rounded-lg text-xs font-semibold border border-[var(--border)] bg-[var(--background)] hover:border-slate-500 text-slate-300">
+            GitHub 저장소 ↗
+          </a>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs & Cross-Certification Search Bar -->
+      <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-[var(--border)]">
+        <nav class="flex flex-wrap gap-1" aria-label="포털 주요 메뉴">
+          <button type="button" onclick="switchHubTab('study')" id="hubTab-study"
+            class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-blue-600 text-white">
+            🎓 자격증 통합 학습관
+          </button>
+          <button type="button" onclick="switchHubTab('search')" id="hubTab-search"
+            class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-300 hover:bg-slate-800">
+            🔍 전 종목 통합 검색 (<span id="totalIndexedCount">520+</span>문항)
+          </button>
+          <button type="button" onclick="switchHubTab('community')" id="hubTab-community"
+            class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-300 hover:bg-slate-800">
+            💬 합격수기 · 정보공유 라운지
+          </button>
+          <button type="button" onclick="switchHubTab('roadmap')" id="hubTab-roadmap"
+            class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-300 hover:bg-slate-800">
+            📅 시험일정 · 테크트리 · 기여 안내
+          </button>
+        </nav>
+
+        <!-- Unified Search Input -->
+        <div class="relative flex items-center w-full sm:w-80">
+          <input type="search" id="quickHubSearch" oninput="triggerCrossSearch(this.value)"
+            placeholder="전 자격증 통합 검색 (예: OSPF, 정규화, 포인터, RAG...)"
+            aria-label="전 자격증 기출 및 서브노트 통합 검색"
+            class="w-full px-3 py-1.5 text-xs rounded-lg bg-[var(--background)] border border-[var(--border)] text-white focus:outline-none focus:border-blue-500" />
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="max-w-7xl w-full mx-auto px-4 py-6 flex-1 flex flex-col gap-6">
+
+    <!-- Top KPI Summary Banner -->
+    <section class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 flex flex-col justify-between">
+        <span class="text-xs text-[var(--muted-foreground)] font-semibold">수록 자격증 종목</span>
+        <div class="flex items-baseline justify-between mt-1">
+          <span class="text-2xl font-extrabold text-white" id="kpiCertCount">6종</span>
+          <span class="text-xs text-blue-400 font-semibold">국가기술 4 · 공인민간 2</span>
+        </div>
+      </div>
+      <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 flex flex-col justify-between">
+        <span class="text-xs text-[var(--muted-foreground)] font-semibold">통합 RDB 기출·서브노트</span>
+        <div class="flex items-baseline justify-between mt-1">
+          <span class="text-2xl font-extrabold text-emerald-400" id="kpiQuestionCount">523문항</span>
+          <span class="text-xs text-slate-400">2020~2026 최신 복원 반영</span>
+        </div>
+      </div>
+      <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 flex flex-col justify-between">
+        <span class="text-xs text-[var(--muted-foreground)] font-semibold">학습 모드 지원</span>
+        <div class="flex items-baseline justify-between mt-1">
+          <span class="text-2xl font-extrabold text-amber-400">3대 모드</span>
+          <span class="text-xs text-slate-400">실전풀이 · 정답비교 · 상세해설</span>
+        </div>
+      </div>
+      <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 flex flex-col justify-between">
+        <span class="text-xs text-[var(--muted-foreground)] font-semibold">정보공유 &amp; 집단지성</span>
+        <div class="flex items-baseline justify-between mt-1">
+          <span class="text-2xl font-extrabold text-purple-400" id="kpiPostCount">오픈 채널</span>
+          <span class="text-xs text-slate-400">합격수기 · 복원제보 · Giscus</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         TAB 1: 자격증 통합 학습관 (Study Hub)
+         ========================================== -->
+    <section id="section-study" class="flex flex-col gap-5">
+      <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 class="text-base font-bold text-white">🎓 국가기술자격 &amp; 공인민간자격 통합 학습관</h2>
+          <p class="text-xs text-[var(--muted-foreground)] mt-0.5">
+            별도 저장소로 흩어지지 않고 하나의 플랫폼에서 기사(단답·코드 추론)부터 기술사(4단 논술 서브노트), 데이터 민간자격(SQLD·ADsP)까지 연계 학습합니다.
+          </p>
+        </div>
+        <div class="flex flex-wrap gap-1.5" role="group" aria-label="자격증 분류 필터">
+          <button type="button" onclick="filterCertCards('ALL')" id="certFilter-ALL"
+            class="px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-600 text-white">전체 (6종)</button>
+          <button type="button" onclick="filterCertCards('국가기술자격')" id="certFilter-국가기술자격"
+            class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-[var(--border)] bg-[var(--background)] text-slate-300">국가기술자격 (기사·기술사)</button>
+          <button type="button" onclick="filterCertCards('민간자격')" id="certFilter-민간자격"
+            class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-[var(--border)] bg-[var(--background)] text-slate-300">공인·등록 민간자격 (SQLD·ADsP)</button>
+        </div>
+      </div>
+
+      <!-- Certification Cards Grid -->
+      <div id="certCardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+
+      <!-- Cross-Level Concept Bridge Preview -->
+      <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-5 flex flex-col gap-3">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h3 class="text-sm font-bold text-white">🔗 같은 개념, 다른 깊이! 자격증 간 연계 학습 예시 (클릭 시 통합 검색)</h3>
+            <p class="text-xs text-[var(--muted-foreground)]">
+              하나의 CS/IT 개념이 SQLD · 정보처리기사 · 정보보안기사 · 정보관리기술사에서 어떻게 출제되는지 키워드 하나로 비교해 보세요.
+            </p>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button type="button" onclick="jumpToSearchKeyword('OSPF')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-blue-600/30 border border-slate-700 hover:border-blue-500 text-blue-300 transition">🌐 라우팅 (OSPF / BGP)</button>
+          <button type="button" onclick="jumpToSearchKeyword('정규화')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-blue-600/30 border border-slate-700 hover:border-blue-500 text-blue-300 transition">🗄️ 데이터베이스 정규화 (1NF~BCNF)</button>
+          <button type="button" onclick="jumpToSearchKeyword('디자인 패턴')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-blue-600/30 border border-slate-700 hover:border-blue-500 text-blue-300 transition">🧩 GoF 디자인 패턴 (Observer/Singleton)</button>
+          <button type="button" onclick="jumpToSearchKeyword('제로트러스트')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-blue-600/30 border border-slate-700 hover:border-blue-500 text-blue-300 transition">🛡️ 제로트러스트 &amp; 네트워크 보안</button>
+          <button type="button" onclick="jumpToSearchKeyword('포인터')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-blue-600/30 border border-slate-700 hover:border-blue-500 text-blue-300 transition">💻 C언어 구조체·이중 포인터</button>
+          <button type="button" onclick="jumpToSearchKeyword('JOIN')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-blue-600/30 border border-slate-700 hover:border-blue-500 text-blue-300 transition">📊 SQL 조인 · 윈도우 함수 · ROLLUP</button>
+          <button type="button" onclick="jumpToSearchKeyword('RAG')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-blue-600/30 border border-slate-700 hover:border-blue-500 text-blue-300 transition">🤖 생성형 AI · RAG · Agentic AI</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         TAB 2: 전 종목 통합 검색 (Cross-Cert Search)
+         ========================================== -->
+    <section id="section-search" class="hidden flex-col gap-4">
+      <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 flex flex-col gap-3">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h2 class="text-base font-bold text-white">🔍 전 자격증 RDB 통합 검색 &amp; 난이도별 비교</h2>
+            <p class="text-xs text-[var(--muted-foreground)]">
+              정보처리기사(380문항+예상20), 정보관리기술사(115토픽), 정보보안기사, 빅데이터분석기사, SQLD, ADsP 데이터를 한 번에 검색합니다.
+            </p>
+          </div>
+          <span id="searchStatsBadge" class="px-3 py-1 rounded-full text-xs font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30">
+            검색어를 입력하거나 추천 키워드를 클릭하세요
+          </span>
+        </div>
+
+        <div class="flex flex-wrap gap-2 items-center">
+          <input type="search" id="mainCrossSearchInput" oninput="renderCrossSearchResults(this.value)"
+            placeholder="검색어 입력 (예: OSPF, 2PL, 정규화, Observer, 포인터, 상속, ROLLUP, 제로트러스트...)"
+            aria-label="통합 검색어 입력"
+            class="flex-1 min-w-[240px] px-3.5 py-2 text-sm rounded-xl bg-[var(--background)] border border-[var(--border)] text-white focus:outline-none focus:border-blue-500" />
+          <select id="searchCertScope" onchange="renderCrossSearchResults(document.getElementById('mainCrossSearchInput').value)"
+            aria-label="자격증 종목 필터"
+            class="px-3 py-2 text-xs rounded-xl bg-[var(--background)] border border-[var(--border)] text-slate-200">
+            <option value="ALL">모든 자격증 종목</option>
+            <option value="정보처리기사">정보처리기사 실기 (380+20문항)</option>
+            <option value="정보관리기술사">정보관리기술사 (4단 서브노트)</option>
+            <option value="정보보안기사">정보보안기사 실기</option>
+            <option value="빅데이터분석기사">빅데이터분석기사 실기</option>
+            <option value="SQLD">SQLD (SQL 개발자)</option>
+            <option value="ADsP">ADsP (데이터분석 준전문가)</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="crossSearchResultsContainer" class="flex flex-col gap-3"></div>
+    </section>
+
+    <!-- ==========================================
+         TAB 3: 합격수기 · 정보공유 라운지 (Community)
+         ========================================== -->
+    <section id="section-community" class="hidden flex-col gap-5">
+      <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-5 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 class="text-base font-bold text-white">💬 자격증 합격수기 · 암기 꿀팁 · 복원 문제 제보 채널</h2>
+          <p class="text-xs text-[var(--muted-foreground)] mt-0.5">
+            수험생들이 직접 검증한 합격 루틴, 두문자 암기법, 최신 시험 가답안 복원 정보를 나누고 GitHub Discussions로 소통합니다.
+          </p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button type="button" onclick="openWritePostModal()"
+            class="px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white transition shadow-sm">
+            ✍️ 새 정보공유 글 작성 / 제보하기
+          </button>
+          <a href="https://github.com/rlaguswls13/k-cert-hub/issues/new?title=%5B%EB%B3%B5%EC%9B%90%EC%A0%9C%EB%B3%B4%2F%ED%95%A9%EA%B2%A9%EC%88%98%EA%B8%B0%5D+&body=%EC%9E%90%EA%B2%A9%EC%A6%9D+%EC%A2%85%EB%AA%A9%3A+%0A%EC%A0%9C%EB%B3%B4+%EB%82%B4%EC%9A%A9%3A+"
+            target="_blank" rel="noopener"
+            class="px-3 py-2 rounded-xl text-xs font-semibold border border-[var(--border)] bg-[var(--background)] hover:border-blue-500 text-slate-200">
+            🚀 GitHub 공식 이슈로 제보 등록 ↗
+          </a>
+        </div>
+      </div>
+
+      <!-- Category Filter Buttons -->
+      <div class="flex flex-wrap gap-1.5" role="group" aria-label="커뮤니티 글 분류">
+        <button type="button" onclick="filterCommunityPosts('ALL')" id="commFilter-ALL"
+          class="px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-600 text-white">전체 글</button>
+        <button type="button" onclick="filterCommunityPosts('합격수기')" id="commFilter-합격수기"
+          class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-[var(--border)] bg-[var(--card)] text-slate-300">🏆 합격수기</button>
+        <button type="button" onclick="filterCommunityPosts('암기꿀팁')" id="commFilter-암기꿀팁"
+          class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-[var(--border)] bg-[var(--card)] text-slate-300">💡 과목별 암기꿀팁</button>
+        <button type="button" onclick="filterCommunityPosts('복원제보')" id="commFilter-복원제보"
+          class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-[var(--border)] bg-[var(--card)] text-slate-300">🔥 최신 기출 복원제보</button>
+      </div>
+
+      <!-- Community Posts Grid -->
+      <div id="communityPostsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+
+      <!-- GitHub Discussions / Giscus Live Channel Box -->
+      <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-5 flex flex-col gap-3">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h3 class="text-sm font-bold text-white">🗣️ 실시간 자유 Q&amp;A 및 스터디 모집 (GitHub Discussions 연동)</h3>
+            <p class="text-xs text-[var(--muted-foreground)]">
+              별도 회원가입 없이 GitHub 계정으로 댓글을 남기거나 질문·답변을 공유할 수 있습니다.
+            </p>
+          </div>
+          <a href="https://github.com/rlaguswls13/k-cert-hub/issues" target="_blank" rel="noopener"
+            class="text-xs font-bold text-blue-400 hover:underline">
+            전체 토론 스레드 보기 ↗
+          </a>
+        </div>
+        <div id="giscusContainer" class="p-4 rounded-xl bg-[var(--background)] border border-[var(--border)] text-xs text-slate-400">
+          <script src="https://giscus.app/client.js"
+                  data-repo="rlaguswls13/k-cert-hub"
+                  data-repo-id=""
+                  data-category="General"
+                  data-category-id=""
+                  data-mapping="pathname"
+                  data-strict="0"
+                  data-reactions-enabled="1"
+                  data-emit-metadata="0"
+                  data-input-position="top"
+                  data-theme="dark_dimmed"
+                  data-lang="ko"
+                  crossorigin="anonymous"
+                  async>
+          </script>
+          <p class="mt-2 text-slate-400">
+            💡 상단의 <strong>[✍️ 새 정보공유 글 작성]</strong> 버튼으로 브라우저에 즉시 글을 게시하거나, <strong>[🚀 GitHub 공식 이슈로 제보 등록]</strong>을 통해 전체 사용자와 영구 공유할 수 있습니다.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         TAB 4: 시험일정 · 테크트리 · 기여 안내 (Roadmap)
+         ========================================== -->
+    <section id="section-roadmap" class="hidden flex-col gap-5">
+      <!-- Career Tech-Tree -->
+      <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-5 flex flex-col gap-4">
+        <div>
+          <h2 class="text-base font-bold text-white">🗺️ 직무별 국가·민간 자격증 추천 테크트리 (단계별 시너지 로드맵)</h2>
+          <p class="text-xs text-[var(--muted-foreground)]">
+            시험 범위가 겹치는 자격증을 순서대로 취득하면 학습 시간을 절반 이하로 줄일 수 있습니다.
+          </p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+          <div class="p-4 rounded-xl bg-[var(--background)] border border-[var(--border)] flex flex-col gap-2">
+            <span class="text-blue-400 font-bold">🚀 트랙 A. SW 개발 · 아키텍트 표준 루트</span>
+            <div class="font-bold text-white text-sm">SQLD ➔ 정보처리기사 ➔ 정보관리기술사</div>
+            <p class="text-slate-400 leading-relaxed">
+              1단계 <strong>SQLD</strong>로 SQL·정규화 기초를 다진 뒤, 2단계 <strong>정보처리기사 실기</strong>에서 C/Java/Python 코드 추론과 SW공학을 완성하고, 현업 경력을 쌓아 3단계 <strong>정보관리기술사</strong>로 도약합니다.
+            </p>
+          </div>
+          <div class="p-4 rounded-xl bg-[var(--background)] border border-[var(--border)] flex flex-col gap-2">
+            <span class="text-emerald-400 font-bold">📊 트랙 B. 데이터 분석 · AI 엔지니어 루트</span>
+            <div class="font-bold text-white text-sm">ADsP ➔ SQLD ➔ 빅데이터분석기사</div>
+            <p class="text-slate-400 leading-relaxed">
+              1단계 <strong>ADsP</strong>로 데이터 마이닝·통계 이론을 익히고, 2단계 <strong>빅데이터분석기사 실기</strong>에서 Python pandas 전처리와 scikit-learn 머신러닝 파이프라인을 완성합니다.
+            </p>
+          </div>
+          <div class="p-4 rounded-xl bg-[var(--background)] border border-[var(--border)] flex flex-col gap-2">
+            <span class="text-amber-400 font-bold">🛡️ 트랙 C. 보안 · 인프라 엔지니어 루트</span>
+            <div class="font-bold text-white text-sm">정보처리기사 ➔ 정보보안기사 ➔ 기술사/CISSP</div>
+            <p class="text-slate-400 leading-relaxed">
+              <strong>정보처리기사</strong>의 네트워크·시큐어코딩·암호학 파트를 기반으로 <strong>정보보안기사 실기</strong>의 리눅스 시스템 보안, Snort/iptables 실무 및 ISMS-P 법규까지 확장합니다.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Responsive Schedule Table (Modern Web Guidance compliant) -->
+      <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-5 flex flex-col gap-3">
+        <div>
+          <h3 id="schedule-table-caption" class="text-sm font-bold text-white">📅 국가기술자격 &amp; 공인민간자격 연간 시험 일정 및 합격 전략 비교</h3>
+          <p class="text-xs text-[var(--muted-foreground)]">모바일 화면에서는 카드 형태로 자동 전환되며, 키보드 화살표로도 스크롤할 수 있습니다.</p>
+        </div>
+
+        <div tabindex="0" role="region" aria-labelledby="schedule-table-caption" class="table-wrapper rounded-xl border border-[var(--border)]">
+          <table class="responsive-data-table text-left text-xs">
+            <thead>
+              <tr class="border-b border-[var(--border)] text-[var(--muted-foreground)]">
+                <th class="py-3 px-4">자격증 종목</th>
+                <th class="py-3 px-4">자격 구분</th>
+                <th class="py-3 px-4">시행 회차</th>
+                <th class="py-3 px-4">필기 / 1차 일정</th>
+                <th class="py-3 px-4">실기 / 면접 일정</th>
+                <th class="py-3 px-4">핵심 합격 전략</th>
+              </tr>
+            </thead>
+            <tbody id="scheduleTableBody" class="divide-y divide-[var(--border)]"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-[var(--border)] bg-[var(--card)] py-5 px-4 mt-8 text-xs text-[var(--muted-foreground)]">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      <div>
+        <strong class="text-slate-200">K-Cert Hub</strong> — 국가기술자격(정보처리기사, 정보관리기술사, 정보보안기사, 빅데이터분석기사) &amp; 민간자격(SQLD, ADsP) 통합 플랫폼
+      </div>
+      <div class="flex gap-4">
+        <a href="./certs/eip/index.html" class="hover:text-blue-400">정보처리기사 실기 RDB</a>
+        <a href="./certs/itpe/index.html" class="hover:text-blue-400">정보관리기술사 RDB</a>
+        <a href="./data/hub_catalog.json" target="_blank" class="hover:text-blue-400">통합 카탈로그 JSON</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- =========================================================
+       NATIVE MODAL 1: Mini Study Pack & Question Viewer Dialog
+       (Modern Web Guidance `dialog` Rule 1 compliant)
+       ========================================================= -->
+  <dialog id="studyPackDialog" closedby="any" aria-labelledby="studyPackDialogTitle"
+    class="w-full max-w-3xl rounded-2xl bg-[var(--card)] text-[var(--foreground)] border border-[var(--border)] p-0 shadow-2xl">
+    <div class="p-5 border-b border-[var(--border)] flex items-center justify-between gap-3">
+      <div>
+        <h2 id="studyPackDialogTitle" class="text-base font-bold text-white">자격증 핵심 기출 미니 학습팩</h2>
+        <p id="studyPackDialogSub" class="text-xs text-[var(--muted-foreground)] mt-0.5"></p>
+      </div>
+      <form method="dialog">
+        <button value="close" autofocus class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600">
+          닫기 (Esc)
+        </button>
+      </form>
+    </div>
+    <div id="studyPackDialogBody" class="p-5 max-h-[75vh] overflow-y-auto flex flex-col gap-4 text-xs sm:text-sm"></div>
+  </dialog>
+
+  <!-- =========================================================
+       NATIVE MODAL 2: Community Post Reader & Writer Dialog
+       (Modern Web Guidance `dialog` Rule 1 compliant)
+       ========================================================= -->
+  <dialog id="communityDialog" closedby="any" aria-labelledby="communityDialogTitle"
+    class="w-full max-w-2xl rounded-2xl bg-[var(--card)] text-[var(--foreground)] border border-[var(--border)] p-0 shadow-2xl">
+    <div class="p-5 border-b border-[var(--border)] flex items-center justify-between gap-3">
+      <h2 id="communityDialogTitle" class="text-base font-bold text-white">정보공유 상세 보기</h2>
+      <form method="dialog">
+        <button value="close" autofocus class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600">
+          닫기 (Esc)
+        </button>
+      </form>
+    </div>
+    <div id="communityDialogBody" class="p-5 max-h-[75vh] overflow-y-auto flex flex-col gap-4 text-xs sm:text-sm"></div>
+  </dialog>
+
+  <script>
+    let HUB_DATA = null;
+    let UNIFIED_INDEX = [];
+    let currentCertFilter = 'ALL';
+    let currentCommFilter = 'ALL';
+    let customPosts = JSON.parse(localStorage.getItem('kcert_custom_posts_v1') || '[]');
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    // Modern Web Guidance `dialog` fallback for browsers lacking native `closedby="any"`
+    if (!('closedBy' in HTMLDialogElement.prototype)) {
+      const outside = (e, dialog) => {
+        const r = dialog.getBoundingClientRect();
+        return e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom;
+      };
+      for (const dialog of document.querySelectorAll('dialog[closedby="any"]')) {
+        let pressedOutside = false;
+        dialog.addEventListener('pointerdown', (e) => { pressedOutside = outside(e, dialog); });
+        dialog.addEventListener('pointerup', (e) => { if (pressedOutside && outside(e, dialog)) dialog.close(); });
+      }
+    }
+
+    async function initHub() {
+      const hubRes = await fetch('./data/hub_catalog.json');
+      HUB_DATA = await hubRes.json();
+
+      renderCertCards();
+      renderScheduleTable();
+      renderCommunityPosts();
+
+      // Load EIP (380+20) and ITPE (95+20) RDB JSONs in background for instant Cross-Cert Search
+      const [eipData, itpeData] = await Promise.all([
+        fetch('./certs/eip/data/eip_rdb_export.json').then(r => r.json()).catch(() => null),
+        fetch('./certs/itpe/data/itpe_rdb_export.json').then(r => r.json()).catch(() => null)
+      ]);
+
+      buildUnifiedSearchIndex(eipData, itpeData);
+    }
+
+    function buildUnifiedSearchIndex(eipData, itpeData) {
+      UNIFIED_INDEX = [];
+
+      if (eipData && Array.isArray(eipData.questions)) {
+        eipData.questions.forEach(q => {
+          UNIFIED_INDEX.push({
+            cert: '정보처리기사',
+            badge: `${q.round_label || ''} ${q.question_no}번`,
+            category: `${q.major_category || ''} > ${q.minor_category || ''}`,
+            title: q.title || '',
+            question: (q.question_text || '') + (q.code_snippet ? '\n' + q.code_snippet : ''),
+            answer: q.answer_text || '',
+            explanation: q.explanation || '',
+            link: './certs/eip/index.html'
+          });
+        });
+      }
+
+      if (itpeData && Array.isArray(itpeData.questions)) {
+        itpeData.questions.forEach(q => {
+          UNIFIED_INDEX.push({
+            cert: '정보관리기술사',
+            badge: `제${q.round_id}회 ${q.period}교시`,
+            category: q.domain_name || '기술사 서브노트',
+            title: q.topic_title || '',
+            question: q.definition_summary || '',
+            answer: `[필수 키워드] ${q.core_keywords || ''}\n[4단 목차] ${q.standard_outline || ''}`,
+            explanation: (q.architecture_diagram || '') + '\n\n' + (q.practical_insight || ''),
+            link: './certs/itpe/index.html'
+          });
+        });
+      }
+
+      if (HUB_DATA && Array.isArray(HUB_DATA.certifications)) {
+        HUB_DATA.certifications.forEach(c => {
+          (c.quick_questions || []).forEach(qq => {
+            UNIFIED_INDEX.push({
+              cert: c.name.replace(' 실기', ''),
+              badge: qq.q_no,
+              category: `${qq.domain} (${qq.type})`,
+              title: qq.title,
+              question: qq.question,
+              answer: qq.answer,
+              explanation: qq.explanation,
+              link: c.url
+            });
+          });
+        });
+      }
+
+      document.getElementById('totalIndexedCount').textContent = `${UNIFIED_INDEX.length}`;
+      document.getElementById('kpiQuestionCount').textContent = `${UNIFIED_INDEX.length}문항`;
+    }
+
+    function switchHubTab(tab) {
+      ['study', 'search', 'community', 'roadmap'].forEach(t => {
+        document.getElementById(`section-${t}`).classList.toggle('hidden', t !== tab);
+        document.getElementById(`section-${t}`).classList.toggle('flex', t === tab);
+        const btn = document.getElementById(`hubTab-${t}`);
+        if (t === tab) {
+          btn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-blue-600 text-white';
+        } else {
+          btn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-300 hover:bg-slate-800';
+        }
+      });
+    }
+
+    function filterCertCards(filter) {
+      currentCertFilter = filter;
+      ['ALL', '국가기술자격', '민간자격'].forEach(f => {
+        const btn = document.getElementById(`certFilter-${f}`);
+        if (f === filter) {
+          btn.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-600 text-white';
+        } else {
+          btn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold border border-[var(--border)] bg-[var(--background)] text-slate-300';
+        }
+      });
+      renderCertCards();
+    }
+
+    function renderCertCards() {
+      const grid = document.getElementById('certCardsGrid');
+      const certs = (HUB_DATA.certifications || []).filter(c => {
+        if (currentCertFilter === 'ALL') return true;
+        return c.category.includes(currentCertFilter);
+      });
+
+      grid.innerHTML = certs.map((c, idx) => {
+        const isFullApp = c.status === 'active';
+        const deferredClass = idx >= 4 ? 'heavy-section-deferred' : '';
+        const badgeStyle = isFullApp
+          ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+          : 'bg-amber-500/20 text-amber-300 border-amber-500/30';
+
+        const primaryAction = isFullApp
+          ? `<a href="${escapeHtml(c.url)}" class="flex-1 text-center py-2 px-3 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white transition shadow">
+               🚀 전용 RDB 학습관 열기 (${c.question_count + c.predicted_count}문항)
+             </a>`
+          : `<button type="button" onclick="openMiniStudyPack('${escapeHtml(c.id)}')" class="flex-1 text-center py-2 px-3 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white transition shadow">
+               📖 핵심 기출 미니 학습팩 열기
+             </button>`;
+
+        return `
+          <article class="${deferredClass} bg-[var(--card)] border border-[var(--border)] hover:border-blue-500/60 rounded-2xl p-5 flex flex-col justify-between gap-4 transition shadow-sm">
+            <div class="flex flex-col gap-2.5">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-[11px] font-bold text-blue-400">${escapeHtml(c.category)} · ${escapeHtml(c.level)}</span>
+                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${badgeStyle}">${escapeHtml(c.badge)}</span>
+              </div>
+              <h3 class="text-base font-extrabold text-white">${escapeHtml(c.name)}</h3>
+              <p class="text-xs text-slate-300 leading-relaxed">${escapeHtml(c.summary)}</p>
+
+              <div class="p-3 rounded-xl bg-[var(--background)] border border-[var(--border)] text-[11px] text-slate-400 flex flex-col gap-1">
+                <div><strong class="text-slate-200">수록 범위:</strong> ${escapeHtml(c.rounds_range)}</div>
+                <div><strong class="text-slate-200">시험 방식:</strong> ${escapeHtml(c.exam_type)}</div>
+                <div><strong class="text-slate-200">합격 기준:</strong> ${escapeHtml(c.pass_criteria)}</div>
+              </div>
+
+              <div class="flex flex-wrap gap-1.5 pt-1">
+                ${(c.key_tags || []).map(tag => `
+                  <button type="button" onclick="jumpToSearchKeyword('${escapeHtml(tag.replace(/\(.*\)/, ''))}')"
+                    class="px-2 py-0.5 rounded-md text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700">
+                    #${escapeHtml(tag)}
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2 pt-2 border-t border-[var(--border)]">
+              ${primaryAction}
+              <button type="button" onclick="jumpToCertSearch('${escapeHtml(c.name.replace(' 실기', ''))}')"
+                class="py-2 px-3 rounded-xl text-xs font-semibold border border-[var(--border)] bg-[var(--background)] hover:border-blue-400 text-slate-200">
+                🔍 문항 검색
+              </button>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    function openMiniStudyPack(certId) {
+      const cert = (HUB_DATA.certifications || []).find(c => c.id === certId);
+      if (!cert) return;
+      const dlg = document.getElementById('studyPackDialog');
+      document.getElementById('studyPackDialogTitle').textContent = `📘 ${cert.name} — 핵심 기출 & 요약 학습팩`;
+      document.getElementById('studyPackDialogSub').textContent = `${cert.exam_type} | ${cert.pass_criteria}`;
+
+      const questions = cert.quick_questions || [];
+      document.getElementById('studyPackDialogBody').innerHTML = questions.map(q => `
+        <div class="p-4 rounded-xl bg-[var(--background)] border border-[var(--border)] flex flex-col gap-2.5">
+          <div class="flex items-center justify-between gap-2">
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-500/20 text-blue-400">${escapeHtml(q.q_no)} · ${escapeHtml(q.domain)}</span>
+            <span class="text-xs text-slate-400">${escapeHtml(q.type)}</span>
+          </div>
+          <h4 class="font-bold text-white text-sm">${escapeHtml(q.title)}</h4>
+          <pre class="p-3 rounded-lg bg-slate-900/90 border border-slate-800 text-xs text-slate-200 whitespace-pre-wrap">${escapeHtml(q.question)}</pre>
+          <details class="group rounded-lg bg-emerald-950/30 border border-emerald-500/30 p-3">
+            <summary class="cursor-pointer text-xs font-bold text-emerald-400">✅ 정답 및 핵심 해설 보기 (클릭)</summary>
+            <div class="mt-2 pt-2 border-t border-emerald-500/20 flex flex-col gap-2 text-xs">
+              <pre class="text-emerald-300 font-semibold whitespace-pre-wrap">${escapeHtml(q.answer)}</pre>
+              <p class="text-slate-300 leading-relaxed">${escapeHtml(q.explanation)}</p>
+            </div>
+          </details>
+        </div>
+      `).join('');
+
+      dlg.showModal();
+    }
+
+    function triggerCrossSearch(val) {
+      if (val && val.trim().length > 0) {
+        switchHubTab('search');
+        const mainInput = document.getElementById('mainCrossSearchInput');
+        mainInput.value = val;
+        renderCrossSearchResults(val);
+      }
+    }
+
+    function jumpToSearchKeyword(kw) {
+      switchHubTab('search');
+      document.getElementById('searchCertScope').value = 'ALL';
+      const mainInput = document.getElementById('mainCrossSearchInput');
+      mainInput.value = kw;
+      renderCrossSearchResults(kw);
+    }
+
+    function jumpToCertSearch(certName) {
+      switchHubTab('search');
+      document.getElementById('searchCertScope').value = certName;
+      const mainInput = document.getElementById('mainCrossSearchInput');
+      renderCrossSearchResults(mainInput.value || '');
+    }
+
+    function renderCrossSearchResults(query) {
+      const q = (query || '').trim().toLowerCase();
+      const scope = document.getElementById('searchCertScope').value;
+      const container = document.getElementById('crossSearchResultsContainer');
+      const badge = document.getElementById('searchStatsBadge');
+
+      const matches = UNIFIED_INDEX.filter(item => {
+        if (scope !== 'ALL' && !item.cert.includes(scope)) return false;
+        if (!q) return true;
+        const hay = `${item.cert} ${item.badge} ${item.category} ${item.title} ${item.question} ${item.answer} ${item.explanation}`.toLowerCase();
+        return hay.includes(q);
+      });
+
+      badge.textContent = `검색 결과: 총 ${matches.length}건 (상위 40건 표시)`;
+
+      const sliced = matches.slice(0, 40);
+      if (!sliced.length) {
+        container.innerHTML = `
+          <div class="p-8 rounded-xl bg-[var(--card)] border border-[var(--border)] text-center text-sm text-slate-400">
+            일치하는 문항이 없습니다. 다른 키워드(예: <code>OSPF</code>, <code>정규화</code>, <code>포인터</code>, <code>SQL</code>, <code>제로트러스트</code>)로 검색해 보세요.
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = sliced.map((item, idx) => {
+        const deferredClass = idx >= 4 ? 'heavy-section-deferred' : '';
+        const isExternalApp = item.link.startsWith('./certs/');
+        return `
+          <article class="${deferredClass} bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 flex flex-col gap-2.5">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="flex items-center gap-2">
+                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30">${escapeHtml(item.cert)}</span>
+                <span class="text-xs font-semibold text-slate-300">${escapeHtml(item.badge)}</span>
+                <span class="text-xs text-slate-500">· ${escapeHtml(item.category)}</span>
+              </div>
+              ${isExternalApp ? `<a href="${escapeHtml(item.link)}" class="text-xs font-bold text-blue-400 hover:underline">전용 학습관에서 열기 ↗</a>` : ''}
+            </div>
+            <h3 class="text-sm font-bold text-white">${escapeHtml(item.title)}</h3>
+            <pre class="p-3 rounded-lg bg-[var(--background)] border border-[var(--border)] text-xs text-slate-200 whitespace-pre-wrap overflow-x-auto">${escapeHtml(item.question.slice(0, 420))}${item.question.length > 420 ? '...' : ''}</pre>
+            <details class="rounded-lg bg-emerald-950/25 border border-emerald-500/30 p-2.5">
+              <summary class="cursor-pointer text-xs font-bold text-emerald-400">정답 및 핵심 해설 확인</summary>
+              <div class="mt-2 pt-2 border-t border-emerald-500/20 text-xs flex flex-col gap-1.5">
+                <div class="font-bold text-emerald-300 whitespace-pre-wrap">${escapeHtml(item.answer)}</div>
+                <div class="text-slate-300 whitespace-pre-wrap">${escapeHtml(item.explanation)}</div>
+              </div>
+            </details>
+          </article>
+        `;
+      }).join('');
+    }
+
+    function filterCommunityPosts(cat) {
+      currentCommFilter = cat;
+      ['ALL', '합격수기', '암기꿀팁', '복원제보'].forEach(c => {
+        const btn = document.getElementById(`commFilter-${c}`);
+        if (c === cat) {
+          btn.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-600 text-white';
+        } else {
+          btn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold border border-[var(--border)] bg-[var(--card)] text-slate-300';
+        }
+      });
+      renderCommunityPosts();
+    }
+
+    function getAllPosts() {
+      return [...customPosts, ...(HUB_DATA.community_posts || [])];
+    }
+
+    function renderCommunityPosts() {
+      const grid = document.getElementById('communityPostsGrid');
+      const posts = getAllPosts().filter(p => currentCommFilter === 'ALL' || p.category === currentCommFilter);
+
+      grid.innerHTML = posts.map((p, idx) => `
+        <article class="bg-[var(--card)] border border-[var(--border)] hover:border-blue-500/60 rounded-xl p-5 flex flex-col justify-between gap-3 transition">
+          <div class="flex flex-col gap-2">
+            <div class="flex items-center justify-between gap-2 text-xs">
+              <span class="px-2.5 py-0.5 rounded-full font-bold bg-blue-500/20 text-blue-400">${escapeHtml(p.category)} · ${escapeHtml(p.cert_name)}</span>
+              <span class="text-slate-400">${escapeHtml(p.date)} · 👍 ${p.likes || 1}</span>
+            </div>
+            <h3 class="text-sm sm:text-base font-bold text-white">${escapeHtml(p.title)}</h3>
+            <p class="text-xs text-slate-300 leading-relaxed">${escapeHtml(p.summary)}</p>
+          </div>
+          <div class="flex items-center justify-between pt-3 border-t border-[var(--border)] text-xs">
+            <span class="text-slate-400">작성자: <strong class="text-slate-200">${escapeHtml(p.author)}</strong></span>
+            <button type="button" onclick="openPostDetail('${escapeHtml(p.id)}')"
+              class="px-3 py-1.5 rounded-lg font-bold bg-slate-800 hover:bg-blue-600 text-white transition">
+              상세 전문 읽기 →
+            </button>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    function openPostDetail(postId) {
+      const post = getAllPosts().find(p => p.id === postId);
+      if (!post) return;
+      const dlg = document.getElementById('communityDialog');
+      document.getElementById('communityDialogTitle').textContent = `[${post.category}] ${post.title}`;
+      document.getElementById('communityDialogBody').innerHTML = `
+        <div class="flex items-center justify-between text-xs text-slate-400 pb-2 border-b border-[var(--border)]">
+          <span>대상 자격증: <strong class="text-blue-400">${escapeHtml(post.cert_name)}</strong> | 작성자: ${escapeHtml(post.author)}</span>
+          <span>${escapeHtml(post.date)}</span>
+        </div>
+        <div class="p-4 rounded-xl bg-[var(--background)] border border-[var(--border)] text-xs sm:text-sm text-slate-200 whitespace-pre-wrap leading-relaxed">${escapeHtml(post.body)}</div>
+      `;
+      dlg.showModal();
+    }
+
+    function openWritePostModal() {
+      const dlg = document.getElementById('communityDialog');
+      document.getElementById('communityDialogTitle').textContent = '✍️ 새 합격수기 · 암기꿀팁 · 복원문제 공유하기';
+      document.getElementById('communityDialogBody').innerHTML = `
+        <div class="flex flex-col gap-3 text-xs">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div>
+              <label class="block text-slate-300 font-bold mb-1">분류</label>
+              <select id="newPostCat" class="w-full px-3 py-2 rounded-lg bg-[var(--background)] border border-[var(--border)] text-white">
+                <option value="합격수기">🏆 합격수기</option>
+                <option value="암기꿀팁">💡 과목별 암기꿀팁</option>
+                <option value="복원제보">🔥 최신 기출 복원제보</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-slate-300 font-bold mb-1">자격증 종목</label>
+              <input id="newPostCert" type="text" value="정보처리기사 실기" class="w-full px-3 py-2 rounded-lg bg-[var(--background)] border border-[var(--border)] text-white" />
+            </div>
+          </div>
+          <div>
+            <label class="block text-slate-300 font-bold mb-1">제목</label>
+            <input id="newPostTitle" type="text" placeholder="예: 2026년 3회차 C언어 포인터 문제 풀이 팁 공유합니다" class="w-full px-3 py-2 rounded-lg bg-[var(--background)] border border-[var(--border)] text-white" />
+          </div>
+          <div>
+            <label class="block text-slate-300 font-bold mb-1">핵심 한줄 요약</label>
+            <input id="newPostSummary" type="text" placeholder="목록 카드에 표시될 핵심 요약" class="w-full px-3 py-2 rounded-lg bg-[var(--background)] border border-[var(--border)] text-white" />
+          </div>
+          <div>
+            <label class="block text-slate-300 font-bold mb-1">본문 내용</label>
+            <textarea id="newPostBody" rows="6" placeholder="자세한 학습 팁, 복원 문제, 합격 노하우를 작성해 주세요." class="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)] text-white"></textarea>
+          </div>
+          <div class="flex justify-end gap-2 pt-2">
+            <button type="button" onclick="saveNewCommunityPost()" class="px-4 py-2 rounded-xl font-bold bg-emerald-600 hover:bg-emerald-500 text-white">
+              라운지에 즉시 등록
+            </button>
+          </div>
+        </div>
+      `;
+      dlg.showModal();
+    }
+
+    function saveNewCommunityPost() {
+      const cat = document.getElementById('newPostCat').value;
+      const certName = document.getElementById('newPostCert').value.trim() || '공통';
+      const title = document.getElementById('newPostTitle').value.trim();
+      const summary = document.getElementById('newPostSummary').value.trim();
+      const body = document.getElementById('newPostBody').value.trim();
+      if (!title || !body) {
+        alert('제목과 본문을 입력해 주세요.');
+        return;
+      }
+      const newPost = {
+        id: 'custom-' + Date.now(),
+        category: cat,
+        cert_name: certName,
+        title,
+        summary: summary || body.slice(0, 90),
+        body,
+        author: '수험생 기여자',
+        date: new Date().toISOString().slice(0, 10),
+        likes: 1
+      };
+      customPosts.unshift(newPost);
+      localStorage.setItem('kcert_custom_posts_v1', JSON.stringify(customPosts));
+      renderCommunityPosts();
+      document.getElementById('communityDialog').close();
+    }
+
+    function renderScheduleTable() {
+      const tbody = document.getElementById('scheduleTableBody');
+      tbody.innerHTML = (HUB_DATA.schedules_2026 || []).map(s => `
+        <tr>
+          <th scope="row" class="py-3 px-4 font-bold text-white">${escapeHtml(s.cert_name)}</th>
+          <td class="py-3 px-4 text-blue-400 font-semibold">${escapeHtml(s.category)}</td>
+          <td class="py-3 px-4 text-slate-300">${escapeHtml(s.round)}</td>
+          <td class="py-3 px-4 text-slate-300">${escapeHtml(s.written_period)}</td>
+          <td class="py-3 px-4 text-emerald-400 font-semibold">${escapeHtml(s.practical_period)}</td>
+          <td class="py-3 px-4 text-slate-300">${escapeHtml(s.tip)}</td>
+        </tr>
+      `).join('');
+    }
+
+    initHub();
+  </script>
+</body>
+</html>

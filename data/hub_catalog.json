@@ -1,0 +1,321 @@
+{
+  "meta": {
+    "title": "K-Cert Hub — 국가·민간 자격증 통합 RDB 학습 & 정보공유 채널",
+    "version": "1.0.0",
+    "updated_at": "2026-10-29",
+    "repo_url": "https://github.com/rlaguswls13/k-cert-hub",
+    "pages_url": "https://rlaguswls13.github.io/k-cert-hub/"
+  },
+  "certifications": [
+    {
+      "id": "eip",
+      "category": "국가기술자격 (IT·전산)",
+      "level": "기사 (Engineer)",
+      "agency": "한국산업인력공단 (Q-Net)",
+      "name": "정보처리기사 실기",
+      "badge": "LIVE · 380문항 RDB",
+      "status": "active",
+      "url": "./certs/eip/index.html",
+      "question_count": 380,
+      "predicted_count": 20,
+      "rounds_range": "2020년 1회 ~ 2026년 3회 (19개 전 회차)",
+      "exam_type": "필답형 20문항 (단답형·빈칸·코드 실행 결과 추론) / 150분",
+      "pass_criteria": "100점 만점 중 60점 이상 (부분점수 적용)",
+      "summary": "2020년 교육과정 개편 이후 2026년 3회까지 19개 회차 380문항 전수 RDB화. C/Java/Python 코드 추론, SQL, 네트워크, 보안, SW공학 18개 주제별 출제 주기 분석 및 3대 학습 모드(실전 풀이·빠른 정답·상세 해설) 지원.",
+      "key_tags": [
+        "C포인터",
+        "Java상속",
+        "Python문자열",
+        "SQL조인/집계",
+        "라우팅(OSPF)",
+        "디자인패턴",
+        "정규화/회복"
+      ],
+      "quick_questions": []
+    },
+    {
+      "id": "itpe",
+      "category": "국가기술자격 (IT·전산)",
+      "level": "기술사 (Professional Engineer)",
+      "agency": "한국산업인력공단 (Q-Net)",
+      "name": "정보관리기술사",
+      "badge": "LIVE · 4단 서브노트 RDB",
+      "status": "active",
+      "url": "./certs/itpe/index.html",
+      "question_count": 95,
+      "predicted_count": 20,
+      "rounds_range": "제120회(2020년) ~ 제140회(2026년) 21개 회차",
+      "exam_type": "논술형 1~4교시 (1교시 단답형 10문항 선택, 2~4교시 서술형 4문항 선택) / 교시당 100분",
+      "pass_criteria": "100점 만점 중 평균 60점 이상 (4단 목차·도해·비교표·실무 제언 채점)",
+      "summary": "제120회~제140회 8대 도메인(AI·데이터·SW공학·보안·클라우드·네트워크·법제도·알고리즘) 기출을 기술사 표준 4단 목차(정의→구조/도해→비교표→실무 제언)로 정제한 서브노트 RDB 및 10분/25분 타이머 탑재.",
+      "key_tags": [
+        "Agentic AI/RAG",
+        "제로트러스트",
+        "MSA/K8s",
+        "인공지능기본법",
+        "PQC(양자내성암호)",
+        "데이터거버넌스"
+      ],
+      "quick_questions": []
+    },
+    {
+      "id": "isec",
+      "category": "국가기술자격 (IT·전산)",
+      "level": "기사 (Engineer)",
+      "agency": "한국인터넷진흥원(KISA) / 한국방송통신전파진흥원",
+      "name": "정보보안기사 실기",
+      "badge": "미니 학습팩 탑재",
+      "status": "preview",
+      "url": "#preview-isec",
+      "question_count": 25,
+      "predicted_count": 10,
+      "rounds_range": "최신 ISMS-P 및 침해사고 대응 핵심 기출",
+      "exam_type": "단답형 + 서술형 + 실무/로그 분석형 (총 16~18문항)",
+      "pass_criteria": "100점 만점 중 60점 이상",
+      "summary": "시스템·네트워크·애플리케이션 보안 설정(iptables, Snort 룰, Apache/Linux 보안 설정), 웹 취약점(XSS, CSRF, SQLi) 방어 대책 및 개인정보보호법·ISMS-P 인증 기준을 다루는 최상위 난이도 보안 기사 자격.",
+      "key_tags": [
+        "Snort룰작성",
+        "iptables방화벽",
+        "리눅스취약점",
+        "ISMS-P",
+        "개인정보보호법",
+        "웹모의해킹"
+      ],
+      "quick_questions": [
+        {
+          "q_no": "보안-01",
+          "domain": "네트워크 보안",
+          "type": "실무/설정",
+          "title": "Snort IDS 룰(Rule) 헤더 및 옵션 분석",
+          "question": "다음 Snort 룰이 탐지하는 공격 유형과 각 옵션(content, nocase, threshold)의 의미를 서술하시오.\n\nalert tcp any any -> 192.168.1.0/24 80 (msg:\"SQL Injection Attempt\"; content:\"UNION SELECT\"; nocase; sid:100001; rev:1;)",
+          "answer": "공격 유형: SQL Injection (UNION 기반 SQL 인젝션 공격)\n- content:\"UNION SELECT\": 패킷 페이로드 내에 'UNION SELECT' 문자열 포함 여부 검사\n- nocase: 대소문자 구분 없이 매칭\n- sid:100001 / rev:1: 스노트 룰 식별자(100001) 및 리비전 번호(1)",
+          "explanation": "정보보안기사 실기에서는 Snort 룰의 threshold(type limit/threshold/both, track by_src/by_dst, count N, seconds S) 작성 및 해석 문제가 매회 출제됩니다."
+        },
+        {
+          "q_no": "보안-02",
+          "domain": "시스템 보안",
+          "type": "단답/서술",
+          "title": "Linux SetUID 특수 권한 점검 명령어",
+          "question": "리눅스 시스템에서 root 소유의 파일 중 SetUID 비트가 설정된 모든 일반 파일을 루트(/) 디렉터리부터 검색하는 find 명령어를 작성하시오.",
+          "answer": "find / -user root -perm -4000 -type f 2>/dev/null",
+          "explanation": "SetUID(4000), SetGID(2000), Sticky Bit(1000)의 8진수 권한 값과 find 명령어의 -perm -4000 옵션은 정보보안기사와 정보처리기사 공통 핵심 빈출 주제입니다."
+        },
+        {
+          "q_no": "보안-03",
+          "domain": "정보보호 법규",
+          "type": "서술형",
+          "title": "개인정보의 안전성 확보조치 기준 - 비밀번호 일방향 암호화 및 접근통제",
+          "question": "개인정보처리자가 정보통신망을 통해 개인정보 및 인증정보를 송·수신할 때 이행해야 하는 보호조치와 비밀번호 저장 시 암호화 원칙을 서술하시오.",
+          "answer": "1) 전송 시 구간 암호화: TLS(SSL) 등 안전한 보안 서버 구축 또는 암호화 통신 적용\n2) 비밀번호 저장 시: 복호화가 불가능한 일방향(해시) 암호화(SHA-256/512 + Salt 등)를 적용하여 저장",
+          "explanation": "개인정보의 기술적·관리적 보호조치 기준 및 안전성 확보조치 기준은 서술형 단골 출제 영역입니다."
+        }
+      ]
+    },
+    {
+      "id": "bda",
+      "category": "국가기술자격 (IT·전산)",
+      "level": "기사 (Engineer)",
+      "agency": "한국데이터산업진흥원 (K-Data)",
+      "name": "빅데이터분석기사 실기",
+      "badge": "미니 학습팩 탑재",
+      "status": "preview",
+      "url": "#preview-bda",
+      "question_count": 30,
+      "predicted_count": 10,
+      "rounds_range": "제2회~제11회 작업형(제1~3유형) 핵심 패턴",
+      "exam_type": "작업형 100% (제1유형 데이터 전처리 3문항, 제2유형 머신러닝 모델링 1문항, 제3유형 통계적 가설검정 2문항) / 180분",
+      "pass_criteria": "100점 만점 중 60점 이상 (Python/R 코딩 환경 제출)",
+      "summary": "단답형 폐지 후 100% 코딩 작업형(제1유형 pandas 전처리, 제2유형 RandomForest/LightGBM 분류·회귀 파이프라인, 제3유형 scipy.stats 카이제곱·t-검정·로지스틱 회귀)으로 개편된 국가기술자격.",
+      "key_tags": [
+        "pandas전처리",
+        "RandomForest",
+        "LightGBM",
+        "ROC-AUC/F1",
+        "scipy가설검정",
+        "로지스틱회귀"
+      ],
+      "quick_questions": [
+        {
+          "q_no": "빅분기-01",
+          "domain": "작업형 제1유형",
+          "type": "코드작성",
+          "title": "결측치 대체 및 이상치(IQR) 필터링 표준 템플릿",
+          "question": "데이터프레임 df의 'age' 컬럼 결측치를 중앙값(median)으로 대체한 후, IQR(사분위수 범위) 기준 이상치를 제외한 행들의 'age' 평균을 소수점 둘째 자리까지 출력하는 Python 코드를 작성하시오.",
+          "answer": "import pandas as pd\ndf['age'] = df['age'].fillna(df['age'].median())\nq1 = df['age'].quantile(0.25)\nq3 = df['age'].quantile(0.75)\niqr = q3 - q1\ncond = (df['age'] >= q1 - 1.5 * iqr) & (df['age'] <= q3 + 1.5 * iqr)\nprint(round(df.loc[cond, 'age'].mean(), 2))",
+          "explanation": "작업형 제1유형에서는 fillna(), quantile(0.25/0.75), groupby().agg(), 날짜/시간 파싱(pd.to_datetime) 조합이 매회 출제됩니다."
+        },
+        {
+          "q_no": "빅분기-02",
+          "domain": "작업형 제3유형",
+          "type": "통계검정",
+          "title": "독립표본 t-검정 및 등분산 검정(Levene / Bartlett)",
+          "question": "두 집단(group A, group B)의 평균 차이를 검정하기 위해 scipy.stats의 ttest_ind를 수행하고 검정통계량과 p-value를 구하는 코드를 작성하시오.",
+          "answer": "from scipy import stats\nstat, pval = stats.ttest_ind(group_a, group_b, equal_var=True)\nprint(round(stat, 4), round(pval, 4))",
+          "explanation": "제3유형에서는 대응표본(ttest_rel), 독립표본(ttest_ind), 일원분산분석(f_oneway), 카이제곱 독립성 검정(chi2_contingency), statsmodels의 logit/ols 요약표 해석이 핵심입니다."
+        }
+      ]
+    },
+    {
+      "id": "sqld",
+      "category": "공인 민간자격 (데이터·클라우드)",
+      "level": "국가공인 민간자격",
+      "agency": "한국데이터산업진흥원 (K-Data)",
+      "name": "SQLD (SQL 개발자)",
+      "badge": "미니 학습팩 탑재",
+      "status": "preview",
+      "url": "#preview-sqld",
+      "question_count": 40,
+      "predicted_count": 15,
+      "rounds_range": "2024~2026년 개정 출제기준 반영",
+      "exam_type": "객관식 50문항 (1과목 데이터 모델링의 이해 10문항, 2과목 SQL 기본 및 활용 40문항) / 90분",
+      "pass_criteria": "총점 60점 이상 (과목당 40% 미만 과락)",
+      "summary": "정보처리기사 실기 SQL 문항과 80% 이상 겹치며 함께 취득하기 가장 좋은 데이터 필수 자격증. NULL 연산 규칙, 윈도우 함수(RANK/DENSE_RANK/ROW_NUMBER), 그룹 함수(ROLLUP/CUBE/GROUPING SETS), 계층형 질의 집중 대비.",
+      "key_tags": [
+        "윈도우함수",
+        "ROLLUP/CUBE",
+        "NULL연산",
+        "계층형질의",
+        "정규화/반정규화",
+        "트랜잭션격리수준"
+      ],
+      "quick_questions": [
+        {
+          "q_no": "SQLD-01",
+          "domain": "SQL 활용",
+          "type": "결과추론",
+          "title": "ROLLUP vs CUBE vs GROUPING SETS 집계 행 개수 비교",
+          "question": "GROUP BY 컬럼이 (A, B) 2개이고 A의 고유값이 3개, B의 고유값이 2개(모든 조합 존재)일 때, ROLLUP(A, B), CUBE(A, B), GROUPING SETS(A, B)가 출력하는 그룹핑 조합을 각각 비교하시오.",
+          "answer": "- ROLLUP(A, B): (A, B) + (A) + () → 총 3가지 레벨 집계\n- CUBE(A, B): (A, B) + (A) + (B) + () → 총 2^2 = 4가지 레벨 집계\n- GROUPING SETS(A, B): (A)별 집계 + (B)별 집계만 출력 (소계/총계 없음)",
+          "explanation": "ROLLUP은 계층적 소계+총계(N+1개 조합), CUBE는 모든 다차원 조합(2^N개 조합), GROUPING SETS는 명시된 그룹만 독립적으로 UNION ALL한 결과와 같습니다."
+        },
+        {
+          "q_no": "SQLD-02",
+          "domain": "SQL 기본",
+          "type": "개념비교",
+          "title": "NOT IN과 NOT EXISTS에서 NULL 값 포함 시 동작 차이",
+          "question": "서브쿼리 결과 집합에 NULL 값이 포함되어 있을 때 WHERE col NOT IN (서브쿼리)의 결과 건수가 0건이 되는 이유와 해결 방법을 설명하시오.",
+          "answer": "NOT IN (10, 20, NULL)은 col != 10 AND col != 20 AND col != NULL로 풀어쓰여지며, col != NULL의 평가 결과가 UNKNOWN이므로 전체 AND 조건이 거짓(UNKNOWN)이 되어 0건이 반환됩니다. 서브쿼리에 WHERE target IS NOT NULL 조건을 추가하거나 NOT EXISTS를 사용해야 합니다.",
+          "explanation": "SQLD와 정보처리기사 실기 SQL 파트에서 가장 자주 출제되는 NULL 3값 논리(TRUE, FALSE, UNKNOWN) 함정 문제입니다."
+        }
+      ]
+    },
+    {
+      "id": "adsp",
+      "category": "공인 민간자격 (데이터·클라우드)",
+      "level": "국가공인 민간자격",
+      "agency": "한국데이터산업진흥원 (K-Data)",
+      "name": "ADsP (데이터분석 준전문가)",
+      "badge": "미니 학습팩 탑재",
+      "status": "preview",
+      "url": "#preview-adsp",
+      "question_count": 30,
+      "predicted_count": 10,
+      "rounds_range": "제35회~제50회 빈출 이론 요약",
+      "exam_type": "객관식 40문항 + 단답형 10문항 (총 50문항) / 90분",
+      "pass_criteria": "총점 60점 이상 (과목당 40% 미만 과락)",
+      "summary": "빅데이터분석기사 필기/실기의 입문 단계 자격증. 데이터 이해, 분석 마스터플랜(ISP), 분석 거버넌스, 데이터 마이닝(분류·군집·연관규칙 지지도/신뢰도/향상도) 핵심 공식 및 기출 단답형 완벽 정리.",
+      "key_tags": [
+        "연관규칙(LIFT)",
+        "혼동행렬(F1)",
+        "군집분석(K-Means)",
+        "주성분분석(PCA)",
+        "분석거버넌스"
+      ],
+      "quick_questions": [
+        {
+          "q_no": "ADsP-01",
+          "domain": "데이터 마이닝",
+          "type": "계산형",
+          "title": "연관규칙 분석(Association Rule) 지지도·신뢰도·향상도 공식",
+          "question": "전체 거래 100건 중 품목 A 구매가 20건, 품목 B 구매가 25건, A와 B 동시 구매가 10건일 때 규칙 A → B의 지지도(Support), 신뢰도(Confidence), 향상도(Lift)를 구하시오.",
+          "answer": "- 지지도 P(A∩B) = 10 / 100 = 0.1 (10%)\n- 신뢰도 P(A∩B) / P(A) = 0.1 / 0.2 = 0.5 (50%)\n- 향상도 P(B|A) / P(B) = 0.5 / 0.25 = 2.0 (양의 상관관계)",
+          "explanation": "향상도(Lift)가 1이면 두 품목은 독립, 1보다 크면 양의 상관관계(보완재), 1보다 작으면 음의 상관관계입니다."
+        }
+      ]
+    }
+  ],
+  "schedules_2026": [
+    {
+      "cert_name": "정보처리기사 / 정보보안기사",
+      "category": "국가기술자격 (기사)",
+      "round": "2026년 정기 1회 / 2회 / 3회",
+      "written_period": "2~3월 (1회) · 5월 (2회) · 7~8월 (3회)",
+      "practical_period": "4월 (1회) · 7월 (2회) · 10월 24일 (3회 시행 완료)",
+      "tip": "실기 시험은 C/Java/Python 코드 추론과 SQL이 전체 배점의 55%를 차지하므로 코드 역추적 훈련 필수"
+    },
+    {
+      "cert_name": "정보관리기술사 / 컴퓨터시스템응용기술사",
+      "category": "국가기술자격 (기술사)",
+      "round": "제138회 · 제139회 · 제140회 (및 2027년 제141회)",
+      "written_period": "매년 1~2월 · 5월 · 8월 (연 3회 필기 논술 시험)",
+      "practical_period": "필기 합격 후 면접 시험 (4월 · 7월 · 11월)",
+      "tip": "1교시(10분/문항)와 2~4교시(25분/문항) 시간 배분 및 4단 목차(정의-구조도-비교표-실무제언) 체화가 당락 결정"
+    },
+    {
+      "cert_name": "빅데이터분석기사",
+      "category": "국가기술자격 (기사)",
+      "round": "제12회 · 제13회 (연 2회)",
+      "written_period": "4월 (상반기) · 9월 (하반기)",
+      "practical_period": "6월 (상반기) · 11~12월 (하반기)",
+      "tip": "실기 100% Python/R 코딩 작업형 — pandas 결측치/집계 및 sklearn RandomForest/LightGBM 템플릿 암기"
+    },
+    {
+      "cert_name": "SQLD (SQL 개발자) / ADsP",
+      "category": "국가공인 민간자격",
+      "round": "연 4회 (분기별 1회 시행)",
+      "written_period": "3월 · 5~6월 · 8~9월 · 11월",
+      "practical_period": "단일 시험 (CBT/PBT 90분)",
+      "tip": "정보처리기사 준비 전후로 SQLD를 응시하면 데이터베이스·SQL 과목을 동시에 정복 가능"
+    }
+  ],
+  "community_posts": [
+    {
+      "id": "post-101",
+      "category": "합격수기",
+      "cert_id": "eip",
+      "cert_name": "정보처리기사 실기",
+      "title": "[2026년 3회 가채점 85점] 비전공자 3주 단기 합격 루틴 & 코드 문제 실수 방지법",
+      "author": "dev_pass26",
+      "date": "2026-10-26",
+      "likes": 48,
+      "summary": "2026년 3회차에서도 C언어 재귀+전역변수, 이중포인터, Java 오버라이딩+static, Python 슬라이싱이 그대로 나왔습니다. RDB 기출문제 은행에서 '코드 실행 결과 추론'만 먼저 3회독 돌린 것이 결정적이었습니다.",
+      "body": "### 1. 과목별 시간 투자 비율\n- **프로그래밍 언어(C/Java/Python) & SQL (70% 투자)**: 최근 회차(2025~2026년)는 코드와 SQL만 다 맞아도 55~60점이 나옵니다. 특히 `2026년 3회`에서는 C언어 구조체 배열 포인터(`(p+1)->score`), 2차원 배열 포인터(`*(*(arr+1)+2)`), Java `static` 변수와 인스턴스 메서드 오버라이딩 결합 문제가 출제되었습니다.\n- **이론 단답형 (30% 투자)**: RDB 분석 탭에서 **출제 예상 지수(🔥 1.0 이상)** 인 주제 위주로 봤습니다. 실제로 평균 주기가 도래했던 **병행제어(2PL)**, **라우팅(BGP/AS)**, **화이트박스 테스트(기본 경로/맥케이브 회전수)**, **Gof 디자인 패턴(Observer)** 이 2026년 3회에 적중했습니다!\n\n### 2. 실전 시험장 팁\n1. **실전 풀이 모드(문제만)** 로 두고 손으로 변수 표(메모리 주소/값 변화표)를 그리는 연습을 꼭 하세요.\n2. 출력 형식(`%d`, 줄바꿈 여부, 소수점 출력 여부)을 마지막 10분 동안 반드시 재검산하세요."
+    },
+    {
+      "id": "post-102",
+      "category": "암기꿀팁",
+      "cert_id": "eip",
+      "cert_name": "정보처리기사 · SQLD 공통",
+      "title": "정보처리기사 & SQLD & 정보관리기술사에 동시에 나오는 '데이터베이스 & 네트워크' 핵심 비교표",
+      "author": "rdb_master",
+      "date": "2026-10-25",
+      "likes": 63,
+      "summary": "정규화(1NF~5NF), 라우팅 프로토콜(RIP/OSPF/BGP), 결합도·응집도, 디자인 패턴은 정보처리기사 단답형으로 외워두면 SQLD와 정보관리기술사 1교시까지 그대로 재사용됩니다.",
+      "body": "### 1. 정규화 단계 두문자 (도·부·이·결·다·조)\n- **1NF (도메인 원자값)**: 모든 속성값이 원자값(Atomic Value)\n- **2NF (부분 함수 종속 제거)**: 기본키가 복합키일 때 일부분에만 종속되는 속성 분리\n- **3NF (이행적 함수 종속 제거)**: `A → B` 이고 `B → C` 일 때 `A → C` 제거\n- **BCNF (결정자 후보키)**: 모든 결정자가 후보키(Candidate Key)가 되도록 분해\n- **4NF (다치 종속 제거)** / **5NF (조인 종속 제거)**\n\n### 2. 라우팅 프로토콜 3대장 (RIP vs OSPF vs BGP)\n- **RIP (IGP / 거리 벡터)**: 벨만-포드 알고리즘, 최대 홉 수 15홉 제한, 30초 주기 전체 라우팅 테이블 브로드캐스트\n- **OSPF (IGP / 링크 상태)**: 다익스트라(Dijkstra) SPF 알고리즘, Area 분할, 토폴로지 변화 시에만 멀티캐스트(Flooding) 전파 (2026년 2회 4번 기출)\n- **BGP (EGP / 경로 벡터)**: 자율 시스템(AS, Autonomous System) 간 라우팅, TCP 179번 포트 사용 (2026년 3회 10번 기출)"
+    },
+    {
+      "id": "post-103",
+      "category": "합격수기",
+      "cert_id": "itpe",
+      "cert_name": "정보관리기술사",
+      "title": "정보처리기사 취득 후 정보관리기술사 진입 로드맵 — 4단 목차 서브노트 활용법",
+      "author": "pe_arch",
+      "date": "2026-10-27",
+      "likes": 39,
+      "summary": "기사 시험이 '정답 키워드 맞히기'라면 기술사 시험은 '출제위원을 설득하는 아키텍처 제안서 작성'입니다. 1교시 10분 / 2~4교시 25분 타이머를 켜고 4단 목차 구상 훈련을 반복하세요.",
+      "body": "### 1. 기사 지식에서 기술사 답안으로 확장하는 법\n예를 들어 **'OSPF'나 '제로트러스트(Zero Trust)'** 가 나왔을 때:\n- **정보처리기사**: `Dijkstra 알고리즘`, `Never Trust, Always Verify` 단답 키워드 작성\n- **정보관리기술사 1교시(10점)**:\n  - `I. 개요`: 등장배경(경계 기반 보안의 한계) + 핵심 정의\n  - `II. 아키텍처 및 핵심 구성요소`: PDP(정책결정) / PEP(정책집행) 구조도(ASCII/개념도) + 7대 핵심 요소(사용자, 기기, 네트워크, 워크로드 등)\n  - `III. 기존 경계 보안 vs 제로트러스트 비교표`: 신뢰 기준, 접근 통제 단위(IP vs 마이크로세그멘테이션), 인증 방식(일회성 vs 지속적 검증)\n  - `IV. 도입 시 고려사항 및 실무 제언`: 국가 망보안체계(N2SF) 연계 및 레거시 시스템 단계적 전환 전략"
+    },
+    {
+      "id": "post-104",
+      "category": "복원제보",
+      "cert_id": "eip",
+      "cert_name": "정보처리기사 실기",
+      "title": "[2026년 3회 실기 복원 완료] 1번~20번 전 문항 가답안 및 코드 풀이 검증 정리",
+      "author": "chobopark_study",
+      "date": "2026-10-27",
+      "likes": 92,
+      "summary": "2026년 10월 24일 시행된 2026년 3회 정보처리기사 실기 20문항이 K-Cert Hub의 정보처리기사 RDB(제19회차, QID 361~380)에 전수 반영되었습니다.",
+      "body": "### 2026년 3회차 주요 복원 포인트 요약\n1. **코드 추론 (11문항)**:\n   - C언어: `static` 지역변수 + 재귀(`19`), 구조체 포인터 증감(`177`), `char*` 문자열 포인터 루프(`7`), 2차원 배열 포인터 역참조(`65`), 함수 포인터 배열(`13`), 이중 포인터 swap(`35`)\n   - Java: 상속 생성자 체이닝 및 동적 바인딩(`37`), `static` 필드 공유(`10 20`)\n   - Python: 음수 인덱스 슬라이싱 및 리스트 컴프리헨션(`NNA[9, 25]`), 세트 차집합/대칭차집합(`{1, 3} 4`)\n2. **SQL 및 DB (3문항)**:\n   - `LEFT OUTER JOIN` + `COALESCE` + `HAVING` 그룹 필터링\n   - 관계대수 순수 관계 연산자 기호(`σ`, `π`, `⋈`, `÷`)\n   - 병행제어 **2단계 로킹 규약(2PL, Two-Phase Locking)** (확장 단계 / 축소 단계)"
+    }
+  ]
+}
