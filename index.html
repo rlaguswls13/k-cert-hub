@@ -3,46 +3,187 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>K-Cert Hub — 국가·민간 자격증 통합 RDB 학습 & 정보공유 채널</title>
+  <meta name="color-scheme" content="light" />
+  <script>
+    try {
+      const saved = localStorage.getItem('kcert_theme');
+      const scheme = saved === 'dark' ? 'dark' : 'light';
+      document.documentElement.dataset.theme = scheme;
+      document.querySelector('meta[name="color-scheme"]').content = scheme;
+    } catch (e) {
+      document.documentElement.dataset.theme = 'light';
+    }
+  </script>
+  <title>K-Cert Hub — 국가·민간 자격증 통합 RDB 학습 &amp; 정보공유 채널</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     :root {
-      --background: #0b1120;
-      --foreground: #f8fafc;
-      --card: #151f32;
-      --card-hover: #1e293b;
-      --border: #26354d;
-      --muted-foreground: #94a3b8;
-      --accent: #3b82f6;
+      color-scheme: light;
+      /* Calm Study Paper — Light Default */
+      --bg-main: #f6f5f0;
+      --bg-card: #ffffff;
+      --bg-elevated: #efece6;
+      --bg-input: #fcfbf8;
+      --bg-code: #1e2530;
+      --code-text: #e2e8f0;
+      --text-main: #1f2933;
+      --text-secondary: #374151;
+      --text-muted: #525c68;
+      --border: #d8d5cc;
+      --border-strong: #bdb8ac;
+      --accent: #1d4ed8;
+      --accent-hover: #1e40af;
+      --accent-soft: #eff6ff;
+      --accent-border: #bfdbfe;
+      --written: #4338ca;
+      --written-soft: #eef2ff;
+      --written-border: #c7d2fe;
+      --practical: #0f766e;
+      --practical-soft: #f0fdfa;
+      --practical-border: #99f6e4;
+      --amber: #b45309;
+      --amber-soft: #fffbeb;
+      --amber-border: #fde68a;
+      --shadow-sm: 0 1px 3px rgba(31, 41, 51, 0.06);
+      --shadow-md: 0 6px 18px rgba(31, 41, 51, 0.08);
+    }
+
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --bg-main: #141820;
+      --bg-card: #1c222d;
+      --bg-elevated: #242b38;
+      --bg-input: #171c26;
+      --bg-code: #0f131a;
+      --code-text: #e2e8f0;
+      --text-main: #eaeff5;
+      --text-secondary: #cbd5e1;
+      --text-muted: #9aa5b5;
+      --border: #323c4e;
+      --border-strong: #475569;
+      --accent: #60a5fa;
+      --accent-hover: #93c5fd;
+      --accent-soft: rgba(59, 130, 246, 0.14);
+      --accent-border: rgba(96, 165, 250, 0.35);
+      --written: #a5b4fc;
+      --written-soft: rgba(99, 102, 241, 0.16);
+      --written-border: rgba(165, 180, 252, 0.35);
+      --practical: #5eead4;
+      --practical-soft: rgba(20, 184, 166, 0.16);
+      --practical-border: rgba(94, 234, 212, 0.35);
+      --amber: #fcd34d;
+      --amber-soft: rgba(245, 158, 11, 0.15);
+      --amber-border: rgba(252, 211, 77, 0.35);
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
     }
 
     body {
-      background-color: var(--background);
-      color: var(--foreground);
+      background-color: var(--bg-main);
+      color: var(--text-main);
       font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.65;
+      overflow-wrap: break-word;
+    }
+
+    h1, h2, h3, h4, th {
+      text-wrap: balance;
+    }
+
+    p {
+      text-wrap: pretty;
     }
 
     pre, code {
       font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
     }
 
-    /* Modern Web Guidance: dialog
-       MANDATORY scroll containment on modal and backdrop */
+    .surface-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .surface-elevated {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+    }
+
+    .badge-written {
+      background: var(--written-soft);
+      color: var(--written);
+      border: 1px solid var(--written-border);
+    }
+
+    .badge-practical {
+      background: var(--practical-soft);
+      color: var(--practical);
+      border: 1px solid var(--practical-border);
+    }
+
+    .badge-accent {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid var(--accent-border);
+    }
+
+    .badge-amber {
+      background: var(--amber-soft);
+      color: var(--amber);
+      border: 1px solid var(--amber-border);
+    }
+
+    .nav-btn {
+      color: var(--text-secondary);
+      border: 1px solid transparent;
+      background: transparent;
+    }
+    .nav-btn:hover {
+      background: var(--bg-elevated);
+      color: var(--text-main);
+    }
+    .nav-btn-active {
+      background: var(--accent);
+      color: #ffffff;
+      border: 1px solid var(--accent);
+    }
+    :root[data-theme="dark"] .nav-btn-active {
+      background: #2563eb;
+      color: #ffffff;
+      border-color: #3b82f6;
+    }
+
+    .pill-btn {
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+    .pill-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .pill-btn-active {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      font-weight: 700;
+    }
+
+    /* Modern Web Guidance: dialog scroll containment */
     dialog:modal {
       overscroll-behavior: contain;
     }
     dialog::backdrop {
       overflow: hidden;
       overscroll-behavior: contain;
-      background: rgba(2, 6, 23, 0.78);
+      background: rgba(15, 23, 42, 0.45);
       backdrop-filter: blur(4px);
     }
 
-    /* Modern Web Guidance: defer-rendering-heavy-content
-       Applied strictly to off-screen sections/cards below the initial fold */
+    /* Modern Web Guidance: defer-rendering-heavy-content */
     .heavy-section-deferred {
       content-visibility: auto;
-      contain-intrinsic-size: auto none auto 260px;
+      contain-intrinsic-size: auto none auto 280px;
     }
 
     /* Modern Web Guidance: responsive-table */
@@ -61,15 +202,15 @@
       position: sticky;
       inset-block-start: 0;
       z-index: 2;
-      background: var(--card);
+      background: var(--bg-elevated);
     }
     .responsive-data-table tbody th {
       position: sticky;
       inset-inline-start: 0;
       z-index: 1;
-      background: var(--card);
+      background: var(--bg-card);
     }
-    @container (width < 600px) {
+    @container (width < 640px) {
       .responsive-data-table,
       .responsive-data-table thead,
       .responsive-data-table tbody,
@@ -82,50 +223,37 @@
         display: none;
       }
       .responsive-data-table tr {
-        margin-block-end: 1rem;
+        margin-block-end: 0.85rem;
         border: 1px solid var(--border);
         border-radius: 0.75rem;
         padding: 0.5rem;
+        background: var(--bg-card);
       }
       .responsive-data-table tbody th {
         position: sticky;
         inset-block-start: 0;
         z-index: 2;
-        background: var(--card-hover);
+        background: var(--bg-elevated);
         border-bottom: 1px solid var(--border);
         margin-bottom: 0.35rem;
       }
       .responsive-data-table {
         --label-2: "자격 구분";
         --label-3: "시행 회차";
-        --label-4: "필기/1차 일정";
-        --label-5: "실기/면접 일정";
+        --label-4: "필기 / 1차 일정";
+        --label-5: "실기 / 면접 일정";
         --label-6: "핵심 합격 전략";
       }
-      .responsive-data-table td:nth-child(2)::before {
-        content: var(--label-2) ": ";
-        font-weight: 700;
-        color: var(--muted-foreground);
-      }
-      .responsive-data-table td:nth-child(3)::before {
-        content: var(--label-3) ": ";
-        font-weight: 700;
-        color: var(--muted-foreground);
-      }
-      .responsive-data-table td:nth-child(4)::before {
-        content: var(--label-4) ": ";
-        font-weight: 700;
-        color: var(--muted-foreground);
-      }
-      .responsive-data-table td:nth-child(5)::before {
-        content: var(--label-5) ": ";
-        font-weight: 700;
-        color: var(--muted-foreground);
-      }
-      .responsive-data-table td:nth-child(6)::before {
-        content: var(--label-6) ": ";
-        font-weight: 700;
-        color: var(--muted-foreground);
+      .responsive-data-table td:nth-child(2)::before { content: var(--label-2) ": "; font-weight: 700; color: var(--text-muted); }
+      .responsive-data-table td:nth-child(3)::before { content: var(--label-3) ": "; font-weight: 700; color: var(--text-muted); }
+      .responsive-data-table td:nth-child(4)::before { content: var(--label-4) ": "; font-weight: 700; color: var(--text-muted); }
+      .responsive-data-table td:nth-child(5)::before { content: var(--label-5) ": "; font-weight: 700; color: var(--text-muted); }
+      .responsive-data-table td:nth-child(6)::before { content: var(--label-6) ": "; font-weight: 700; color: var(--text-muted); }
+    }
+
+    @media (forced-colors: active) {
+      .surface-card, .surface-elevated, .pill-btn, .nav-btn-active {
+        border: 1px solid CanvasText;
       }
     }
   </style>
@@ -133,79 +261,86 @@
 <body class="min-h-screen flex flex-col antialiased">
 
   <!-- Sticky Global Header -->
-  <header class="sticky top-0 z-30 bg-[var(--card)]/95 backdrop-blur border-b border-[var(--border)] shadow-md">
+  <header class="sticky top-0 z-30 border-b" style="background: var(--bg-card); border-color: var(--border); box-shadow: var(--shadow-sm);">
     <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col gap-3">
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center font-extrabold text-sm shadow">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center font-extrabold text-sm text-white shrink-0"
+               style="background: linear-gradient(135deg, #2563eb, #0f766e);">
             HUB
           </div>
           <div>
-            <div class="flex items-center gap-2">
-              <h1 class="text-base sm:text-lg font-extrabold tracking-tight text-white">
-                K-Cert Hub · 국가·민간 자격증 통합 학습 &amp; 정보공유 채널
+            <div class="flex flex-wrap items-center gap-2">
+              <h1 class="text-base sm:text-lg font-extrabold tracking-tight" style="color: var(--text-main);">
+                K-Cert Hub · 국가·민간 자격증 통합 학습 채널
               </h1>
-              <span class="hidden sm:inline-block px-2 py-0.5 text-[11px] font-bold rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">
-                Single-Repo RDB Hub
+              <span class="hidden sm:inline-block px-2 py-0.5 text-xs font-bold rounded-full badge-accent">
+                필기 · 실기 구분 RDB
               </span>
             </div>
-            <p class="text-xs text-[var(--muted-foreground)] mt-0.5">
-              정보처리기사(380문항) · 정보관리기술사(4단 서브노트) · 정보보안 · 빅데이터 · SQLD · ADsP 통합 기출 RDB 및 커뮤니티
+            <p class="text-xs mt-0.5" style="color: var(--text-muted);">
+              정보처리기사 · 정보관리기술사 · 정보보안기사 · 빅데이터분석기사 · SQLD · ADsP 기출 &amp; 커뮤니티
             </p>
           </div>
         </div>
 
-        <!-- Direct Quick-Launch Buttons for Full RDB Apps -->
+        <!-- Direct Quick-Launch Buttons + Theme Toggle -->
         <div class="flex flex-wrap items-center gap-2">
           <a href="./certs/eip/index.html"
-            class="px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white transition flex items-center gap-1.5 shadow-sm">
-            <span>💻 정보처리기사 실기 RDB</span>
-            <span class="px-1.5 py-0.2 rounded bg-blue-800/80 text-[10px]">380+20문항</span>
+             class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 badge-practical hover:opacity-90">
+            <span>💻 정보처리기사 실기</span>
+            <span class="opacity-80">400문항</span>
           </a>
           <a href="./certs/itpe/index.html"
-            class="px-3 py-1.5 rounded-lg text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white transition flex items-center gap-1.5 shadow-sm">
-            <span>🏛️ 정보관리기술사 RDB</span>
-            <span class="px-1.5 py-0.2 rounded bg-indigo-800/80 text-[10px]">서브노트 115선</span>
+             class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 badge-written hover:opacity-90">
+            <span>🏛️ 정보관리기술사 필기</span>
+            <span class="opacity-80">122선</span>
           </a>
           <a href="./certs/isec/index.html"
-            class="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white transition flex items-center gap-1.5 shadow-sm">
-            <span>🛡️ 정보보안기사 실기 RDB</span>
-            <span class="px-1.5 py-0.2 rounded bg-emerald-800/80 text-[10px]">60+15문항</span>
+             class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 badge-practical hover:opacity-90">
+            <span>🛡️ 정보보안기사 실기</span>
+            <span class="opacity-80">75문항</span>
           </a>
+          <button type="button" id="themeToggleBtn" onclick="toggleTheme()"
+             class="px-2.5 py-1.5 rounded-lg text-xs font-semibold pill-btn transition"
+             aria-label="화면 테마 전환">
+            🌙 다크 모드
+          </button>
           <a href="https://github.com/rlaguswls13/k-cert-hub" target="_blank" rel="noopener"
-            class="px-2.5 py-1.5 rounded-lg text-xs font-semibold border border-[var(--border)] bg-[var(--background)] hover:border-slate-500 text-slate-300">
-            GitHub 저장소 ↗
+             class="px-2.5 py-1.5 rounded-lg text-xs font-semibold pill-btn transition">
+            GitHub ↗
           </a>
         </div>
       </div>
 
       <!-- Navigation Tabs & Cross-Certification Search Bar -->
-      <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-[var(--border)]">
-        <nav class="flex flex-wrap gap-1" aria-label="포털 주요 메뉴">
+      <div class="flex flex-wrap items-center justify-between gap-2 pt-2.5 border-t" style="border-color: var(--border);">
+        <nav class="flex flex-wrap gap-1.5" aria-label="포털 주요 메뉴">
           <button type="button" onclick="switchHubTab('study')" id="hubTab-study"
-            class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-blue-600 text-white">
+            class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all nav-btn-active">
             🎓 자격증 통합 학습관
           </button>
           <button type="button" onclick="switchHubTab('search')" id="hubTab-search"
-            class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-300 hover:bg-slate-800">
-            🔍 전 종목 통합 검색 (<span id="totalIndexedCount">520+</span>문항)
+            class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all nav-btn">
+            🔍 전 종목 통합 검색 (<span id="totalIndexedCount">...</span>문항)
           </button>
           <button type="button" onclick="switchHubTab('community')" id="hubTab-community"
-            class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-300 hover:bg-slate-800">
+            class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all nav-btn">
             💬 합격수기 · 정보공유 라운지
           </button>
           <button type="button" onclick="switchHubTab('roadmap')" id="hubTab-roadmap"
-            class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-300 hover:bg-slate-800">
-            📅 시험일정 · 테크트리 · 기여 안내
+            class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all nav-btn">
+            📅 시험일정 · 테크트리
           </button>
         </nav>
 
         <!-- Unified Search Input -->
         <div class="relative flex items-center w-full sm:w-80">
           <input type="search" id="quickHubSearch" oninput="triggerCrossSearch(this.value)"
-            placeholder="전 자격증 통합 검색 (예: OSPF, 정규화, 포인터, RAG...)"
+            placeholder="통합 검색 (예: OSPF, 정규화, 포인터, Snort, RAG...)"
             aria-label="전 자격증 기출 및 서브노트 통합 검색"
-            class="w-full px-3 py-1.5 text-xs rounded-lg bg-[var(--background)] border border-[var(--border)] text-white focus:outline-none focus:border-blue-500" />
+            class="w-full px-3 py-1.5 text-xs rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+            style="background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main);" />
         </div>
       </div>
     </div>
@@ -215,33 +350,33 @@
   <main class="max-w-7xl w-full mx-auto px-4 py-6 flex-1 flex flex-col gap-6">
 
     <!-- Top KPI Summary Banner -->
-    <section class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-      <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 flex flex-col justify-between">
-        <span class="text-xs text-[var(--muted-foreground)] font-semibold">수록 자격증 종목</span>
-        <div class="flex items-baseline justify-between mt-1">
-          <span class="text-2xl font-extrabold text-white" id="kpiCertCount">6종</span>
-          <span class="text-xs text-blue-400 font-semibold">국가기술 4 · 공인민간 2</span>
+    <section class="grid grid-cols-2 lg:grid-cols-4 gap-3" aria-label="학습 현황 요약">
+      <div class="surface-card rounded-xl p-4 flex flex-col justify-between gap-1">
+        <span class="text-xs font-semibold" style="color: var(--text-muted);">수록 자격증 종목</span>
+        <div class="flex items-baseline justify-between gap-2">
+          <span class="text-2xl font-extrabold" style="color: var(--text-main);" id="kpiCertCount">6종</span>
+          <span class="text-xs font-semibold" style="color: var(--accent);">국가기술 4 · 공인민간 2</span>
         </div>
       </div>
-      <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 flex flex-col justify-between">
-        <span class="text-xs text-[var(--muted-foreground)] font-semibold">통합 RDB 기출·서브노트</span>
-        <div class="flex items-baseline justify-between mt-1">
-          <span class="text-2xl font-extrabold text-emerald-400" id="kpiQuestionCount">523문항</span>
-          <span class="text-xs text-slate-400">2020~2026 최신 복원 반영</span>
+      <div class="surface-card rounded-xl p-4 flex flex-col justify-between gap-1">
+        <span class="text-xs font-semibold" style="color: var(--text-muted);">통합 RDB 색인 문항</span>
+        <div class="flex items-baseline justify-between gap-2">
+          <span class="text-2xl font-extrabold" style="color: var(--practical);" id="kpiQuestionCount">로딩 중...</span>
+          <span class="text-xs" style="color: var(--text-muted);" id="kpiStageBreakdown">필기 · 실기 통합</span>
         </div>
       </div>
-      <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 flex flex-col justify-between">
-        <span class="text-xs text-[var(--muted-foreground)] font-semibold">학습 모드 지원</span>
-        <div class="flex items-baseline justify-between mt-1">
-          <span class="text-2xl font-extrabold text-amber-400">3대 모드</span>
-          <span class="text-xs text-slate-400">실전풀이 · 정답비교 · 상세해설</span>
+      <div class="surface-card rounded-xl p-4 flex flex-col justify-between gap-1">
+        <span class="text-xs font-semibold" style="color: var(--text-muted);">시험 단계 구분</span>
+        <div class="flex items-baseline justify-between gap-2">
+          <span class="text-2xl font-extrabold" style="color: var(--written);">필기 / 실기</span>
+          <span class="text-xs" style="color: var(--text-muted);">단일시험·면접 별도 표기</span>
         </div>
       </div>
-      <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 flex flex-col justify-between">
-        <span class="text-xs text-[var(--muted-foreground)] font-semibold">정보공유 &amp; 집단지성</span>
-        <div class="flex items-baseline justify-between mt-1">
-          <span class="text-2xl font-extrabold text-purple-400" id="kpiPostCount">오픈 채널</span>
-          <span class="text-xs text-slate-400">합격수기 · 복원제보 · Giscus</span>
+      <div class="surface-card rounded-xl p-4 flex flex-col justify-between gap-1">
+        <span class="text-xs font-semibold" style="color: var(--text-muted);">학습 편의 기능</span>
+        <div class="flex items-baseline justify-between gap-2">
+          <span class="text-2xl font-extrabold" style="color: var(--amber);">3대 모드</span>
+          <span class="text-xs" style="color: var(--text-muted);">실전풀이 · 정답비교 · 해설</span>
         </div>
       </div>
     </section>
@@ -250,20 +385,35 @@
          TAB 1: 자격증 통합 학습관 (Study Hub)
          ========================================== -->
     <section id="section-study" class="flex flex-col gap-5">
-      <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h2 class="text-base font-bold text-white">🎓 국가기술자격 &amp; 공인민간자격 통합 학습관</h2>
-          <p class="text-xs text-[var(--muted-foreground)] mt-0.5">
-            별도 저장소로 흩어지지 않고 하나의 플랫폼에서 기사(단답·코드 추론)부터 기술사(4단 논술 서브노트), 데이터 민간자격(SQLD·ADsP)까지 연계 학습합니다.
-          </p>
+      <div class="surface-card rounded-xl p-4 flex flex-col gap-3">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 class="text-base font-bold" style="color: var(--text-main);">🎓 국가기술자격 &amp; 공인민간자격 통합 학습관</h2>
+            <p class="text-xs mt-0.5" style="color: var(--text-muted);">
+              각 자격증의 <strong>📝 필기</strong>와 <strong>⚙️ 실기(또는 면접)</strong> 시험 구조를 명확히 구분해 바로 학습할 수 있습니다.
+            </p>
+          </div>
+          <div class="flex flex-wrap gap-1.5" role="group" aria-label="자격증 분류 필터">
+            <button type="button" onclick="filterCertCards('ALL')" id="certFilter-ALL"
+              class="px-3 py-1.5 rounded-lg text-xs pill-btn-active transition">전체 (6종)</button>
+            <button type="button" onclick="filterCertCards('국가기술자격')" id="certFilter-국가기술자격"
+              class="px-3 py-1.5 rounded-lg text-xs font-semibold pill-btn transition">국가기술자격 (4종)</button>
+            <button type="button" onclick="filterCertCards('민간자격')" id="certFilter-민간자격"
+              class="px-3 py-1.5 rounded-lg text-xs font-semibold pill-btn transition">공인 민간자격 (2종)</button>
+          </div>
         </div>
-        <div class="flex flex-wrap gap-1.5" role="group" aria-label="자격증 분류 필터">
-          <button type="button" onclick="filterCertCards('ALL')" id="certFilter-ALL"
-            class="px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-600 text-white">전체 (6종)</button>
-          <button type="button" onclick="filterCertCards('국가기술자격')" id="certFilter-국가기술자격"
-            class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-[var(--border)] bg-[var(--background)] text-slate-300">국가기술자격 (기사·기술사)</button>
-          <button type="button" onclick="filterCertCards('민간자격')" id="certFilter-민간자격"
-            class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-[var(--border)] bg-[var(--background)] text-slate-300">공인·등록 민간자격 (SQLD·ADsP)</button>
+
+        <!-- Stage Filter Bar -->
+        <div class="flex flex-wrap items-center gap-2 pt-2.5 border-t" style="border-color: var(--border);" role="group" aria-label="필기 실기 구분 필터">
+          <span class="text-xs font-bold" style="color: var(--text-muted);">시험 구분 필터:</span>
+          <button type="button" onclick="filterStageCards('ALL')" id="stageFilter-ALL"
+            class="px-2.5 py-1 rounded-md text-xs pill-btn-active transition">전체 보기</button>
+          <button type="button" onclick="filterStageCards('필기')" id="stageFilter-필기"
+            class="px-2.5 py-1 rounded-md text-xs font-semibold pill-btn transition">📝 필기 시험</button>
+          <button type="button" onclick="filterStageCards('실기')" id="stageFilter-실기"
+            class="px-2.5 py-1 rounded-md text-xs font-semibold pill-btn transition">⚙️ 실기 · 면접 시험</button>
+          <button type="button" onclick="filterStageCards('단일')" id="stageFilter-단일"
+            class="px-2.5 py-1 rounded-md text-xs font-semibold pill-btn transition">📄 단일시험 (실기 없음)</button>
         </div>
       </div>
 
@@ -271,23 +421,22 @@
       <div id="certCardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
 
       <!-- Cross-Level Concept Bridge Preview -->
-      <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-5 flex flex-col gap-3">
-        <div class="flex flex-wrap items-center justify-between gap-2">
-          <div>
-            <h3 class="text-sm font-bold text-white">🔗 같은 개념, 다른 깊이! 자격증 간 연계 학습 예시 (클릭 시 통합 검색)</h3>
-            <p class="text-xs text-[var(--muted-foreground)]">
-              하나의 CS/IT 개념이 SQLD · 정보처리기사 · 정보보안기사 · 정보관리기술사에서 어떻게 출제되는지 키워드 하나로 비교해 보세요.
-            </p>
-          </div>
+      <div class="surface-card rounded-xl p-5 flex flex-col gap-3">
+        <div>
+          <h3 class="text-sm font-bold" style="color: var(--text-main);">🔗 같은 개념, 다른 깊이! 자격증 간 연계 학습 키워드</h3>
+          <p class="text-xs mt-0.5" style="color: var(--text-muted);">
+            하나의 CS/IT 개념이 SQLD · 정보처리기사 · 정보보안기사 · 정보관리기술사에서 어떻게 출제되는지 클릭 한 번으로 비교해 보세요.
+          </p>
         </div>
         <div class="flex flex-wrap gap-2">
-          <button type="button" onclick="jumpToSearchKeyword('OSPF')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-blue-600/30 border border-slate-700 hover:border-blue-500 text-blue-300 transition">🌐 라우팅 (OSPF / BGP)</button>
-          <button type="button" onclick="jumpToSearchKeyword('정규화')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-blue-600/30 border border-slate-700 hover:border-blue-500 text-blue-300 transition">🗄️ 데이터베이스 정규화 (1NF~BCNF)</button>
-          <button type="button" onclick="jumpToSearchKeyword('디자인 패턴')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-blue-600/30 border border-slate-700 hover:border-blue-500 text-blue-300 transition">🧩 GoF 디자인 패턴 (Observer/Singleton)</button>
-          <button type="button" onclick="jumpToSearchKeyword('제로트러스트')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-blue-600/30 border border-slate-700 hover:border-blue-500 text-blue-300 transition">🛡️ 제로트러스트 &amp; 네트워크 보안</button>
-          <button type="button" onclick="jumpToSearchKeyword('포인터')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-blue-600/30 border border-slate-700 hover:border-blue-500 text-blue-300 transition">💻 C언어 구조체·이중 포인터</button>
-          <button type="button" onclick="jumpToSearchKeyword('JOIN')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-blue-600/30 border border-slate-700 hover:border-blue-500 text-blue-300 transition">📊 SQL 조인 · 윈도우 함수 · ROLLUP</button>
-          <button type="button" onclick="jumpToSearchKeyword('RAG')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-blue-600/30 border border-slate-700 hover:border-blue-500 text-blue-300 transition">🤖 생성형 AI · RAG · Agentic AI</button>
+          <button type="button" onclick="jumpToSearchKeyword('OSPF')" class="px-3 py-1.5 rounded-lg text-xs font-semibold pill-btn transition">🌐 라우팅 (OSPF / BGP)</button>
+          <button type="button" onclick="jumpToSearchKeyword('정규화')" class="px-3 py-1.5 rounded-lg text-xs font-semibold pill-btn transition">🗄️ 데이터베이스 정규화 (1NF~BCNF)</button>
+          <button type="button" onclick="jumpToSearchKeyword('디자인 패턴')" class="px-3 py-1.5 rounded-lg text-xs font-semibold pill-btn transition">🧩 GoF 디자인 패턴</button>
+          <button type="button" onclick="jumpToSearchKeyword('제로트러스트')" class="px-3 py-1.5 rounded-lg text-xs font-semibold pill-btn transition">🛡️ 제로트러스트 &amp; 네트워크 보안</button>
+          <button type="button" onclick="jumpToSearchKeyword('Snort')" class="px-3 py-1.5 rounded-lg text-xs font-semibold pill-btn transition">🚨 Snort · iptables 실무</button>
+          <button type="button" onclick="jumpToSearchKeyword('포인터')" class="px-3 py-1.5 rounded-lg text-xs font-semibold pill-btn transition">💻 C언어 구조체·포인터</button>
+          <button type="button" onclick="jumpToSearchKeyword('JOIN')" class="px-3 py-1.5 rounded-lg text-xs font-semibold pill-btn transition">📊 SQL 조인 · ROLLUP</button>
+          <button type="button" onclick="jumpToSearchKeyword('RAG')" class="px-3 py-1.5 rounded-lg text-xs font-semibold pill-btn transition">🤖 생성형 AI · RAG</button>
         </div>
       </div>
     </section>
@@ -296,34 +445,44 @@
          TAB 2: 전 종목 통합 검색 (Cross-Cert Search)
          ========================================== -->
     <section id="section-search" class="hidden flex-col gap-4">
-      <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 flex flex-col gap-3">
+      <div class="surface-card rounded-xl p-4 flex flex-col gap-3">
         <div class="flex flex-wrap items-center justify-between gap-2">
           <div>
-            <h2 class="text-base font-bold text-white">🔍 전 자격증 RDB 통합 검색 &amp; 난이도별 비교</h2>
-            <p class="text-xs text-[var(--muted-foreground)]">
-              정보처리기사(380문항+예상20), 정보관리기술사(115토픽), 정보보안기사, 빅데이터분석기사, SQLD, ADsP 데이터를 한 번에 검색합니다.
+            <h2 class="text-base font-bold" style="color: var(--text-main);">🔍 전 자격증 RDB 통합 검색 (필기 · 실기 구분)</h2>
+            <p class="text-xs mt-0.5" style="color: var(--text-muted);">
+              정보처리기사(실기 400 + 필기 5), 정보관리기술사(필기 122 + 면접 3), 정보보안기사(실기 75 + 필기 5), 빅데이터분석기사, SQLD, ADsP를 통합 검색합니다.
             </p>
           </div>
-          <span id="searchStatsBadge" class="px-3 py-1 rounded-full text-xs font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30">
-            검색어를 입력하거나 추천 키워드를 클릭하세요
+          <span id="searchStatsBadge" class="px-3 py-1 rounded-full text-xs font-bold badge-accent">
+            검색어를 입력하거나 종목·단계를 선택하세요
           </span>
         </div>
 
         <div class="flex flex-wrap gap-2 items-center">
           <input type="search" id="mainCrossSearchInput" oninput="renderCrossSearchResults(this.value)"
-            placeholder="검색어 입력 (예: OSPF, 2PL, 정규화, Observer, 포인터, 상속, ROLLUP, 제로트러스트...)"
+            placeholder="검색어 입력 (예: OSPF, 2PL, 정규화, Observer, 포인터, Snort, ROLLUP, 제로트러스트...)"
             aria-label="통합 검색어 입력"
-            class="flex-1 min-w-[240px] px-3.5 py-2 text-sm rounded-xl bg-[var(--background)] border border-[var(--border)] text-white focus:outline-none focus:border-blue-500" />
+            class="flex-1 min-w-[220px] px-3.5 py-2 text-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+            style="background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main);" />
+          <select id="searchStageScope" onchange="renderCrossSearchResults(document.getElementById('mainCrossSearchInput').value)"
+            aria-label="시험 단계 필터"
+            class="px-3 py-2 text-xs font-semibold rounded-xl"
+            style="background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main);">
+            <option value="ALL">필기 · 실기 전체</option>
+            <option value="필기">📝 필기 문항만</option>
+            <option value="실기">⚙️ 실기 · 면접 문항만</option>
+          </select>
           <select id="searchCertScope" onchange="renderCrossSearchResults(document.getElementById('mainCrossSearchInput').value)"
             aria-label="자격증 종목 필터"
-            class="px-3 py-2 text-xs rounded-xl bg-[var(--background)] border border-[var(--border)] text-slate-200">
+            class="px-3 py-2 text-xs font-semibold rounded-xl"
+            style="background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main);">
             <option value="ALL">모든 자격증 종목</option>
-            <option value="정보처리기사">정보처리기사 실기 (380+20문항)</option>
-            <option value="정보관리기술사">정보관리기술사 (4단 서브노트)</option>
-            <option value="정보보안기사">정보보안기사 실기</option>
-            <option value="빅데이터분석기사">빅데이터분석기사 실기</option>
-            <option value="SQLD">SQLD (SQL 개발자)</option>
-            <option value="ADsP">ADsP (데이터분석 준전문가)</option>
+            <option value="정보처리기사">정보처리기사 (필기/실기)</option>
+            <option value="정보관리기술사">정보관리기술사 (필기/면접)</option>
+            <option value="정보보안기사">정보보안기사 (필기/실기)</option>
+            <option value="빅데이터분석기사">빅데이터분석기사 (필기/실기)</option>
+            <option value="SQLD">SQLD (필기 단일)</option>
+            <option value="ADsP">ADsP (필기 단일)</option>
           </select>
         </div>
       </div>
@@ -335,22 +494,23 @@
          TAB 3: 합격수기 · 정보공유 라운지 (Community)
          ========================================== -->
     <section id="section-community" class="hidden flex-col gap-5">
-      <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-5 flex flex-wrap items-center justify-between gap-3">
+      <div class="surface-card rounded-xl p-5 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 class="text-base font-bold text-white">💬 자격증 합격수기 · 암기 꿀팁 · 복원 문제 제보 채널</h2>
-          <p class="text-xs text-[var(--muted-foreground)] mt-0.5">
-            수험생들이 직접 검증한 합격 루틴, 두문자 암기법, 최신 시험 가답안 복원 정보를 나누고 GitHub Discussions로 소통합니다.
+          <h2 class="text-base font-bold" style="color: var(--text-main);">💬 자격증 합격수기 · 암기 꿀팁 · 복원 문제 제보 채널</h2>
+          <p class="text-xs mt-0.5" style="color: var(--text-muted);">
+            수험생들이 직접 검증한 합격 루틴, 두문자 암기법, 최신 시험 가답안 복원 정보를 나누고 공유합니다.
           </p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
           <button type="button" onclick="openWritePostModal()"
-            class="px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white transition shadow-sm">
-            ✍️ 새 정보공유 글 작성 / 제보하기
+            class="px-3.5 py-2 rounded-xl text-xs font-bold text-white transition shadow-sm"
+            style="background: var(--practical);">
+            ✍️ 새 정보공유 글 작성
           </button>
-          <a href="https://github.com/rlaguswls13/k-cert-hub/issues/new?title=%5B%EB%B3%B5%EC%9B%90%EC%A0%9C%EB%B3%B4%2F%ED%95%A9%EA%B2%A9%EC%88%98%EA%B8%B0%5D+&body=%EC%9E%90%EA%B2%A9%EC%A6%9D+%EC%A2%85%EB%AA%A9%3A+%0A%EC%A0%9C%EB%B3%B4+%EB%82%B4%EC%9A%A9%3A+"
+          <a href="https://github.com/rlaguswls13/k-cert-hub/issues/new?title=%5B%EB%B3%B5%EC%9B%90%EC%A0%9C%EB%B3%B4%2F%ED%95%A9%EA%B2%A9%EC%88%98%EA%B8%B0%5D+&body=%EC%9E%90%EA%B2%A9%EC%A6%9D+%EC%A2%85%EB%AA%A9%3A+%0A%EC%8B%9C%ED%97%98+%EA%B5%AC%EB%B6%84(%ED%95%84%EA%B8%B0%2F%EC%8B%A4%EA%B8%B0)%3A+%0A%EC%A0%9C%EB%B3%B4+%EB%82%B4%EC%9A%A9%3A+"
             target="_blank" rel="noopener"
-            class="px-3 py-2 rounded-xl text-xs font-semibold border border-[var(--border)] bg-[var(--background)] hover:border-blue-500 text-slate-200">
-            🚀 GitHub 공식 이슈로 제보 등록 ↗
+            class="px-3 py-2 rounded-xl text-xs font-semibold pill-btn transition">
+            🚀 GitHub 공식 이슈 제보 ↗
           </a>
         </div>
       </div>
@@ -358,112 +518,92 @@
       <!-- Category Filter Buttons -->
       <div class="flex flex-wrap gap-1.5" role="group" aria-label="커뮤니티 글 분류">
         <button type="button" onclick="filterCommunityPosts('ALL')" id="commFilter-ALL"
-          class="px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-600 text-white">전체 글</button>
+          class="px-3 py-1.5 rounded-lg text-xs pill-btn-active transition">전체 글</button>
         <button type="button" onclick="filterCommunityPosts('합격수기')" id="commFilter-합격수기"
-          class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-[var(--border)] bg-[var(--card)] text-slate-300">🏆 합격수기</button>
+          class="px-3 py-1.5 rounded-lg text-xs font-semibold pill-btn transition">🏆 합격수기</button>
         <button type="button" onclick="filterCommunityPosts('암기꿀팁')" id="commFilter-암기꿀팁"
-          class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-[var(--border)] bg-[var(--card)] text-slate-300">💡 과목별 암기꿀팁</button>
+          class="px-3 py-1.5 rounded-lg text-xs font-semibold pill-btn transition">💡 과목별 암기꿀팁</button>
         <button type="button" onclick="filterCommunityPosts('복원제보')" id="commFilter-복원제보"
-          class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-[var(--border)] bg-[var(--card)] text-slate-300">🔥 최신 기출 복원제보</button>
+          class="px-3 py-1.5 rounded-lg text-xs font-semibold pill-btn transition">🔥 최신 기출 복원제보</button>
       </div>
 
       <!-- Community Posts Grid -->
       <div id="communityPostsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
 
-      <!-- GitHub Discussions / Giscus Live Channel Box -->
-      <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-5 flex flex-col gap-3">
-        <div class="flex flex-wrap items-center justify-between gap-2">
-          <div>
-            <h3 class="text-sm font-bold text-white">🗣️ 실시간 자유 Q&amp;A 및 스터디 모집 (GitHub Discussions 연동)</h3>
-            <p class="text-xs text-[var(--muted-foreground)]">
-              별도 회원가입 없이 GitHub 계정으로 댓글을 남기거나 질문·답변을 공유할 수 있습니다.
-            </p>
-          </div>
-          <a href="https://github.com/rlaguswls13/k-cert-hub/issues" target="_blank" rel="noopener"
-            class="text-xs font-bold text-blue-400 hover:underline">
-            전체 토론 스레드 보기 ↗
-          </a>
-        </div>
-        <div id="giscusContainer" class="p-4 rounded-xl bg-[var(--background)] border border-[var(--border)] text-xs text-slate-400">
-          <script src="https://giscus.app/client.js"
-                  data-repo="rlaguswls13/k-cert-hub"
-                  data-repo-id=""
-                  data-category="General"
-                  data-category-id=""
-                  data-mapping="pathname"
-                  data-strict="0"
-                  data-reactions-enabled="1"
-                  data-emit-metadata="0"
-                  data-input-position="top"
-                  data-theme="dark_dimmed"
-                  data-lang="ko"
-                  crossorigin="anonymous"
-                  async>
-          </script>
-          <p class="mt-2 text-slate-400">
-            💡 상단의 <strong>[✍️ 새 정보공유 글 작성]</strong> 버튼으로 브라우저에 즉시 글을 게시하거나, <strong>[🚀 GitHub 공식 이슈로 제보 등록]</strong>을 통해 전체 사용자와 영구 공유할 수 있습니다.
+      <!-- Open Participation Channel Card (Replaces unconfigured Giscus widget) -->
+      <div class="surface-card rounded-xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h3 class="text-sm font-bold" style="color: var(--text-main);">🗣️ 실시간 Q&amp;A · 오타/기출 복원 제보 (GitHub 오픈 채널)</h3>
+          <p class="text-xs mt-1 leading-relaxed" style="color: var(--text-muted);">
+            상단의 <strong>[✍️ 새 정보공유 글 작성]</strong> 버튼으로 내 브라우저에 즉시 학습 노트를 기록하거나, GitHub Issues에 제보해 모든 수험생과 영구 공유할 수 있습니다.
           </p>
+        </div>
+        <div class="flex flex-wrap gap-2 shrink-0">
+          <a href="https://github.com/rlaguswls13/k-cert-hub/issues" target="_blank" rel="noopener"
+            class="px-3.5 py-2 rounded-xl text-xs font-bold badge-accent transition">
+            📋 전체 이슈·토론 보기 ↗
+          </a>
         </div>
       </div>
     </section>
 
     <!-- ==========================================
-         TAB 4: 시험일정 · 테크트리 · 기여 안내 (Roadmap)
+         TAB 4: 시험일정 · 테크트리 (Roadmap)
          ========================================== -->
     <section id="section-roadmap" class="hidden flex-col gap-5">
       <!-- Career Tech-Tree -->
-      <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-5 flex flex-col gap-4">
+      <div class="surface-card rounded-xl p-5 flex flex-col gap-4">
         <div>
-          <h2 class="text-base font-bold text-white">🗺️ 직무별 국가·민간 자격증 추천 테크트리 (단계별 시너지 로드맵)</h2>
-          <p class="text-xs text-[var(--muted-foreground)]">
-            시험 범위가 겹치는 자격증을 순서대로 취득하면 학습 시간을 절반 이하로 줄일 수 있습니다.
+          <h2 class="text-base font-bold" style="color: var(--text-main);">🗺️ 직무별 국가·민간 자격증 추천 테크트리</h2>
+          <p class="text-xs mt-0.5" style="color: var(--text-muted);">
+            시험 범위가 겹치는 자격증을 순서대로 취득하면 필기·실기 학습 시간을 크게 단축할 수 있습니다.
           </p>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-          <div class="p-4 rounded-xl bg-[var(--background)] border border-[var(--border)] flex flex-col gap-2">
-            <span class="text-blue-400 font-bold">🚀 트랙 A. SW 개발 · 아키텍트 표준 루트</span>
-            <div class="font-bold text-white text-sm">SQLD ➔ 정보처리기사 ➔ 정보관리기술사</div>
-            <p class="text-slate-400 leading-relaxed">
-              1단계 <strong>SQLD</strong>로 SQL·정규화 기초를 다진 뒤, 2단계 <strong>정보처리기사 실기</strong>에서 C/Java/Python 코드 추론과 SW공학을 완성하고, 현업 경력을 쌓아 3단계 <strong>정보관리기술사</strong>로 도약합니다.
+          <div class="surface-elevated p-4 rounded-xl flex flex-col gap-2">
+            <span class="font-bold" style="color: var(--accent);">🚀 트랙 A. SW 개발 · 아키텍트 루트</span>
+            <div class="font-bold text-sm" style="color: var(--text-main);">SQLD ➔ 정보처리기사 ➔ 정보관리기술사</div>
+            <p class="leading-relaxed" style="color: var(--text-secondary);">
+              1단계 <strong>SQLD(필기 단일)</strong>로 SQL·정규화를 익힌 뒤, 2단계 <strong>정보처리기사(필기·실기)</strong>에서 코드 추론과 SW공학을 완성하고, 3단계 <strong>정보관리기술사(필기 논술·면접)</strong>로 도약합니다.
             </p>
           </div>
-          <div class="p-4 rounded-xl bg-[var(--background)] border border-[var(--border)] flex flex-col gap-2">
-            <span class="text-emerald-400 font-bold">📊 트랙 B. 데이터 분석 · AI 엔지니어 루트</span>
-            <div class="font-bold text-white text-sm">ADsP ➔ SQLD ➔ 빅데이터분석기사</div>
-            <p class="text-slate-400 leading-relaxed">
-              1단계 <strong>ADsP</strong>로 데이터 마이닝·통계 이론을 익히고, 2단계 <strong>빅데이터분석기사 실기</strong>에서 Python pandas 전처리와 scikit-learn 머신러닝 파이프라인을 완성합니다.
+          <div class="surface-elevated p-4 rounded-xl flex flex-col gap-2">
+            <span class="font-bold" style="color: var(--practical);">📊 트랙 B. 데이터 분석 · AI 루트</span>
+            <div class="font-bold text-sm" style="color: var(--text-main);">ADsP ➔ SQLD ➔ 빅데이터분석기사</div>
+            <p class="leading-relaxed" style="color: var(--text-secondary);">
+              1단계 <strong>ADsP(필기 단일)</strong>로 데이터 마이닝·통계 이론을 다지고, 2단계 <strong>빅데이터분석기사(필기·작업형 실기)</strong>에서 pandas 전처리와 ML 파이프라인을 완성합니다.
             </p>
           </div>
-          <div class="p-4 rounded-xl bg-[var(--background)] border border-[var(--border)] flex flex-col gap-2">
-            <span class="text-amber-400 font-bold">🛡️ 트랙 C. 보안 · 인프라 엔지니어 루트</span>
-            <div class="font-bold text-white text-sm">정보처리기사 ➔ 정보보안기사 ➔ 기술사/CISSP</div>
-            <p class="text-slate-400 leading-relaxed">
-              <strong>정보처리기사</strong>의 네트워크·시큐어코딩·암호학 파트를 기반으로 <strong>정보보안기사 실기</strong>의 리눅스 시스템 보안, Snort/iptables 실무 및 ISMS-P 법규까지 확장합니다.
+          <div class="surface-elevated p-4 rounded-xl flex flex-col gap-2">
+            <span class="font-bold" style="color: var(--amber);">🛡️ 트랙 C. 보안 · 인프라 루트</span>
+            <div class="font-bold text-sm" style="color: var(--text-main);">정보처리기사 ➔ 정보보안기사 ➔ 기술사</div>
+            <p class="leading-relaxed" style="color: var(--text-secondary);">
+              <strong>정보처리기사</strong>의 네트워크·시큐어코딩·암호학을 기반으로 <strong>정보보안기사(필기·실기)</strong>의 리눅스 시스템 보안, Snort/iptables 실무 및 ISMS-P 법규까지 확장합니다.
             </p>
           </div>
         </div>
       </div>
 
-      <!-- Responsive Schedule Table (Modern Web Guidance compliant) -->
-      <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-5 flex flex-col gap-3">
+      <!-- Responsive Schedule Table -->
+      <div class="surface-card rounded-xl p-5 flex flex-col gap-3">
         <div>
-          <h3 id="schedule-table-caption" class="text-sm font-bold text-white">📅 국가기술자격 &amp; 공인민간자격 연간 시험 일정 및 합격 전략 비교</h3>
-          <p class="text-xs text-[var(--muted-foreground)]">모바일 화면에서는 카드 형태로 자동 전환되며, 키보드 화살표로도 스크롤할 수 있습니다.</p>
+          <h3 id="schedule-table-caption" class="text-sm font-bold" style="color: var(--text-main);">📅 종목별 필기 · 실기 연간 시험 일정 및 합격 전략 비교</h3>
+          <p class="text-xs mt-0.5" style="color: var(--text-muted);">모바일 화면에서는 카드 형태로 자동 전환되며, 키보드 화살표로도 스크롤할 수 있습니다.</p>
         </div>
 
-        <div tabindex="0" role="region" aria-labelledby="schedule-table-caption" class="table-wrapper rounded-xl border border-[var(--border)]">
+        <div tabindex="0" role="region" aria-labelledby="schedule-table-caption" class="table-wrapper rounded-xl border" style="border-color: var(--border);">
           <table class="responsive-data-table text-left text-xs">
             <thead>
-              <tr class="border-b border-[var(--border)] text-[var(--muted-foreground)]">
-                <th class="py-3 px-4">자격증 종목</th>
-                <th class="py-3 px-4">자격 구분</th>
-                <th class="py-3 px-4">시행 회차</th>
-                <th class="py-3 px-4">필기 / 1차 일정</th>
-                <th class="py-3 px-4">실기 / 면접 일정</th>
-                <th class="py-3 px-4">핵심 합격 전략</th>
+              <tr class="border-b" style="border-color: var(--border); color: var(--text-muted);">
+                <th class="py-3 px-4 font-bold">자격증 종목</th>
+                <th class="py-3 px-4 font-bold">자격 구분</th>
+                <th class="py-3 px-4 font-bold">시행 회차</th>
+                <th class="py-3 px-4 font-bold">📝 필기 / 1차 일정</th>
+                <th class="py-3 px-4 font-bold">⚙️ 실기 / 면접 일정</th>
+                <th class="py-3 px-4 font-bold">핵심 합격 전략</th>
               </tr>
             </thead>
-            <tbody id="scheduleTableBody" class="divide-y divide-[var(--border)]"></tbody>
+            <tbody id="scheduleTableBody"></tbody>
           </table>
         </div>
       </div>
@@ -472,50 +612,47 @@
   </main>
 
   <!-- Footer -->
-  <footer class="border-t border-[var(--border)] bg-[var(--card)] py-5 px-4 mt-8 text-xs text-[var(--muted-foreground)]">
+  <footer class="border-t py-5 px-4 mt-8 text-xs" style="border-color: var(--border); background: var(--bg-card); color: var(--text-muted);">
     <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
       <div>
-        <strong class="text-slate-200">K-Cert Hub</strong> — 국가기술자격(정보처리기사, 정보관리기술사, 정보보안기사, 빅데이터분석기사) &amp; 민간자격(SQLD, ADsP) 통합 플랫폼
+        <strong style="color: var(--text-main);">K-Cert Hub</strong> — 국가기술자격(정보처리기사, 정보관리기술사, 정보보안기사, 빅데이터분석기사) &amp; 민간자격(SQLD, ADsP) 통합 학습 플랫폼
       </div>
-      <div class="flex gap-4">
-        <a href="./certs/eip/index.html" class="hover:text-blue-400">정보처리기사 실기 RDB</a>
-        <a href="./certs/itpe/index.html" class="hover:text-blue-400">정보관리기술사 RDB</a>
-        <a href="./certs/isec/index.html" class="hover:text-blue-400">정보보안기사 실기 RDB</a>
-        <a href="./data/hub_catalog.json" target="_blank" class="hover:text-blue-400">통합 카탈로그 JSON</a>
+      <div class="flex flex-wrap gap-4">
+        <a href="./certs/eip/index.html" class="hover:underline" style="color: var(--accent);">정보처리기사 실기 RDB</a>
+        <a href="./certs/itpe/index.html" class="hover:underline" style="color: var(--written);">정보관리기술사 필기 RDB</a>
+        <a href="./certs/isec/index.html" class="hover:underline" style="color: var(--practical);">정보보안기사 실기 RDB</a>
+        <a href="./data/hub_catalog.json" target="_blank" class="hover:underline">카탈로그 JSON</a>
       </div>
     </div>
   </footer>
 
-  <!-- =========================================================
-       NATIVE MODAL 1: Mini Study Pack & Question Viewer Dialog
-       (Modern Web Guidance `dialog` Rule 1 compliant)
-       ========================================================= -->
+  <!-- NATIVE MODAL 1: Mini Study Pack & Question Viewer Dialog -->
   <dialog id="studyPackDialog" closedby="any" aria-labelledby="studyPackDialogTitle"
-    class="w-full max-w-3xl rounded-2xl bg-[var(--card)] text-[var(--foreground)] border border-[var(--border)] p-0 shadow-2xl">
-    <div class="p-5 border-b border-[var(--border)] flex items-center justify-between gap-3">
+    class="w-full max-w-3xl rounded-2xl p-0 shadow-2xl"
+    style="background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border);">
+    <div class="p-5 border-b flex items-center justify-between gap-3" style="border-color: var(--border);">
       <div>
-        <h2 id="studyPackDialogTitle" class="text-base font-bold text-white">자격증 핵심 기출 미니 학습팩</h2>
-        <p id="studyPackDialogSub" class="text-xs text-[var(--muted-foreground)] mt-0.5"></p>
+        <h2 id="studyPackDialogTitle" class="text-base font-bold" style="color: var(--text-main);">자격증 핵심 기출 미니 학습팩</h2>
+        <p id="studyPackDialogSub" class="text-xs mt-0.5" style="color: var(--text-muted);"></p>
       </div>
       <form method="dialog">
-        <button value="close" autofocus class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600">
+        <button value="close" autofocus class="px-3 py-1.5 rounded-lg text-xs font-bold pill-btn">
           닫기 (Esc)
         </button>
       </form>
     </div>
-    <div id="studyPackDialogBody" class="p-5 max-h-[75vh] overflow-y-auto flex flex-col gap-4 text-xs sm:text-sm"></div>
+    <div id="studyPackStageTabs" class="px-5 pt-3 flex flex-wrap gap-1.5"></div>
+    <div id="studyPackDialogBody" class="p-5 max-h-[72vh] overflow-y-auto flex flex-col gap-4 text-xs sm:text-sm"></div>
   </dialog>
 
-  <!-- =========================================================
-       NATIVE MODAL 2: Community Post Reader & Writer Dialog
-       (Modern Web Guidance `dialog` Rule 1 compliant)
-       ========================================================= -->
+  <!-- NATIVE MODAL 2: Community Post Reader & Writer Dialog -->
   <dialog id="communityDialog" closedby="any" aria-labelledby="communityDialogTitle"
-    class="w-full max-w-2xl rounded-2xl bg-[var(--card)] text-[var(--foreground)] border border-[var(--border)] p-0 shadow-2xl">
-    <div class="p-5 border-b border-[var(--border)] flex items-center justify-between gap-3">
-      <h2 id="communityDialogTitle" class="text-base font-bold text-white">정보공유 상세 보기</h2>
+    class="w-full max-w-2xl rounded-2xl p-0 shadow-2xl"
+    style="background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border);">
+    <div class="p-5 border-b flex items-center justify-between gap-3" style="border-color: var(--border);">
+      <h2 id="communityDialogTitle" class="text-base font-bold" style="color: var(--text-main);">정보공유 상세 보기</h2>
       <form method="dialog">
-        <button value="close" autofocus class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600">
+        <button value="close" autofocus class="px-3 py-1.5 rounded-lg text-xs font-bold pill-btn">
           닫기 (Esc)
         </button>
       </form>
@@ -527,18 +664,54 @@
     let HUB_DATA = null;
     let UNIFIED_INDEX = [];
     let currentCertFilter = 'ALL';
+    let currentStageFilter = 'ALL';
     let currentCommFilter = 'ALL';
-    let customPosts = JSON.parse(localStorage.getItem('kcert_custom_posts_v1') || '[]');
+    let activePackCertId = null;
+    let activePackStage = 'ALL';
+    let customPosts = [];
+    try {
+      customPosts = JSON.parse(localStorage.getItem('kcert_custom_posts_v1') || '[]');
+    } catch (e) {
+      customPosts = [];
+    }
 
     function escapeHtml(str) {
-      return String(str || '')
+      return String(str ?? '')
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
     }
 
-    // Modern Web Guidance `dialog` fallback for browsers lacking native `closedby="any"`
+    function updateThemeBtnLabel() {
+      const btn = document.getElementById('themeToggleBtn');
+      if (!btn) return;
+      const isDark = document.documentElement.dataset.theme === 'dark';
+      btn.textContent = isDark ? '☀️ 밝은 학습 모드' : '🌙 다크 모드';
+    }
+
+    function toggleTheme() {
+      const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+      document.documentElement.dataset.theme = next;
+      const meta = document.querySelector('meta[name="color-scheme"]');
+      if (meta) meta.content = next;
+      try {
+        localStorage.setItem('kcert_theme', next);
+      } catch (e) {}
+      updateThemeBtnLabel();
+    }
+
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'kcert_theme') {
+        const next = e.newValue === 'dark' ? 'dark' : 'light';
+        document.documentElement.dataset.theme = next;
+        const meta = document.querySelector('meta[name="color-scheme"]');
+        if (meta) meta.content = next;
+        updateThemeBtnLabel();
+      }
+    });
+
+    // Dialog light-dismiss fallback for browsers lacking native closedby="any"
     if (!('closedBy' in HTMLDialogElement.prototype)) {
       const outside = (e, dialog) => {
         const r = dialog.getBoundingClientRect();
@@ -551,19 +724,42 @@
       }
     }
 
+    function handleHashNavigation() {
+      const hash = (location.hash || '').replace('#', '');
+      const map = {
+        'section-study': 'study',
+        'section-search': 'search',
+        'section-community': 'community',
+        'section-roadmap': 'roadmap'
+      };
+      if (map[hash]) {
+        switchHubTab(map[hash]);
+      }
+    }
+
+    window.addEventListener('hashchange', handleHashNavigation);
+
     async function initHub() {
-      const hubRes = await fetch('./data/hub_catalog.json');
-      HUB_DATA = await hubRes.json();
+      updateThemeBtnLabel();
+      try {
+        const hubRes = await fetch('./data/hub_catalog.json');
+        HUB_DATA = await hubRes.json();
+      } catch (e) {
+        document.getElementById('certCardsGrid').innerHTML =
+          '<div class="surface-card rounded-xl p-6 text-sm">카탈로그 데이터를 불러오지 못했습니다. 새로고침 후 다시 시도해 주세요.</div>';
+        return;
+      }
 
       renderCertCards();
       renderScheduleTable();
       renderCommunityPosts();
+      handleHashNavigation();
 
-      // Load EIP (380+20), ITPE (95+20), and ISEC (60+15) RDB JSONs in background for instant Cross-Cert Search
+      // Background fetch full RDB datasets for Cross-Cert Unified Search
       const [eipData, itpeData, isecData] = await Promise.all([
-        fetch('./certs/eip/data/eip_rdb_export.json').then(r => r.json()).catch(() => null),
-        fetch('./certs/itpe/data/itpe_rdb_export.json').then(r => r.json()).catch(() => null),
-        fetch('./certs/isec/data/isec_rdb_export.json').then(r => r.json()).catch(() => null)
+        fetch('./certs/eip/data/eip_rdb_export.json').then(r => r.ok ? r.json() : null).catch(() => null),
+        fetch('./certs/itpe/data/itpe_rdb_export.json').then(r => r.ok ? r.json() : null).catch(() => null),
+        fetch('./certs/isec/data/isec_rdb_export.json').then(r => r.ok ? r.json() : null).catch(() => null)
       ]);
 
       buildUnifiedSearchIndex(eipData, itpeData, isecData);
@@ -572,59 +768,100 @@
     function buildUnifiedSearchIndex(eipData, itpeData, isecData) {
       UNIFIED_INDEX = [];
 
+      // 1. 정보처리기사 실기 (380 기출 + 20 예상) — exact JSON schema keys
       if (eipData && Array.isArray(eipData.questions)) {
         eipData.questions.forEach(q => {
+          const bodyParts = [q.question_body, q.code_snippet].filter(Boolean).join('\n\n');
           UNIFIED_INDEX.push({
             cert: '정보처리기사',
-            badge: `${q.round_label || ''} ${q.question_no}번`,
-            category: `${q.major_category || ''} > ${q.minor_category || ''}`,
-            title: q.title || '',
-            question: (q.question_text || '') + (q.code_snippet ? '\n' + q.code_snippet : ''),
+            exam_stage: '실기',
+            badge: `${q.round_title || ''} ${q.question_num || ''}번`,
+            category: `${q.major_name || ''} > ${q.minor_name || ''}`,
+            title: q.question_header || '(제목 없음)',
+            question: bodyParts || q.question_header || '',
             answer: q.answer_text || '',
-            explanation: q.explanation || '',
+            explanation: q.explanation_text || '',
+            link: './certs/eip/index.html'
+          });
+        });
+      }
+      if (eipData && Array.isArray(eipData.predicted_questions)) {
+        eipData.predicted_questions.forEach(p => {
+          const bodyParts = [p.question_body, p.code_snippet].filter(Boolean).join('\n\n');
+          UNIFIED_INDEX.push({
+            cert: '정보처리기사',
+            exam_stage: '실기',
+            badge: `적중 예상 #${p.pred_id || ''}`,
+            category: `${p.major_name || ''} > ${p.minor_name || ''}`,
+            title: p.question_header || '(예상 문항)',
+            question: bodyParts || p.question_header || '',
+            answer: p.answer_text || '',
+            explanation: [p.basis ? `[선정근거] ${p.basis}` : '', p.explanation_text].filter(Boolean).join('\n\n'),
             link: './certs/eip/index.html'
           });
         });
       }
 
+      // 2. 정보관리기술사 필기 논술 (102 기출 + 20 예상) — exact JSON schema keys
       if (itpeData && Array.isArray(itpeData.questions)) {
         itpeData.questions.forEach(q => {
+          const outlineStr = Array.isArray(q.standard_outline) ? q.standard_outline.join(' → ') : (q.standard_outline || '');
+          const promptsStr = Array.isArray(q.sub_prompts) ? q.sub_prompts.join('\n') : (q.sub_prompts || '');
           UNIFIED_INDEX.push({
             cert: '정보관리기술사',
-            badge: `제${q.round_id}회 ${q.period}교시`,
+            exam_stage: '필기',
+            badge: `${q.round_title || ''} · ${q.period_name || ''}`,
             category: q.domain_name || '기술사 서브노트',
-            title: q.topic_title || '',
-            question: q.definition_summary || '',
-            answer: `[필수 키워드] ${q.core_keywords || ''}\n[4단 목차] ${q.standard_outline || ''}`,
-            explanation: (q.architecture_diagram || '') + '\n\n' + (q.practical_insight || ''),
+            title: q.question_header || '(토픽)',
+            question: promptsStr || q.question_header || '',
+            answer: `[필수 키워드] ${q.core_keywords || ''}\n[4단 목차] ${outlineStr}`,
+            explanation: [q.model_answer_text, q.escalation_note ? `📌 ${q.escalation_note}` : ''].filter(Boolean).join('\n\n'),
+            link: './certs/itpe/index.html'
+          });
+        });
+      }
+      if (itpeData && Array.isArray(itpeData.predicted_topics)) {
+        itpeData.predicted_topics.forEach(p => {
+          const outlineStr = Array.isArray(p.standard_outline) ? p.standard_outline.join(' → ') : (p.standard_outline || '');
+          UNIFIED_INDEX.push({
+            cert: '정보관리기술사',
+            exam_stage: '필기',
+            badge: `예상 #${p.pred_id || ''} (${p.target_period || ''})`,
+            category: p.domain_name || '기술사 예상',
+            title: p.question_header || '(예상 토픽)',
+            question: p.basis || p.question_header || '',
+            answer: `[필수 키워드] ${p.core_keywords || ''}\n[4단 목차] ${outlineStr}`,
+            explanation: p.model_answer_text || '',
             link: './certs/itpe/index.html'
           });
         });
       }
 
+      // 3. 정보보안기사 실기 (60 기출 + 15 예상)
       if (isecData && Array.isArray(isecData.questions)) {
         isecData.questions.forEach(q => {
           UNIFIED_INDEX.push({
             cert: '정보보안기사',
-            badge: `${q.round_title || ''} #${q.question_no}`,
+            exam_stage: '실기',
+            badge: `${q.round_title || ''} #${q.question_no || ''}`,
             category: `${q.domain_name || ''} (${q.qtype_name || ''})`,
             title: q.title || '',
-            question: (q.question_text || '') + (q.code_or_log ? '\n' + q.code_or_log : ''),
+            question: [q.question_text, q.code_or_log].filter(Boolean).join('\n\n'),
             answer: q.answer_text || '',
-            explanation: (q.explanation || '') + (q.escalation_note ? '\n📌 ' + q.escalation_note : ''),
+            explanation: [q.explanation, q.escalation_note ? `📌 ${q.escalation_note}` : ''].filter(Boolean).join('\n\n'),
             link: './certs/isec/index.html'
           });
         });
       }
-
       if (isecData && Array.isArray(isecData.predicted)) {
         isecData.predicted.forEach(p => {
           UNIFIED_INDEX.push({
             cert: '정보보안기사',
-            badge: `예상 #${p.pred_id} (${p.probability || ''})`,
+            exam_stage: '실기',
+            badge: `예상 #${p.pred_id || ''} (${p.probability || ''})`,
             category: `${p.domain_name || ''} (${p.qtype_name || ''})`,
             title: p.title || '',
-            question: (p.question_text || '') + (p.code_or_log ? '\n' + p.code_or_log : ''),
+            question: [p.question_text, p.code_or_log].filter(Boolean).join('\n\n'),
             answer: p.answer_text || '',
             explanation: p.rationale || '',
             link: './certs/isec/index.html'
@@ -632,106 +869,172 @@
         });
       }
 
+      // 4. Hub Catalog Mini Packs (Written + Practical/Interview)
       if (HUB_DATA && Array.isArray(HUB_DATA.certifications)) {
         HUB_DATA.certifications.forEach(c => {
-          (c.quick_questions || []).forEach(qq => {
+          const allMini = [...(c.written_questions || []), ...(c.practical_questions || [])];
+          allMini.forEach(qq => {
             UNIFIED_INDEX.push({
-              cert: c.name.replace(' 실기', ''),
+              cert: c.name,
+              exam_stage: qq.exam_stage || '필기',
               badge: qq.q_no,
               category: `${qq.domain} (${qq.type})`,
               title: qq.title,
               question: qq.question,
               answer: qq.answer,
               explanation: qq.explanation,
-              link: c.url
+              link: `#mini-${c.id}-${qq.exam_stage || 'ALL'}`
             });
           });
         });
       }
 
+      const writtenCnt = UNIFIED_INDEX.filter(i => i.exam_stage === '필기').length;
+      const practicalCnt = UNIFIED_INDEX.filter(i => i.exam_stage === '실기').length;
       document.getElementById('totalIndexedCount').textContent = `${UNIFIED_INDEX.length}`;
       document.getElementById('kpiQuestionCount').textContent = `${UNIFIED_INDEX.length}문항`;
+      document.getElementById('kpiStageBreakdown').textContent = `필기 ${writtenCnt} · 실기 ${practicalCnt}`;
     }
 
     function switchHubTab(tab) {
       ['study', 'search', 'community', 'roadmap'].forEach(t => {
-        document.getElementById(`section-${t}`).classList.toggle('hidden', t !== tab);
-        document.getElementById(`section-${t}`).classList.toggle('flex', t === tab);
+        const sec = document.getElementById(`section-${t}`);
+        sec.classList.toggle('hidden', t !== tab);
+        sec.classList.toggle('flex', t === tab);
         const btn = document.getElementById(`hubTab-${t}`);
-        if (t === tab) {
-          btn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-blue-600 text-white';
-        } else {
-          btn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-300 hover:bg-slate-800';
-        }
+        btn.className = t === tab
+          ? 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all nav-btn-active'
+          : 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all nav-btn';
       });
+      if (tab === 'search') {
+        renderCrossSearchResults(document.getElementById('mainCrossSearchInput').value || '');
+      }
     }
 
     function filterCertCards(filter) {
       currentCertFilter = filter;
       ['ALL', '국가기술자격', '민간자격'].forEach(f => {
         const btn = document.getElementById(`certFilter-${f}`);
-        if (f === filter) {
-          btn.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-600 text-white';
-        } else {
-          btn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold border border-[var(--border)] bg-[var(--background)] text-slate-300';
-        }
+        btn.className = f === filter
+          ? 'px-3 py-1.5 rounded-lg text-xs pill-btn-active transition'
+          : 'px-3 py-1.5 rounded-lg text-xs font-semibold pill-btn transition';
       });
       renderCertCards();
+    }
+
+    function filterStageCards(stage) {
+      currentStageFilter = stage;
+      ['ALL', '필기', '실기', '단일'].forEach(s => {
+        const btn = document.getElementById(`stageFilter-${s}`);
+        btn.className = s === stage
+          ? 'px-2.5 py-1 rounded-md text-xs pill-btn-active transition'
+          : 'px-2.5 py-1 rounded-md text-xs font-semibold pill-btn transition';
+      });
+      renderCertCards();
+    }
+
+    function renderStageRow(cert, stageKey, stageObj) {
+      if (!stageObj) return '';
+      const isWritten = stageKey === 'written';
+      const isLive = stageObj.status === 'active' && stageObj.url;
+      const badgeCls = isWritten ? 'badge-written' : 'badge-practical';
+      const icon = isWritten ? '📝' : '⚙️';
+      const stageFilterArg = isWritten ? '필기' : '실기';
+
+      const actionBtn = isLive
+        ? `<a href="${escapeHtml(stageObj.url)}" class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-white transition shrink-0" style="background: ${isWritten ? 'var(--written)' : 'var(--practical)'};">
+             전용 RDB 열기 →
+           </a>`
+        : `<button type="button" onclick="openMiniStudyPack('${escapeHtml(cert.id)}', '${stageFilterArg}')" class="px-2.5 py-1.5 rounded-lg text-xs font-bold pill-btn transition shrink-0">
+             미니팩 학습 →
+           </button>`;
+
+      return `
+        <div class="p-3 rounded-xl flex flex-col gap-1.5" style="background: var(--bg-elevated); border: 1px solid var(--border);">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <span class="px-2 py-0.5 rounded-md text-[11px] font-bold ${badgeCls}">${icon} ${escapeHtml(stageObj.label)}</span>
+              <span class="text-[11px] font-semibold" style="color: var(--text-muted);">${escapeHtml(stageObj.count_label)}</span>
+            </div>
+            ${actionBtn}
+          </div>
+          <div class="text-[11px] leading-relaxed" style="color: var(--text-secondary);">
+            ${escapeHtml(stageObj.format)}
+          </div>
+        </div>
+      `;
     }
 
     function renderCertCards() {
       const grid = document.getElementById('certCardsGrid');
       const certs = (HUB_DATA.certifications || []).filter(c => {
-        if (currentCertFilter === 'ALL') return true;
-        return c.category.includes(currentCertFilter);
+        if (currentCertFilter !== 'ALL' && !c.category.includes(currentCertFilter)) return false;
+        if (currentStageFilter === '필기' && !(c.available_stages || []).includes('필기')) return false;
+        if (currentStageFilter === '실기' && !(c.available_stages || []).includes('실기')) return false;
+        if (currentStageFilter === '단일' && c.exam_structure !== 'written_only') return false;
+        return true;
       });
 
-      grid.innerHTML = certs.map((c, idx) => {
-        const isFullApp = c.status === 'active';
-        const deferredClass = idx >= 4 ? 'heavy-section-deferred' : '';
-        const badgeStyle = isFullApp
-          ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
-          : 'bg-amber-500/20 text-amber-300 border-amber-500/30';
+      if (!certs.length) {
+        grid.innerHTML = '<div class="surface-card rounded-xl p-8 text-center text-sm col-span-full" style="color: var(--text-muted);">선택한 조건에 해당하는 자격증이 없습니다.</div>';
+        return;
+      }
 
-        const primaryAction = isFullApp
-          ? `<a href="${escapeHtml(c.url)}" class="flex-1 text-center py-2 px-3 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white transition shadow">
-               🚀 전용 RDB 학습관 열기 (${c.question_count + c.predicted_count}문항)
-             </a>`
-          : `<button type="button" onclick="openMiniStudyPack('${escapeHtml(c.id)}')" class="flex-1 text-center py-2 px-3 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white transition shadow">
-               📖 핵심 기출 미니 학습팩 열기
-             </button>`;
+      grid.innerHTML = certs.map((c, idx) => {
+        const deferredClass = idx >= 4 ? 'heavy-section-deferred' : '';
+        const isFullApp = c.status === 'active';
+        const statusBadgeCls = isFullApp ? 'badge-practical' : 'badge-amber';
+
+        const structureBadge = c.exam_structure === 'written_only'
+          ? '<span class="px-2 py-0.5 rounded-md text-[11px] font-bold badge-written">📝 필기 단일시험</span>'
+          : c.exam_structure === 'written_and_interview'
+            ? '<span class="px-2 py-0.5 rounded-md text-[11px] font-bold badge-written">📝 필기(논술)</span><span class="px-2 py-0.5 rounded-md text-[11px] font-bold badge-practical">🎤 실기(면접)</span>'
+            : '<span class="px-2 py-0.5 rounded-md text-[11px] font-bold badge-written">📝 필기</span><span class="px-2 py-0.5 rounded-md text-[11px] font-bold badge-practical">⚙️ 실기</span>';
+
+        const stagesHtml = [
+          renderStageRow(c, 'written', c.stages && c.stages.written),
+          renderStageRow(c, 'practical', c.stages && c.stages.practical)
+        ].filter(Boolean).join('');
 
         return `
-          <article class="${deferredClass} bg-[var(--card)] border border-[var(--border)] hover:border-blue-500/60 rounded-2xl p-5 flex flex-col justify-between gap-4 transition shadow-sm">
-            <div class="flex flex-col gap-2.5">
-              <div class="flex items-center justify-between gap-2">
-                <span class="text-[11px] font-bold text-blue-400">${escapeHtml(c.category)} · ${escapeHtml(c.level)}</span>
-                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${badgeStyle}">${escapeHtml(c.badge)}</span>
-              </div>
-              <h3 class="text-base font-extrabold text-white">${escapeHtml(c.name)}</h3>
-              <p class="text-xs text-slate-300 leading-relaxed">${escapeHtml(c.summary)}</p>
-
-              <div class="p-3 rounded-xl bg-[var(--background)] border border-[var(--border)] text-[11px] text-slate-400 flex flex-col gap-1">
-                <div><strong class="text-slate-200">수록 범위:</strong> ${escapeHtml(c.rounds_range)}</div>
-                <div><strong class="text-slate-200">시험 방식:</strong> ${escapeHtml(c.exam_type)}</div>
-                <div><strong class="text-slate-200">합격 기준:</strong> ${escapeHtml(c.pass_criteria)}</div>
+          <article class="${deferredClass} surface-card rounded-2xl p-5 flex flex-col justify-between gap-4 transition">
+            <div class="flex flex-col gap-3">
+              <div class="flex items-center justify-between gap-2 flex-wrap">
+                <span class="text-[11px] font-bold" style="color: var(--accent);">${escapeHtml(c.category)} · ${escapeHtml(c.level)}</span>
+                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold ${statusBadgeCls}">${escapeHtml(c.badge)}</span>
               </div>
 
-              <div class="flex flex-wrap gap-1.5 pt-1">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <h3 class="text-lg font-extrabold" style="color: var(--text-main);">${escapeHtml(c.name)}</h3>
+                <div class="flex items-center gap-1">${structureBadge}</div>
+              </div>
+
+              <p class="text-xs leading-relaxed" style="color: var(--text-secondary);">${escapeHtml(c.summary)}</p>
+
+              <!-- Written / Practical Separated Tracks -->
+              <div class="flex flex-col gap-2">
+                ${stagesHtml}
+              </div>
+
+              <div class="text-[11px]" style="color: var(--text-muted);">
+                <strong>합격 기준:</strong> ${escapeHtml(c.pass_criteria)}
+              </div>
+
+              <div class="flex flex-wrap gap-1.5">
                 ${(c.key_tags || []).map(tag => `
                   <button type="button" onclick="jumpToSearchKeyword('${escapeHtml(tag.replace(/\(.*\)/, ''))}')"
-                    class="px-2 py-0.5 rounded-md text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700">
+                    class="px-2 py-0.5 rounded-md text-[11px] pill-btn transition">
                     #${escapeHtml(tag)}
                   </button>
                 `).join('')}
               </div>
             </div>
 
-            <div class="flex items-center gap-2 pt-2 border-t border-[var(--border)]">
-              ${primaryAction}
-              <button type="button" onclick="jumpToCertSearch('${escapeHtml(c.name.replace(' 실기', ''))}')"
-                class="py-2 px-3 rounded-xl text-xs font-semibold border border-[var(--border)] bg-[var(--background)] hover:border-blue-400 text-slate-200">
-                🔍 문항 검색
+            <div class="flex items-center justify-between gap-2 pt-3 border-t" style="border-color: var(--border);">
+              <span class="text-[11px]" style="color: var(--text-muted);">${escapeHtml(c.agency)}</span>
+              <button type="button" onclick="jumpToCertSearch('${escapeHtml(c.name)}')"
+                class="py-1.5 px-3 rounded-lg text-xs font-semibold pill-btn transition">
+                🔍 전체 문항 검색
               </button>
             </div>
           </article>
@@ -739,33 +1042,87 @@
       }).join('');
     }
 
-    function openMiniStudyPack(certId) {
+    function openMiniStudyPack(certId, initialStage = 'ALL') {
       const cert = (HUB_DATA.certifications || []).find(c => c.id === certId);
       if (!cert) return;
+      activePackCertId = certId;
+      activePackStage = initialStage;
+
       const dlg = document.getElementById('studyPackDialog');
-      document.getElementById('studyPackDialogTitle').textContent = `📘 ${cert.name} — 핵심 기출 & 요약 학습팩`;
+      document.getElementById('studyPackDialogTitle').textContent = `📘 ${cert.name} — 핵심 기출 미니 학습팩`;
       document.getElementById('studyPackDialogSub').textContent = `${cert.exam_type} | ${cert.pass_criteria}`;
 
-      const questions = cert.quick_questions || [];
-      document.getElementById('studyPackDialogBody').innerHTML = questions.map(q => `
-        <div class="p-4 rounded-xl bg-[var(--background)] border border-[var(--border)] flex flex-col gap-2.5">
-          <div class="flex items-center justify-between gap-2">
-            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-500/20 text-blue-400">${escapeHtml(q.q_no)} · ${escapeHtml(q.domain)}</span>
-            <span class="text-xs text-slate-400">${escapeHtml(q.type)}</span>
-          </div>
-          <h4 class="font-bold text-white text-sm">${escapeHtml(q.title)}</h4>
-          <pre class="p-3 rounded-lg bg-slate-900/90 border border-slate-800 text-xs text-slate-200 whitespace-pre-wrap">${escapeHtml(q.question)}</pre>
-          <details class="group rounded-lg bg-emerald-950/30 border border-emerald-500/30 p-3">
-            <summary class="cursor-pointer text-xs font-bold text-emerald-400">✅ 정답 및 핵심 해설 보기 (클릭)</summary>
-            <div class="mt-2 pt-2 border-t border-emerald-500/20 flex flex-col gap-2 text-xs">
-              <pre class="text-emerald-300 font-semibold whitespace-pre-wrap">${escapeHtml(q.answer)}</pre>
-              <p class="text-slate-300 leading-relaxed">${escapeHtml(q.explanation)}</p>
-            </div>
-          </details>
-        </div>
-      `).join('');
+      renderMiniStudyPackBody();
+      if (!dlg.open) dlg.showModal();
+    }
 
-      dlg.showModal();
+    function setMiniPackStage(stage) {
+      activePackStage = stage;
+      renderMiniStudyPackBody();
+    }
+
+    function renderMiniStudyPackBody() {
+      const cert = (HUB_DATA.certifications || []).find(c => c.id === activePackCertId);
+      if (!cert) return;
+
+      const wq = cert.written_questions || [];
+      const pq = cert.practical_questions || [];
+      const tabsEl = document.getElementById('studyPackStageTabs');
+
+      if (wq.length > 0 && pq.length > 0) {
+        tabsEl.innerHTML = [
+          { key: 'ALL', label: `전체 (${wq.length + pq.length})` },
+          { key: '필기', label: `📝 필기 (${wq.length})` },
+          { key: '실기', label: `⚙️ 실기 (${pq.length})` }
+        ].map(t => `
+          <button type="button" onclick="setMiniPackStage('${t.key}')"
+            class="px-3 py-1 rounded-lg text-xs transition ${activePackStage === t.key ? 'pill-btn-active' : 'pill-btn font-semibold'}">
+            ${t.label}
+          </button>
+        `).join('');
+      } else {
+        tabsEl.innerHTML = '';
+      }
+
+      let questions = [...wq, ...pq];
+      if (activePackStage !== 'ALL') {
+        const filtered = questions.filter(q => q.exam_stage === activePackStage);
+        if (filtered.length) questions = filtered;
+      }
+
+      if (!questions.length) {
+        document.getElementById('studyPackDialogBody').innerHTML =
+          '<div class="p-6 text-center text-sm" style="color: var(--text-muted);">이 단계는 전용 RDB 학습관에서 전체 문항을 이용할 수 있습니다.</div>';
+        return;
+      }
+
+      document.getElementById('studyPackDialogBody').innerHTML = questions.map(q => {
+        const isWritten = q.exam_stage === '필기';
+        const stageBadge = isWritten
+          ? '<span class="px-2 py-0.5 rounded-md text-xs font-bold badge-written">📝 필기</span>'
+          : '<span class="px-2 py-0.5 rounded-md text-xs font-bold badge-practical">⚙️ 실기</span>';
+
+        return `
+          <div class="p-4 rounded-xl flex flex-col gap-2.5" style="background: var(--bg-elevated); border: 1px solid var(--border);">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                ${stageBadge}
+                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold badge-accent">${escapeHtml(q.q_no)} · ${escapeHtml(q.domain)}</span>
+              </div>
+              <span class="text-xs font-semibold" style="color: var(--text-muted);">${escapeHtml(q.type)}</span>
+            </div>
+            <h4 class="font-bold text-sm" style="color: var(--text-main);">${escapeHtml(q.title)}</h4>
+            <pre class="p-3.5 rounded-lg text-xs whitespace-pre-wrap leading-relaxed" style="background: var(--bg-card); border: 1px solid var(--border); color: var(--text-main);">${escapeHtml(q.question)}</pre>
+            <details class="rounded-lg p-3 badge-practical">
+              <summary class="cursor-pointer text-xs font-bold">✅ 정답 및 핵심 해설 보기 (클릭)</summary>
+              <div class="mt-2 pt-2 border-t flex flex-col gap-2 text-xs" style="border-color: var(--practical-border);">
+                <pre class="font-bold whitespace-pre-wrap" style="color: var(--text-main);">${escapeHtml(q.answer)}</pre>
+                <p class="leading-relaxed" style="color: var(--text-secondary);">${escapeHtml(q.explanation)}</p>
+              </div>
+            </details>
+          </div>
+        `;
+      }).join('');
     }
 
     function triggerCrossSearch(val) {
@@ -780,6 +1137,7 @@
     function jumpToSearchKeyword(kw) {
       switchHubTab('search');
       document.getElementById('searchCertScope').value = 'ALL';
+      document.getElementById('searchStageScope').value = 'ALL';
       const mainInput = document.getElementById('mainCrossSearchInput');
       mainInput.value = kw;
       renderCrossSearchResults(kw);
@@ -787,21 +1145,27 @@
 
     function jumpToCertSearch(certName) {
       switchHubTab('search');
-      document.getElementById('searchCertScope').value = certName;
+      const scopeEl = document.getElementById('searchCertScope');
+      const matchOpt = Array.from(scopeEl.options).find(o => o.value !== 'ALL' && certName.includes(o.value));
+      scopeEl.value = matchOpt ? matchOpt.value : 'ALL';
+      document.getElementById('searchStageScope').value = 'ALL';
       const mainInput = document.getElementById('mainCrossSearchInput');
-      renderCrossSearchResults(mainInput.value || '');
+      mainInput.value = '';
+      renderCrossSearchResults('');
     }
 
     function renderCrossSearchResults(query) {
       const q = (query || '').trim().toLowerCase();
       const scope = document.getElementById('searchCertScope').value;
+      const stageScope = document.getElementById('searchStageScope').value;
       const container = document.getElementById('crossSearchResultsContainer');
       const badge = document.getElementById('searchStatsBadge');
 
       const matches = UNIFIED_INDEX.filter(item => {
         if (scope !== 'ALL' && !item.cert.includes(scope)) return false;
+        if (stageScope !== 'ALL' && item.exam_stage !== stageScope) return false;
         if (!q) return true;
-        const hay = `${item.cert} ${item.badge} ${item.category} ${item.title} ${item.question} ${item.answer} ${item.explanation}`.toLowerCase();
+        const hay = `${item.cert} ${item.exam_stage} ${item.badge} ${item.category} ${item.title} ${item.question} ${item.answer} ${item.explanation}`.toLowerCase();
         return hay.includes(q);
       });
 
@@ -810,8 +1174,8 @@
       const sliced = matches.slice(0, 40);
       if (!sliced.length) {
         container.innerHTML = `
-          <div class="p-8 rounded-xl bg-[var(--card)] border border-[var(--border)] text-center text-sm text-slate-400">
-            일치하는 문항이 없습니다. 다른 키워드(예: <code>OSPF</code>, <code>정규화</code>, <code>포인터</code>, <code>SQL</code>, <code>제로트러스트</code>)로 검색해 보세요.
+          <div class="surface-card p-8 rounded-xl text-center text-sm" style="color: var(--text-muted);">
+            일치하는 문항이 없습니다. 다른 키워드(예: <code>OSPF</code>, <code>정규화</code>, <code>포인터</code>, <code>Snort</code>, <code>제로트러스트</code>)로 검색해 보세요.
           </div>
         `;
         return;
@@ -819,24 +1183,29 @@
 
       container.innerHTML = sliced.map((item, idx) => {
         const deferredClass = idx >= 4 ? 'heavy-section-deferred' : '';
-        const isExternalApp = item.link.startsWith('./certs/');
+        const isExternalApp = item.link && item.link.startsWith('./certs/');
+        const stageBadge = item.exam_stage === '필기'
+          ? '<span class="px-2 py-0.5 rounded-md text-xs font-bold badge-written">📝 필기</span>'
+          : '<span class="px-2 py-0.5 rounded-md text-xs font-bold badge-practical">⚙️ 실기</span>';
+
         return `
-          <article class="${deferredClass} bg-[var(--card)] border border-[var(--border)] rounded-xl p-4 flex flex-col gap-2.5">
+          <article class="${deferredClass} surface-card rounded-xl p-4 flex flex-col gap-2.5">
             <div class="flex flex-wrap items-center justify-between gap-2">
-              <div class="flex items-center gap-2">
-                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30">${escapeHtml(item.cert)}</span>
-                <span class="text-xs font-semibold text-slate-300">${escapeHtml(item.badge)}</span>
-                <span class="text-xs text-slate-500">· ${escapeHtml(item.category)}</span>
+              <div class="flex flex-wrap items-center gap-1.5">
+                ${stageBadge}
+                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold badge-accent">${escapeHtml(item.cert)}</span>
+                <span class="text-xs font-semibold" style="color: var(--text-main);">${escapeHtml(item.badge)}</span>
+                <span class="text-xs" style="color: var(--text-muted);">· ${escapeHtml(item.category)}</span>
               </div>
-              ${isExternalApp ? `<a href="${escapeHtml(item.link)}" class="text-xs font-bold text-blue-400 hover:underline">전용 학습관에서 열기 ↗</a>` : ''}
+              ${isExternalApp ? `<a href="${escapeHtml(item.link)}" class="text-xs font-bold hover:underline" style="color: var(--accent);">전용 학습관에서 열기 ↗</a>` : ''}
             </div>
-            <h3 class="text-sm font-bold text-white">${escapeHtml(item.title)}</h3>
-            <pre class="p-3 rounded-lg bg-[var(--background)] border border-[var(--border)] text-xs text-slate-200 whitespace-pre-wrap overflow-x-auto">${escapeHtml(item.question.slice(0, 420))}${item.question.length > 420 ? '...' : ''}</pre>
-            <details class="rounded-lg bg-emerald-950/25 border border-emerald-500/30 p-2.5">
-              <summary class="cursor-pointer text-xs font-bold text-emerald-400">정답 및 핵심 해설 확인</summary>
-              <div class="mt-2 pt-2 border-t border-emerald-500/20 text-xs flex flex-col gap-1.5">
-                <div class="font-bold text-emerald-300 whitespace-pre-wrap">${escapeHtml(item.answer)}</div>
-                <div class="text-slate-300 whitespace-pre-wrap">${escapeHtml(item.explanation)}</div>
+            <h3 class="text-sm font-bold" style="color: var(--text-main);">${escapeHtml(item.title)}</h3>
+            <pre class="p-3 rounded-lg text-xs whitespace-pre-wrap overflow-x-auto leading-relaxed" style="background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-main);">${escapeHtml(item.question.slice(0, 460))}${item.question.length > 460 ? '...' : ''}</pre>
+            <details class="rounded-lg p-2.5 badge-practical">
+              <summary class="cursor-pointer text-xs font-bold">✅ 정답 및 핵심 해설 확인</summary>
+              <div class="mt-2 pt-2 border-t text-xs flex flex-col gap-1.5" style="border-color: var(--practical-border);">
+                <div class="font-bold whitespace-pre-wrap" style="color: var(--text-main);">${escapeHtml(item.answer)}</div>
+                <div class="whitespace-pre-wrap leading-relaxed" style="color: var(--text-secondary);">${escapeHtml(item.explanation)}</div>
               </div>
             </details>
           </article>
@@ -848,11 +1217,9 @@
       currentCommFilter = cat;
       ['ALL', '합격수기', '암기꿀팁', '복원제보'].forEach(c => {
         const btn = document.getElementById(`commFilter-${c}`);
-        if (c === cat) {
-          btn.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-600 text-white';
-        } else {
-          btn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold border border-[var(--border)] bg-[var(--card)] text-slate-300';
-        }
+        btn.className = c === cat
+          ? 'px-3 py-1.5 rounded-lg text-xs pill-btn-active transition'
+          : 'px-3 py-1.5 rounded-lg text-xs font-semibold pill-btn transition';
       });
       renderCommunityPosts();
     }
@@ -865,20 +1232,20 @@
       const grid = document.getElementById('communityPostsGrid');
       const posts = getAllPosts().filter(p => currentCommFilter === 'ALL' || p.category === currentCommFilter);
 
-      grid.innerHTML = posts.map((p, idx) => `
-        <article class="bg-[var(--card)] border border-[var(--border)] hover:border-blue-500/60 rounded-xl p-5 flex flex-col justify-between gap-3 transition">
+      grid.innerHTML = posts.map(p => `
+        <article class="surface-card rounded-xl p-5 flex flex-col justify-between gap-3 transition">
           <div class="flex flex-col gap-2">
-            <div class="flex items-center justify-between gap-2 text-xs">
-              <span class="px-2.5 py-0.5 rounded-full font-bold bg-blue-500/20 text-blue-400">${escapeHtml(p.category)} · ${escapeHtml(p.cert_name)}</span>
-              <span class="text-slate-400">${escapeHtml(p.date)} · 👍 ${p.likes || 1}</span>
+            <div class="flex items-center justify-between gap-2 text-xs flex-wrap">
+              <span class="px-2.5 py-0.5 rounded-full font-bold badge-accent">${escapeHtml(p.category)} · ${escapeHtml(p.cert_name)}</span>
+              <span style="color: var(--text-muted);">${escapeHtml(p.date)} · 👍 ${p.likes || 1}</span>
             </div>
-            <h3 class="text-sm sm:text-base font-bold text-white">${escapeHtml(p.title)}</h3>
-            <p class="text-xs text-slate-300 leading-relaxed">${escapeHtml(p.summary)}</p>
+            <h3 class="text-sm sm:text-base font-bold" style="color: var(--text-main);">${escapeHtml(p.title)}</h3>
+            <p class="text-xs leading-relaxed" style="color: var(--text-secondary);">${escapeHtml(p.summary)}</p>
           </div>
-          <div class="flex items-center justify-between pt-3 border-t border-[var(--border)] text-xs">
-            <span class="text-slate-400">작성자: <strong class="text-slate-200">${escapeHtml(p.author)}</strong></span>
+          <div class="flex items-center justify-between pt-3 border-t text-xs" style="border-color: var(--border);">
+            <span style="color: var(--text-muted);">작성자: <strong style="color: var(--text-main);">${escapeHtml(p.author)}</strong></span>
             <button type="button" onclick="openPostDetail('${escapeHtml(p.id)}')"
-              class="px-3 py-1.5 rounded-lg font-bold bg-slate-800 hover:bg-blue-600 text-white transition">
+              class="px-3 py-1.5 rounded-lg font-bold pill-btn transition">
               상세 전문 읽기 →
             </button>
           </div>
@@ -892,11 +1259,11 @@
       const dlg = document.getElementById('communityDialog');
       document.getElementById('communityDialogTitle').textContent = `[${post.category}] ${post.title}`;
       document.getElementById('communityDialogBody').innerHTML = `
-        <div class="flex items-center justify-between text-xs text-slate-400 pb-2 border-b border-[var(--border)]">
-          <span>대상 자격증: <strong class="text-blue-400">${escapeHtml(post.cert_name)}</strong> | 작성자: ${escapeHtml(post.author)}</span>
+        <div class="flex flex-wrap items-center justify-between text-xs pb-2 border-b" style="color: var(--text-muted); border-color: var(--border);">
+          <span>대상 자격증: <strong style="color: var(--accent);">${escapeHtml(post.cert_name)}</strong> | 작성자: ${escapeHtml(post.author)}</span>
           <span>${escapeHtml(post.date)}</span>
         </div>
-        <div class="p-4 rounded-xl bg-[var(--background)] border border-[var(--border)] text-xs sm:text-sm text-slate-200 whitespace-pre-wrap leading-relaxed">${escapeHtml(post.body)}</div>
+        <div class="p-4 rounded-xl text-xs sm:text-sm whitespace-pre-wrap leading-relaxed" style="background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-main);">${escapeHtml(post.body)}</div>
       `;
       dlg.showModal();
     }
@@ -908,32 +1275,32 @@
         <div class="flex flex-col gap-3 text-xs">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <div>
-              <label class="block text-slate-300 font-bold mb-1">분류</label>
-              <select id="newPostCat" class="w-full px-3 py-2 rounded-lg bg-[var(--background)] border border-[var(--border)] text-white">
+              <label for="newPostCat" class="block font-bold mb-1" style="color: var(--text-secondary);">분류</label>
+              <select id="newPostCat" class="w-full px-3 py-2 rounded-lg" style="background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main);">
                 <option value="합격수기">🏆 합격수기</option>
                 <option value="암기꿀팁">💡 과목별 암기꿀팁</option>
                 <option value="복원제보">🔥 최신 기출 복원제보</option>
               </select>
             </div>
             <div>
-              <label class="block text-slate-300 font-bold mb-1">자격증 종목</label>
-              <input id="newPostCert" type="text" value="정보처리기사 실기" class="w-full px-3 py-2 rounded-lg bg-[var(--background)] border border-[var(--border)] text-white" />
+              <label for="newPostCert" class="block font-bold mb-1" style="color: var(--text-secondary);">자격증 종목 (필기/실기 표기)</label>
+              <input id="newPostCert" type="text" value="정보처리기사 실기" class="w-full px-3 py-2 rounded-lg" style="background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main);" />
             </div>
           </div>
           <div>
-            <label class="block text-slate-300 font-bold mb-1">제목</label>
-            <input id="newPostTitle" type="text" placeholder="예: 2026년 3회차 C언어 포인터 문제 풀이 팁 공유합니다" class="w-full px-3 py-2 rounded-lg bg-[var(--background)] border border-[var(--border)] text-white" />
+            <label for="newPostTitle" class="block font-bold mb-1" style="color: var(--text-secondary);">제목</label>
+            <input id="newPostTitle" type="text" placeholder="예: 2026년 3회차 C언어 포인터 문제 풀이 팁 공유합니다" class="w-full px-3 py-2 rounded-lg" style="background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main);" />
           </div>
           <div>
-            <label class="block text-slate-300 font-bold mb-1">핵심 한줄 요약</label>
-            <input id="newPostSummary" type="text" placeholder="목록 카드에 표시될 핵심 요약" class="w-full px-3 py-2 rounded-lg bg-[var(--background)] border border-[var(--border)] text-white" />
+            <label for="newPostSummary" class="block font-bold mb-1" style="color: var(--text-secondary);">핵심 한줄 요약</label>
+            <input id="newPostSummary" type="text" placeholder="목록 카드에 표시될 핵심 요약" class="w-full px-3 py-2 rounded-lg" style="background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main);" />
           </div>
           <div>
-            <label class="block text-slate-300 font-bold mb-1">본문 내용</label>
-            <textarea id="newPostBody" rows="6" placeholder="자세한 학습 팁, 복원 문제, 합격 노하우를 작성해 주세요." class="w-full p-3 rounded-lg bg-[var(--background)] border border-[var(--border)] text-white"></textarea>
+            <label for="newPostBody" class="block font-bold mb-1" style="color: var(--text-secondary);">본문 내용</label>
+            <textarea id="newPostBody" rows="6" placeholder="자세한 학습 팁, 복원 문제, 합격 노하우를 작성해 주세요." class="w-full p-3 rounded-lg" style="background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main);"></textarea>
           </div>
           <div class="flex justify-end gap-2 pt-2">
-            <button type="button" onclick="saveNewCommunityPost()" class="px-4 py-2 rounded-xl font-bold bg-emerald-600 hover:bg-emerald-500 text-white">
+            <button type="button" onclick="saveNewCommunityPost()" class="px-4 py-2 rounded-xl font-bold text-white" style="background: var(--practical);">
               라운지에 즉시 등록
             </button>
           </div>
@@ -964,7 +1331,9 @@
         likes: 1
       };
       customPosts.unshift(newPost);
-      localStorage.setItem('kcert_custom_posts_v1', JSON.stringify(customPosts));
+      try {
+        localStorage.setItem('kcert_custom_posts_v1', JSON.stringify(customPosts));
+      } catch (e) {}
       renderCommunityPosts();
       document.getElementById('communityDialog').close();
     }
@@ -972,13 +1341,13 @@
     function renderScheduleTable() {
       const tbody = document.getElementById('scheduleTableBody');
       tbody.innerHTML = (HUB_DATA.schedules_2026 || []).map(s => `
-        <tr>
-          <th scope="row" class="py-3 px-4 font-bold text-white">${escapeHtml(s.cert_name)}</th>
-          <td class="py-3 px-4 text-blue-400 font-semibold">${escapeHtml(s.category)}</td>
-          <td class="py-3 px-4 text-slate-300">${escapeHtml(s.round)}</td>
-          <td class="py-3 px-4 text-slate-300">${escapeHtml(s.written_period)}</td>
-          <td class="py-3 px-4 text-emerald-400 font-semibold">${escapeHtml(s.practical_period)}</td>
-          <td class="py-3 px-4 text-slate-300">${escapeHtml(s.tip)}</td>
+        <tr class="border-b" style="border-color: var(--border);">
+          <th scope="row" class="py-3 px-4 font-bold" style="color: var(--text-main);">${escapeHtml(s.cert_name)}</th>
+          <td class="py-3 px-4 font-semibold" style="color: var(--accent);">${escapeHtml(s.category)}</td>
+          <td class="py-3 px-4" style="color: var(--text-secondary);">${escapeHtml(s.round)}</td>
+          <td class="py-3 px-4 font-medium" style="color: var(--written);">${escapeHtml(s.written_period)}</td>
+          <td class="py-3 px-4 font-medium" style="color: var(--practical);">${escapeHtml(s.practical_period)}</td>
+          <td class="py-3 px-4" style="color: var(--text-secondary);">${escapeHtml(s.tip)}</td>
         </tr>
       `).join('');
     }

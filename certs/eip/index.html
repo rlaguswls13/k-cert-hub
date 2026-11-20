@@ -3,20 +3,65 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>정보처리기사 실기 기출문제 은행 & 출제경향 분석</title>
+  <meta name="color-scheme" content="light" />
+  <script>
+    try {
+      const saved = localStorage.getItem('kcert_theme');
+      const scheme = saved === 'dark' ? 'dark' : 'light';
+      document.documentElement.dataset.theme = scheme;
+      document.querySelector('meta[name="color-scheme"]').content = scheme;
+    } catch (e) {
+      document.documentElement.dataset.theme = 'light';
+    }
+  </script>
+  <title>정보처리기사 실기 기출문제 은행 &amp; 출제경향 분석 — K-Cert Hub</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
   <style>
     :root {
-      --background: #0f172a;
-      --foreground: #f8fafc;
-      --card: #1e293b;
-      --border: #334155;
-      --muted-foreground: #94a3b8;
+      color-scheme: light;
+      --background: #f6f5f0;
+      --foreground: #1f2933;
+      --card: #ffffff;
+      --elevated: #efece6;
+      --border: #d8d5cc;
+      --muted-foreground: #525c68;
+      --topbar-bg: #efece6;
+      --topbar-border: #d8d5cc;
+      --topbar-link-bg: #ffffff;
+      --topbar-link-text: #1f2933;
+      --topbar-accent: #1d4ed8;
+    }
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --background: #141820;
+      --foreground: #eaeff5;
+      --card: #1c222d;
+      --elevated: #242b38;
+      --border: #323c4e;
+      --muted-foreground: #9aa5b5;
+      --topbar-bg: #0f131a;
+      --topbar-border: #283244;
+      --topbar-link-bg: #1c222d;
+      --topbar-link-text: #e2e8f0;
+      --topbar-accent: #60a5fa;
+    }
+    body {
+      line-height: 1.65;
+      overflow-wrap: break-word;
     }
     pre, code {
       font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
     }
+    /* High-contrast readable accents in light mode */
+    :root:not([data-theme="dark"]) .text-emerald-400,
+    :root:not([data-theme="dark"]) .text-emerald-500 { color: #0f766e !important; }
+    :root:not([data-theme="dark"]) .text-blue-400,
+    :root:not([data-theme="dark"]) .text-blue-500 { color: #1d4ed8 !important; }
+    :root:not([data-theme="dark"]) .text-amber-400,
+    :root:not([data-theme="dark"]) .text-amber-500 { color: #b45309 !important; }
+    :root:not([data-theme="dark"]) .text-purple-300,
+    :root:not([data-theme="dark"]) .text-purple-400 { color: #6d28d9 !important; }
+    :root:not([data-theme="dark"]) .text-rose-400 { color: #be123c !important; }
     .custom-scroll::-webkit-scrollbar {
       width: 6px;
       height: 6px;
@@ -93,19 +138,20 @@
 <body class="bg-[var(--background)] text-[var(--foreground)] antialiased min-h-screen flex flex-col">
 
   <!-- K-Cert Hub Global Top Bar -->
-  <div style="background:#090d16; border-bottom:1px solid #1e293b; font-family:Pretendard,system-ui,sans-serif; font-size:12px; color:#cbd5e1;">
-    <div style="max-width:1280px; margin:0 auto; padding:6px 16px; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px;">
-      <div style="display:flex; align-items:center; gap:10px;">
-        <a href="../../index.html" style="display:inline-flex; align-items:center; gap:6px; color:#60a5fa; font-weight:700; text-decoration:none; padding:3px 8px; border-radius:6px; background:rgba(59,130,246,0.12); border:1px solid rgba(59,130,246,0.3);">
-          <span>🏠 K-Cert Hub 통합 자격증 포털</span>
+  <div style="background:var(--topbar-bg); border-bottom:1px solid var(--topbar-border); font-family:Pretendard,system-ui,sans-serif; font-size:12px; color:var(--muted-foreground);">
+    <div style="max-width:1280px; margin:0 auto; padding:7px 16px; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px;">
+      <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+        <a href="../../index.html" style="display:inline-flex; align-items:center; gap:6px; color:var(--topbar-accent); font-weight:700; text-decoration:none; padding:4px 10px; border-radius:7px; background:var(--topbar-link-bg); border:1px solid var(--border);">
+          <span>🏠 K-Cert Hub 통합 포털</span>
         </a>
-        <span style="color:#475569;">|</span>
-        <span style="color:#94a3b8;">국가·민간 자격증 RDB 학습 &amp; 정보공유 채널</span>
+        <span style="color:var(--muted-foreground);">필기·실기 구분 RDB 학습 채널</span>
       </div>
       <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-        <a href="../eip/index.html" style="color:#e2e8f0; text-decoration:none; padding:3px 8px; border-radius:6px; background:#1e293b; border:1px solid #334155;">💻 정보처리기사 실기 (380문항)</a>
-        <a href="../itpe/index.html" style="color:#e2e8f0; text-decoration:none; padding:3px 8px; border-radius:6px; background:#1e293b; border:1px solid #334155;">🏛️ 정보관리기술사 (4단 서브노트)</a>
-        <a href="../../index.html#section-community" style="color:#34d399; text-decoration:none; padding:3px 8px; border-radius:6px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3);">💬 합격수기·정보공유 라운지</a>
+        <a href="../eip/index.html" style="color:var(--topbar-accent); font-weight:700; text-decoration:none; padding:4px 9px; border-radius:7px; background:var(--topbar-link-bg); border:1px solid var(--topbar-accent);">💻 정보처리기사 실기 (400)</a>
+        <a href="../itpe/index.html" style="color:var(--topbar-link-text); text-decoration:none; padding:4px 9px; border-radius:7px; background:var(--topbar-link-bg); border:1px solid var(--border);">🏛️ 정보관리기술사 필기 (122)</a>
+        <a href="../isec/index.html" style="color:var(--topbar-link-text); text-decoration:none; padding:4px 9px; border-radius:7px; background:var(--topbar-link-bg); border:1px solid var(--border);">🛡️ 정보보안기사 실기 (75)</a>
+        <a href="../../index.html#section-community" style="color:var(--topbar-link-text); text-decoration:none; padding:4px 9px; border-radius:7px; background:var(--topbar-link-bg); border:1px solid var(--border);">💬 정보공유 라운지</a>
+        <button type="button" id="eipThemeBtn" onclick="toggleEipTheme()" style="color:var(--topbar-link-text); padding:4px 9px; border-radius:7px; background:var(--topbar-link-bg); border:1px solid var(--border); font-weight:600; cursor:pointer;">🌙 다크 모드</button>
       </div>
     </div>
   </div>
@@ -12193,8 +12239,10 @@
             return `
               <div class="p-3 rounded-xl bg-white border border-[var(--border)] flex flex-col items-center gap-1.5">
                 <img src="${escapeHtml(localSrc)}"
-                  onerror="if(this.src!=='${escapeHtml(remoteSrc)}') this.src='${escapeHtml(remoteSrc)}';"
-                  onclick="openImageZoom(this.src, '${escapeHtml(titleText)}')"
+                  data-remote="${escapeHtml(remoteSrc)}"
+                  data-title="${escapeHtml(titleText)}"
+                  onerror="if(this.dataset.remote && this.src!==this.dataset.remote){this.src=this.dataset.remote;}"
+                  onclick="openImageZoom(this.src, this.dataset.title)"
                   alt="${escapeHtml(titleText)} 참고 이미지 ${i+1}"
                   loading="lazy"
                   class="max-h-80 w-auto object-contain cursor-zoom-in rounded" />
@@ -12320,10 +12368,10 @@
             <div class="flex flex-wrap items-center gap-2">
               <input type="text" value="${escapeHtml(uState.input)}"
                 oninput="updateUserAnswerInput('${uKey}', this.value)"
-                onkeydown="if(event.key==='Enter') checkSingleAnswer('${uKey}', \`${escapeHtml(item.answer_text)}\`)"
+                onkeydown="if(event.key==='Enter') checkSingleAnswer('${uKey}')"
                 placeholder="정답을 입력하고 Enter 또는 [채점하기] 버튼을 누르세요..."
                 class="flex-1 min-w-[220px] px-3.5 py-2 rounded-lg text-xs bg-[var(--background)] border border-[var(--border)] focus:outline-none focus:border-blue-500" />
-              <button onclick="checkSingleAnswer('${uKey}', \`${escapeHtml(item.answer_text)}\`)"
+              <button onclick="checkSingleAnswer('${uKey}')"
                 class="px-3.5 py-2 rounded-lg text-xs font-bold bg-blue-600 text-white hover:bg-blue-500 transition-colors">
                 채점하기
               </button>
@@ -12414,14 +12462,53 @@
       return (userNorm === ansNorm) || candidates.some(c => c === userNorm || (userNorm.length >= 2 && c.includes(userNorm)));
     }
 
+    function getAnswerByKey(uKey) {
+      const data = window.RDB_DATA;
+      if (!data) return '';
+      if (uKey.startsWith('pred_')) {
+        const id = Number(uKey.replace('pred_', ''));
+        const found = (data.predicted_questions || []).find(p => p.pred_id === id);
+        return found ? found.answer_text : '';
+      }
+      const id = Number(uKey.replace('q_', ''));
+      const found = (data.questions || []).find(q => q.question_id === id);
+      return found ? found.answer_text : '';
+    }
+
     function checkSingleAnswer(uKey, correctRaw) {
+      const answer = correctRaw !== undefined ? correctRaw : getAnswerByKey(uKey);
       const u = state.userAnswers[uKey] || { input: '', checked: false, isCorrect: false, revealed: false, showExplain: false };
       u.checked = true;
-      u.isCorrect = evaluateAnswerMatch(u.input, correctRaw);
+      u.isCorrect = evaluateAnswerMatch(u.input, answer);
       state.userAnswers[uKey] = u;
       updateExamScoreBadge();
       renderQuestionList();
     }
+
+    function updateEipThemeBtn() {
+      const btn = document.getElementById('eipThemeBtn');
+      if (!btn) return;
+      btn.textContent = document.documentElement.dataset.theme === 'dark' ? '☀️ 밝은 학습 모드' : '🌙 다크 모드';
+    }
+
+    function toggleEipTheme() {
+      const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+      document.documentElement.dataset.theme = next;
+      const meta = document.querySelector('meta[name="color-scheme"]');
+      if (meta) meta.content = next;
+      try { localStorage.setItem('kcert_theme', next); } catch (e) {}
+      updateEipThemeBtn();
+    }
+
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'kcert_theme') {
+        const next = e.newValue === 'dark' ? 'dark' : 'light';
+        document.documentElement.dataset.theme = next;
+        const meta = document.querySelector('meta[name="color-scheme"]');
+        if (meta) meta.content = next;
+        updateEipThemeBtn();
+      }
+    });
 
     function gradeAllVisible() {
       const list = getFilteredQuestions().slice(0, state.visibleLimit);
@@ -12493,6 +12580,7 @@
     }
 
     window.addEventListener('DOMContentLoaded', async () => {
+      updateEipThemeBtn();
       updateBookmarkBadge();
       // If running on Node.js server without inline data, fetch /api/init
       if (!window.RDB_DATA) {

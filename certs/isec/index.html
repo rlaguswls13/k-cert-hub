@@ -3,63 +3,68 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="color-scheme" content="light dark" />
+  <meta name="color-scheme" content="light" />
   <script>
     try {
-      document.querySelector('meta[name="color-scheme"]').content = localStorage.getItem('color-scheme') ?? 'light dark';
-    } catch (e) {}
+      const saved = localStorage.getItem('kcert_theme');
+      const scheme = saved === 'dark' ? 'dark' : 'light';
+      document.documentElement.dataset.theme = scheme;
+      document.querySelector('meta[name="color-scheme"]').content = scheme;
+    } catch (e) {
+      document.documentElement.dataset.theme = 'light';
+    }
   </script>
   <title>정보보안기사 실기 기출 RDB &amp; 실무 설정·로그 분석 플랫폼 — K-Cert Hub</title>
   <style>
     :root {
-      color-scheme: light dark;
-      --bg-main: light-dark(#f8fafc, #0b0f19);
-      --bg-card: light-dark(#ffffff, #131b2e);
-      --bg-elevated: light-dark(#f1f5f9, #1c2742);
-      --bg-input: light-dark(#ffffff, #0f1626);
-      --bg-code: light-dark(#0f172a, #090d16);
-      --text-main: light-dark(#0f172a, #f1f5f9);
-      --text-muted: light-dark(#475569, #94a3b8);
-      --border: light-dark(#cbd5e1, #263554);
-      --accent: light-dark(#059669, #10b981);
-      --accent-soft: light-dark(rgba(5, 150, 105, 0.10), rgba(16, 185, 129, 0.16));
-      --blue: light-dark(#0284c7, #38bdf8);
-      --blue-soft: light-dark(rgba(2, 132, 199, 0.10), rgba(56, 189, 248, 0.15));
-      --amber: light-dark(#d97706, #fbbf24);
-      --amber-soft: light-dark(rgba(217, 119, 6, 0.12), rgba(251, 191, 36, 0.15));
-      --rose: light-dark(#e11d48, #fb7185);
-      --rose-soft: light-dark(rgba(225, 29, 72, 0.10), rgba(251, 113, 133, 0.15));
-      --purple: light-dark(#7e22ce, #c084fc);
-      --purple-soft: light-dark(rgba(126, 34, 206, 0.10), rgba(192, 132, 252, 0.15));
-    }
-
-    :root:has(> head > meta[name="color-scheme"][content="dark"]) {
-      color-scheme: dark;
-    }
-
-    :root:has(> head > meta[name="color-scheme"][content="light"]) {
       color-scheme: light;
+      --bg-main: #f6f5f0;
+      --bg-card: #ffffff;
+      --bg-elevated: #efece6;
+      --bg-input: #fcfbf8;
+      --bg-code: #1e2530;
+      --text-main: #1f2933;
+      --text-muted: #525c68;
+      --border: #d8d5cc;
+      --accent: #0f766e;
+      --accent-soft: #f0fdfa;
+      --blue: #1d4ed8;
+      --blue-soft: #eff6ff;
+      --amber: #b45309;
+      --amber-soft: #fffbeb;
+      --rose: #be123c;
+      --rose-soft: #fff1f2;
+      --purple: #6d28d9;
+      --purple-soft: #f5f3ff;
+    }
+
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --bg-main: #141820;
+      --bg-card: #1c222d;
+      --bg-elevated: #242b38;
+      --bg-input: #171c26;
+      --bg-code: #0f131a;
+      --text-main: #eaeff5;
+      --text-muted: #9aa5b5;
+      --border: #323c4e;
+      --accent: #2dd4bf;
+      --accent-soft: rgba(20, 184, 166, 0.16);
+      --blue: #60a5fa;
+      --blue-soft: rgba(59, 130, 246, 0.15);
+      --amber: #fcd34d;
+      --amber-soft: rgba(245, 158, 11, 0.15);
+      --rose: #fda4af;
+      --rose-soft: rgba(244, 63, 94, 0.15);
+      --purple: #c4b5fd;
+      --purple-soft: rgba(167, 139, 250, 0.15);
     }
 
     /* Non-color theme toggle icon branching */
     .theme-opt-light { display: none; }
     .theme-opt-dark { display: inline-flex; align-items: center; gap: 4px; }
-
-    @media (prefers-color-scheme: dark) {
-      :root:not(:has(> head > meta[name="color-scheme"][content="light"])) .theme-opt-light {
-        display: inline-flex; align-items: center; gap: 4px;
-      }
-      :root:not(:has(> head > meta[name="color-scheme"][content="light"])) .theme-opt-dark {
-        display: none;
-      }
-    }
-
-    :root:has(> head > meta[name="color-scheme"][content="dark"]) .theme-opt-light {
-      display: inline-flex; align-items: center; gap: 4px;
-    }
-    :root:has(> head > meta[name="color-scheme"][content="dark"]) .theme-opt-dark {
-      display: none;
-    }
+    :root[data-theme="dark"] .theme-opt-light { display: inline-flex; align-items: center; gap: 4px; }
+    :root[data-theme="dark"] .theme-opt-dark { display: none; }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -553,6 +558,23 @@
   </style>
 </head>
 <body>
+  <!-- K-Cert Hub Global Top Bar -->
+  <div style="background:var(--bg-elevated); border-bottom:1px solid var(--border); font-family:Pretendard,system-ui,sans-serif; font-size:12px; color:var(--text-muted);">
+    <div style="max-width:1400px; margin:0 auto; padding:7px 24px; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px;">
+      <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+        <a href="../../index.html" style="display:inline-flex; align-items:center; gap:6px; color:var(--accent); font-weight:700; text-decoration:none; padding:4px 10px; border-radius:7px; background:var(--bg-card); border:1px solid var(--border);">
+          <span>🏠 K-Cert Hub 통합 포털</span>
+        </a>
+        <span>필기·실기 구분 RDB 학습 채널</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+        <a href="../eip/index.html" style="color:var(--text-main); text-decoration:none; padding:4px 9px; border-radius:7px; background:var(--bg-card); border:1px solid var(--border);">💻 정보처리기사 실기 (400)</a>
+        <a href="../itpe/index.html" style="color:var(--text-main); text-decoration:none; padding:4px 9px; border-radius:7px; background:var(--bg-card); border:1px solid var(--border);">🏛️ 정보관리기술사 필기 (122)</a>
+        <a href="../isec/index.html" style="color:var(--accent); font-weight:700; text-decoration:none; padding:4px 9px; border-radius:7px; background:var(--bg-card); border:1px solid var(--accent);">🛡️ 정보보안기사 실기 (75)</a>
+        <a href="../../index.html#section-community" style="color:var(--text-main); text-decoration:none; padding:4px 9px; border-radius:7px; background:var(--bg-card); border:1px solid var(--border);">💬 정보공유 라운지</a>
+      </div>
+    </div>
+  </div>
   <header>
     <div class="header-inner">
       <div class="brand-wrap">
@@ -774,28 +796,21 @@ access-list 100 deny ip any any</pre>
       renderQuestions();
     }
 
-    // Two-state color-scheme toggle following modern-web-guidance (dark-mode-toggle)
+    // Synced light/dark theme toggle (defaults to calm light study paper)
     function toggleColorScheme() {
+      const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+      document.documentElement.dataset.theme = next;
       const meta = document.querySelector('meta[name="color-scheme"]');
-      const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      const systemScheme = systemDark ? 'dark' : 'light';
-      let stored = null;
-      try { stored = localStorage.getItem('color-scheme'); } catch (e) {}
-      const currentRendered = (stored === 'dark' || stored === 'light') ? stored : systemScheme;
-      const target = currentRendered === 'dark' ? 'light' : 'dark';
-
-      if (target === systemScheme) {
-        try { localStorage.removeItem('color-scheme'); } catch (e) {}
-        meta.content = 'light dark';
-      } else {
-        try { localStorage.setItem('color-scheme', target); } catch (e) {}
-        meta.content = target;
-      }
+      if (meta) meta.content = next;
+      try { localStorage.setItem('kcert_theme', next); } catch (e) {}
     }
 
     window.addEventListener('storage', (e) => {
-      if (e.key === 'color-scheme') {
-        document.querySelector('meta[name="color-scheme"]').content = e.newValue ?? 'light dark';
+      if (e.key === 'kcert_theme') {
+        const next = e.newValue === 'dark' ? 'dark' : 'light';
+        document.documentElement.dataset.theme = next;
+        const meta = document.querySelector('meta[name="color-scheme"]');
+        if (meta) meta.content = next;
       }
     });
 

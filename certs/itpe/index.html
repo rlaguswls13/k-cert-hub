@@ -1,47 +1,60 @@
 <!DOCTYPE html>
-<html lang="ko" data-theme="dark">
+<html lang="ko" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>정보관리기술사(ITPE) 기출 RDB & 4단 서브노트 학습 플랫폼</title>
-  <style>
-    :root[data-theme="dark"] {
-      --bg-main: #0b0f19;
-      --bg-card: #131b2e;
-      --bg-elevated: #1c2742;
-      --bg-input: #0f1626;
-      --text-main: #f1f5f9;
-      --text-muted: #94a3b8;
-      --border: #263554;
-      --accent: #38bdf8;
-      --accent-soft: rgba(56, 189, 248, 0.14);
-      --green: #34d399;
-      --green-soft: rgba(52, 211, 153, 0.14);
-      --amber: #fbbf24;
-      --amber-soft: rgba(251, 191, 36, 0.15);
-      --rose: #fb7185;
-      --rose-soft: rgba(251, 113, 133, 0.15);
-      --purple: #c084fc;
-      --purple-soft: rgba(192, 132, 252, 0.15);
+  <meta name="color-scheme" content="light" />
+  <script>
+    try {
+      const saved = localStorage.getItem('kcert_theme');
+      const scheme = saved === 'dark' ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', scheme);
+      document.querySelector('meta[name="color-scheme"]').content = scheme;
+    } catch (e) {
+      document.documentElement.setAttribute('data-theme', 'light');
     }
-    :root[data-theme="light"] {
-      --bg-main: #f8fafc;
+  </script>
+  <title>정보관리기술사(ITPE) 필기 논술 RDB &amp; 4단 서브노트 학습 플랫폼 — K-Cert Hub</title>
+  <style>
+    :root, :root[data-theme="light"] {
+      color-scheme: light;
+      --bg-main: #f6f5f0;
       --bg-card: #ffffff;
-      --bg-elevated: #f1f5f9;
-      --bg-input: #ffffff;
-      --text-main: #0f172a;
-      --text-muted: #475569;
-      --border: #cbd5e1;
-      --accent: #0284c7;
-      --accent-soft: rgba(2, 132, 199, 0.1);
-      --green: #059669;
-      --green-soft: rgba(5, 150, 105, 0.1);
-      --amber: #d97706;
-      --amber-soft: rgba(217, 119, 6, 0.12);
-      --rose: #e11d48;
-      --rose-soft: rgba(225, 29, 72, 0.1);
-      --purple: #7e22ce;
-      --purple-soft: rgba(126, 34, 206, 0.1);
+      --bg-elevated: #efece6;
+      --bg-input: #fcfbf8;
+      --text-main: #1f2933;
+      --text-muted: #525c68;
+      --border: #d8d5cc;
+      --accent: #4338ca;
+      --accent-soft: #eef2ff;
+      --green: #0f766e;
+      --green-soft: #f0fdfa;
+      --amber: #b45309;
+      --amber-soft: #fffbeb;
+      --rose: #be123c;
+      --rose-soft: #fff1f2;
+      --purple: #6d28d9;
+      --purple-soft: #f5f3ff;
+    }
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --bg-main: #141820;
+      --bg-card: #1c222d;
+      --bg-elevated: #242b38;
+      --bg-input: #171c26;
+      --text-main: #eaeff5;
+      --text-muted: #9aa5b5;
+      --border: #323c4e;
+      --accent: #818cf8;
+      --accent-soft: rgba(99, 102, 241, 0.16);
+      --green: #5eead4;
+      --green-soft: rgba(20, 184, 166, 0.16);
+      --amber: #fcd34d;
+      --amber-soft: rgba(245, 158, 11, 0.15);
+      --rose: #fda4af;
+      --rose-soft: rgba(244, 63, 94, 0.15);
+      --purple: #c4b5fd;
+      --purple-soft: rgba(167, 139, 250, 0.15);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -112,7 +125,7 @@
     }
     .mode-btn.active {
       background: var(--accent);
-      color: #0b0f19;
+      color: #ffffff;
     }
     .timer-box {
       display: inline-flex;
@@ -400,19 +413,19 @@
 <body>
 
   <!-- K-Cert Hub Global Top Bar -->
-  <div style="background:#090d16; border-bottom:1px solid #1e293b; font-family:Pretendard,system-ui,sans-serif; font-size:12px; color:#cbd5e1;">
-    <div style="max-width:1280px; margin:0 auto; padding:6px 16px; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px;">
-      <div style="display:flex; align-items:center; gap:10px;">
-        <a href="../../index.html" style="display:inline-flex; align-items:center; gap:6px; color:#60a5fa; font-weight:700; text-decoration:none; padding:3px 8px; border-radius:6px; background:rgba(59,130,246,0.12); border:1px solid rgba(59,130,246,0.3);">
-          <span>🏠 K-Cert Hub 통합 자격증 포털</span>
+  <div style="background:var(--bg-elevated); border-bottom:1px solid var(--border); font-family:Pretendard,system-ui,sans-serif; font-size:12px; color:var(--text-muted);">
+    <div style="max-width:1400px; margin:0 auto; padding:7px 24px; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px;">
+      <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+        <a href="../../index.html" style="display:inline-flex; align-items:center; gap:6px; color:var(--accent); font-weight:700; text-decoration:none; padding:4px 10px; border-radius:7px; background:var(--bg-card); border:1px solid var(--border);">
+          <span>🏠 K-Cert Hub 통합 포털</span>
         </a>
-        <span style="color:#475569;">|</span>
-        <span style="color:#94a3b8;">국가·민간 자격증 RDB 학습 &amp; 정보공유 채널</span>
+        <span>필기·실기 구분 RDB 학습 채널</span>
       </div>
       <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-        <a href="../eip/index.html" style="color:#e2e8f0; text-decoration:none; padding:3px 8px; border-radius:6px; background:#1e293b; border:1px solid #334155;">💻 정보처리기사 실기 (380문항)</a>
-        <a href="../itpe/index.html" style="color:#e2e8f0; text-decoration:none; padding:3px 8px; border-radius:6px; background:#1e293b; border:1px solid #334155;">🏛️ 정보관리기술사 (4단 서브노트)</a>
-        <a href="../../index.html#section-community" style="color:#34d399; text-decoration:none; padding:3px 8px; border-radius:6px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3);">💬 합격수기·정보공유 라운지</a>
+        <a href="../eip/index.html" style="color:var(--text-main); text-decoration:none; padding:4px 9px; border-radius:7px; background:var(--bg-card); border:1px solid var(--border);">💻 정보처리기사 실기 (400)</a>
+        <a href="../itpe/index.html" style="color:var(--accent); font-weight:700; text-decoration:none; padding:4px 9px; border-radius:7px; background:var(--bg-card); border:1px solid var(--accent);">🏛️ 정보관리기술사 필기 (122)</a>
+        <a href="../isec/index.html" style="color:var(--text-main); text-decoration:none; padding:4px 9px; border-radius:7px; background:var(--bg-card); border:1px solid var(--border);">🛡️ 정보보안기사 실기 (75)</a>
+        <a href="../../index.html#section-community" style="color:var(--text-main); text-decoration:none; padding:4px 9px; border-radius:7px; background:var(--bg-card); border:1px solid var(--border);">💬 정보공유 라운지</a>
       </div>
     </div>
   </div>
@@ -910,12 +923,33 @@
       document.getElementById('timerDisplay').textContent = `${m}:${s}`;
     }
 
+    function updateThemeBtn() {
+      const btn = document.getElementById('themeBtn');
+      if (!btn) return;
+      btn.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀️ 밝은 학습 모드' : '🌙 다크 모드';
+    }
+
     function toggleTheme() {
       const root = document.documentElement;
       const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
       root.setAttribute('data-theme', next);
-      document.getElementById('themeBtn').textContent = next === 'dark' ? '☀️ 라이트 모드' : '🌙 다크 모드';
+      const meta = document.querySelector('meta[name="color-scheme"]');
+      if (meta) meta.content = next;
+      try { localStorage.setItem('kcert_theme', next); } catch (e) {}
+      updateThemeBtn();
     }
+
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'kcert_theme') {
+        const next = e.newValue === 'dark' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', next);
+        const meta = document.querySelector('meta[name="color-scheme"]');
+        if (meta) meta.content = next;
+        updateThemeBtn();
+      }
+    });
+
+    updateThemeBtn();
 
     window.addEventListener('keydown', e => {
       if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
