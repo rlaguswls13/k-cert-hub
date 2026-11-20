@@ -1,8 +1,8 @@
 {
   "meta": {
     "title": "K-Cert Hub — 국가·민간 자격증 통합 RDB 학습 & 정보공유 채널",
-    "version": "1.0.0",
-    "updated_at": "2026-10-29",
+    "version": "1.1.0",
+    "updated_at": "2026-11-20",
     "repo_url": "https://github.com/rlaguswls13/k-cert-hub",
     "pages_url": "https://rlaguswls13.github.io/k-cert-hub/"
   },
@@ -62,54 +62,26 @@
       "id": "isec",
       "category": "국가기술자격 (IT·전산)",
       "level": "기사 (Engineer)",
-      "agency": "한국인터넷진흥원(KISA) / 한국방송통신전파진흥원",
+      "agency": "한국방송통신전파진흥원 (KCA) / KISA",
       "name": "정보보안기사 실기",
-      "badge": "미니 학습팩 탑재",
-      "status": "preview",
-      "url": "#preview-isec",
-      "question_count": 25,
-      "predicted_count": 10,
-      "rounds_range": "최신 ISMS-P 및 침해사고 대응 핵심 기출",
-      "exam_type": "단답형 + 서술형 + 실무/로그 분석형 (총 16~18문항)",
+      "badge": "LIVE · 60+15문항 RDB",
+      "status": "active",
+      "url": "./certs/isec/index.html",
+      "question_count": 60,
+      "predicted_count": 15,
+      "rounds_range": "제15회(2020년) ~ 제26회(2026년) 12개 회차",
+      "exam_type": "단답형(3점) + 서술형(12점) + 실무·로그·설정형(14점) / 150분",
       "pass_criteria": "100점 만점 중 60점 이상",
-      "summary": "시스템·네트워크·애플리케이션 보안 설정(iptables, Snort 룰, Apache/Linux 보안 설정), 웹 취약점(XSS, CSRF, SQLi) 방어 대책 및 개인정보보호법·ISMS-P 인증 기준을 다루는 최상위 난이도 보안 기사 자격.",
+      "summary": "제15회~제26회 5대 공식 도메인(시스템·네트워크·애플리케이션·암호일반·법규관리) 기출 60문항과 최신 예상 15선 RDB화. Snort 룰·iptables/ACL·Linux 설정·웹 로그 분석 실무 치트시트 및 3대 학습 모드(실전 풀이·빠른 정답·상세 해설)·150분 타이머 지원.",
       "key_tags": [
         "Snort룰작성",
-        "iptables방화벽",
-        "리눅스취약점",
-        "ISMS-P",
-        "개인정보보호법",
-        "웹모의해킹"
+        "iptables/ACL",
+        "/etc/shadow·PAM",
+        "IPsec·Smurf",
+        "SSRF·SQLi·BOF",
+        "ISMS-P·개인정보법"
       ],
-      "quick_questions": [
-        {
-          "q_no": "보안-01",
-          "domain": "네트워크 보안",
-          "type": "실무/설정",
-          "title": "Snort IDS 룰(Rule) 헤더 및 옵션 분석",
-          "question": "다음 Snort 룰이 탐지하는 공격 유형과 각 옵션(content, nocase, threshold)의 의미를 서술하시오.\n\nalert tcp any any -> 192.168.1.0/24 80 (msg:\"SQL Injection Attempt\"; content:\"UNION SELECT\"; nocase; sid:100001; rev:1;)",
-          "answer": "공격 유형: SQL Injection (UNION 기반 SQL 인젝션 공격)\n- content:\"UNION SELECT\": 패킷 페이로드 내에 'UNION SELECT' 문자열 포함 여부 검사\n- nocase: 대소문자 구분 없이 매칭\n- sid:100001 / rev:1: 스노트 룰 식별자(100001) 및 리비전 번호(1)",
-          "explanation": "정보보안기사 실기에서는 Snort 룰의 threshold(type limit/threshold/both, track by_src/by_dst, count N, seconds S) 작성 및 해석 문제가 매회 출제됩니다."
-        },
-        {
-          "q_no": "보안-02",
-          "domain": "시스템 보안",
-          "type": "단답/서술",
-          "title": "Linux SetUID 특수 권한 점검 명령어",
-          "question": "리눅스 시스템에서 root 소유의 파일 중 SetUID 비트가 설정된 모든 일반 파일을 루트(/) 디렉터리부터 검색하는 find 명령어를 작성하시오.",
-          "answer": "find / -user root -perm -4000 -type f 2>/dev/null",
-          "explanation": "SetUID(4000), SetGID(2000), Sticky Bit(1000)의 8진수 권한 값과 find 명령어의 -perm -4000 옵션은 정보보안기사와 정보처리기사 공통 핵심 빈출 주제입니다."
-        },
-        {
-          "q_no": "보안-03",
-          "domain": "정보보호 법규",
-          "type": "서술형",
-          "title": "개인정보의 안전성 확보조치 기준 - 비밀번호 일방향 암호화 및 접근통제",
-          "question": "개인정보처리자가 정보통신망을 통해 개인정보 및 인증정보를 송·수신할 때 이행해야 하는 보호조치와 비밀번호 저장 시 암호화 원칙을 서술하시오.",
-          "answer": "1) 전송 시 구간 암호화: TLS(SSL) 등 안전한 보안 서버 구축 또는 암호화 통신 적용\n2) 비밀번호 저장 시: 복호화가 불가능한 일방향(해시) 암호화(SHA-256/512 + Salt 등)를 적용하여 저장",
-          "explanation": "개인정보의 기술적·관리적 보호조치 기준 및 안전성 확보조치 기준은 서술형 단골 출제 영역입니다."
-        }
-      ]
+      "quick_questions": []
     },
     {
       "id": "bda",
@@ -316,6 +288,18 @@
       "likes": 92,
       "summary": "2026년 10월 24일 시행된 2026년 3회 정보처리기사 실기 20문항이 K-Cert Hub의 정보처리기사 RDB(제19회차, QID 361~380)에 전수 반영되었습니다.",
       "body": "### 2026년 3회차 주요 복원 포인트 요약\n1. **코드 추론 (11문항)**:\n   - C언어: `static` 지역변수 + 재귀(`19`), 구조체 포인터 증감(`177`), `char*` 문자열 포인터 루프(`7`), 2차원 배열 포인터 역참조(`65`), 함수 포인터 배열(`13`), 이중 포인터 swap(`35`)\n   - Java: 상속 생성자 체이닝 및 동적 바인딩(`37`), `static` 필드 공유(`10 20`)\n   - Python: 음수 인덱스 슬라이싱 및 리스트 컴프리헨션(`NNA[9, 25]`), 세트 차집합/대칭차집합(`{1, 3} 4`)\n2. **SQL 및 DB (3문항)**:\n   - `LEFT OUTER JOIN` + `COALESCE` + `HAVING` 그룹 필터링\n   - 관계대수 순수 관계 연산자 기호(`σ`, `π`, `⋈`, `÷`)\n   - 병행제어 **2단계 로킹 규약(2PL, Two-Phase Locking)** (확장 단계 / 축소 단계)"
+    },
+    {
+      "id": "post-105",
+      "category": "복원제보",
+      "cert_id": "isec",
+      "cert_name": "정보보안기사 실기",
+      "title": "[정보보안기사 실기 전용 RDB 오픈] 제15회~제26회 60문항 + 최신 예상 15선 및 실무 치트시트 탑재",
+      "author": "sec_architect",
+      "date": "2026-11-20",
+      "likes": 54,
+      "summary": "KCA 주관 전환 이후 최신 기출 복원(/etc/shadow 해시, PAM, IPsec AH/ESP, Smurf, SSRF, DB 암호화, 개인정보 접속기록 개정 등) 60문항과 예상 15선이 정보보안기사 전용 RDB 앱으로 정식 탑재되었습니다.",
+      "body": "### 정보보안기사 실기 최신 출제 트렌드 요약\n1. **시스템·네트워크 실무 설정**: `/etc/shadow`(`$1$`/`$5$`/`$6$`), `/etc/login.defs`(`PASS_MIN_LEN`), PAM 4대 모듈, `iptables` 기본 DROP + 상태 기반 정책, `Snort` `threshold` 옵션이 반복 출제됩니다.\n2. **애플리케이션·최신 보안**: `SSRF`, `HTTP 헤더 인젝션(CRLF)`, `DB 암호화(API/Plug-in/TDE)` 비교, C언어 `strcpy` BOF 시큐어코딩이 핵심입니다.\n3. **법규 개정 필수 암기**: 개인정보 접속기록 보관 기간이 **일반 1년 이상 / 5만명·고유식별·민감정보 2년 이상**, 점검 주기는 **월 1회 이상**으로 강화된 기준을 반드시 숙지하세요."
     }
   ]
 }

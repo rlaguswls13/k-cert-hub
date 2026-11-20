@@ -6,6 +6,7 @@
 - **통합 포털 메인**: [https://rlaguswls13.github.io/k-cert-hub/](https://rlaguswls13.github.io/k-cert-hub/)
 - **정보처리기사 실기 전용 RDB (380+20문항)**: [https://rlaguswls13.github.io/k-cert-hub/certs/eip/index.html](https://rlaguswls13.github.io/k-cert-hub/certs/eip/index.html)
 - **정보관리기술사 전용 RDB (4단 서브노트 115선)**: [https://rlaguswls13.github.io/k-cert-hub/certs/itpe/index.html](https://rlaguswls13.github.io/k-cert-hub/certs/itpe/index.html)
+- **정보보안기사 실기 전용 RDB (제15~26회 60문항 + 예상 15선)**: [https://rlaguswls13.github.io/k-cert-hub/certs/isec/index.html](https://rlaguswls13.github.io/k-cert-hub/certs/isec/index.html)
 
 ## 📂 디렉터리 구조
 ```text
@@ -15,7 +16,8 @@ k-cert-hub/
 │   └── hub_catalog.json        # 국가·민간 자격증 카탈로그, 미니 학습팩, 시험 일정, 커뮤니티 초기 데이터
 ├── certs/
 │   ├── eip/                    # [국가기술자격] 정보처리기사 실기 RDB (2020~2026년 19개 회차 380문항 + 예상 20문항)
-│   └── itpe/                   # [국가기술자격] 정보관리기술사 RDB (제120~140회 4단 서브노트 + 제141회 예상 20선)
+│   ├── itpe/                   # [국가기술자격] 정보관리기술사 RDB (제120~140회 4단 서브노트 + 제141회 예상 20선)
+│   └── isec/                   # [국가기술자격] 정보보안기사 실기 RDB (제15~26회 60문항 + 최신 예상 15선 + 실무 치트시트)
 ├── server.js                   # 로컬 통합 정적/API 서버 (node server.js -> http://localhost:3080)
 └── wiki/                       # Obsidian 중앙 지식베이스 (D:\obsidian-storage\project-rag\k-cert-hub) 연동
 ```

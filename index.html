@@ -167,6 +167,11 @@
             <span>🏛️ 정보관리기술사 RDB</span>
             <span class="px-1.5 py-0.2 rounded bg-indigo-800/80 text-[10px]">서브노트 115선</span>
           </a>
+          <a href="./certs/isec/index.html"
+            class="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white transition flex items-center gap-1.5 shadow-sm">
+            <span>🛡️ 정보보안기사 실기 RDB</span>
+            <span class="px-1.5 py-0.2 rounded bg-emerald-800/80 text-[10px]">60+15문항</span>
+          </a>
           <a href="https://github.com/rlaguswls13/k-cert-hub" target="_blank" rel="noopener"
             class="px-2.5 py-1.5 rounded-lg text-xs font-semibold border border-[var(--border)] bg-[var(--background)] hover:border-slate-500 text-slate-300">
             GitHub 저장소 ↗
@@ -475,6 +480,7 @@
       <div class="flex gap-4">
         <a href="./certs/eip/index.html" class="hover:text-blue-400">정보처리기사 실기 RDB</a>
         <a href="./certs/itpe/index.html" class="hover:text-blue-400">정보관리기술사 RDB</a>
+        <a href="./certs/isec/index.html" class="hover:text-blue-400">정보보안기사 실기 RDB</a>
         <a href="./data/hub_catalog.json" target="_blank" class="hover:text-blue-400">통합 카탈로그 JSON</a>
       </div>
     </div>
@@ -553,16 +559,17 @@
       renderScheduleTable();
       renderCommunityPosts();
 
-      // Load EIP (380+20) and ITPE (95+20) RDB JSONs in background for instant Cross-Cert Search
-      const [eipData, itpeData] = await Promise.all([
+      // Load EIP (380+20), ITPE (95+20), and ISEC (60+15) RDB JSONs in background for instant Cross-Cert Search
+      const [eipData, itpeData, isecData] = await Promise.all([
         fetch('./certs/eip/data/eip_rdb_export.json').then(r => r.json()).catch(() => null),
-        fetch('./certs/itpe/data/itpe_rdb_export.json').then(r => r.json()).catch(() => null)
+        fetch('./certs/itpe/data/itpe_rdb_export.json').then(r => r.json()).catch(() => null),
+        fetch('./certs/isec/data/isec_rdb_export.json').then(r => r.json()).catch(() => null)
       ]);
 
-      buildUnifiedSearchIndex(eipData, itpeData);
+      buildUnifiedSearchIndex(eipData, itpeData, isecData);
     }
 
-    function buildUnifiedSearchIndex(eipData, itpeData) {
+    function buildUnifiedSearchIndex(eipData, itpeData, isecData) {
       UNIFIED_INDEX = [];
 
       if (eipData && Array.isArray(eipData.questions)) {
@@ -591,6 +598,36 @@
             answer: `[필수 키워드] ${q.core_keywords || ''}\n[4단 목차] ${q.standard_outline || ''}`,
             explanation: (q.architecture_diagram || '') + '\n\n' + (q.practical_insight || ''),
             link: './certs/itpe/index.html'
+          });
+        });
+      }
+
+      if (isecData && Array.isArray(isecData.questions)) {
+        isecData.questions.forEach(q => {
+          UNIFIED_INDEX.push({
+            cert: '정보보안기사',
+            badge: `${q.round_title || ''} #${q.question_no}`,
+            category: `${q.domain_name || ''} (${q.qtype_name || ''})`,
+            title: q.title || '',
+            question: (q.question_text || '') + (q.code_or_log ? '\n' + q.code_or_log : ''),
+            answer: q.answer_text || '',
+            explanation: (q.explanation || '') + (q.escalation_note ? '\n📌 ' + q.escalation_note : ''),
+            link: './certs/isec/index.html'
+          });
+        });
+      }
+
+      if (isecData && Array.isArray(isecData.predicted)) {
+        isecData.predicted.forEach(p => {
+          UNIFIED_INDEX.push({
+            cert: '정보보안기사',
+            badge: `예상 #${p.pred_id} (${p.probability || ''})`,
+            category: `${p.domain_name || ''} (${p.qtype_name || ''})`,
+            title: p.title || '',
+            question: (p.question_text || '') + (p.code_or_log ? '\n' + p.code_or_log : ''),
+            answer: p.answer_text || '',
+            explanation: p.rationale || '',
+            link: './certs/isec/index.html'
           });
         });
       }
