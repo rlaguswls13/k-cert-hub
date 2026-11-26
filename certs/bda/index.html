@@ -1,0 +1,1503 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light dark" />
+  <script>
+    try {
+      const saved = localStorage.getItem('kcert_theme');
+      const scheme = saved === 'dark' ? 'dark' : 'light';
+      document.documentElement.dataset.theme = scheme;
+      document.querySelector('meta[name="color-scheme"]').content = scheme;
+    } catch (e) {
+      document.documentElement.dataset.theme = 'light';
+    }
+  </script>
+  <title>빅데이터분석기사 (BDA) 필기·실기 통합 RDB &amp; 작업형 실전 학습 — K-Cert Hub</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg-main: #f6f5f0;
+      --bg-card: #ffffff;
+      --bg-elevated: #efece6;
+      --bg-input: #fcfbf8;
+      --bg-code: #1e2530;
+      --text-main: #1f2933;
+      --text-muted: #525c68;
+      --border: #d8d5cc;
+      --accent: #0f766e;
+      --accent-soft: #f0fdfa;
+      --blue: #1d4ed8;
+      --blue-soft: #eff6ff;
+      --amber: #b45309;
+      --amber-soft: #fffbeb;
+      --rose: #be123c;
+      --rose-soft: #fff1f2;
+      --emerald: #047857;
+      --emerald-soft: #ecfdf5;
+      --purple: #6d28d9;
+      --purple-soft: #f5f3ff;
+      --topbar-bg: #efece6;
+      --topbar-border: #d8d5cc;
+    }
+
+    :root:has(> head > meta[name="color-scheme"][content="dark"]),
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --bg-main: #141820;
+      --bg-card: #1c222d;
+      --bg-elevated: #242b38;
+      --bg-input: #171c26;
+      --bg-code: #0f131a;
+      --text-main: #eaeff5;
+      --text-muted: #9aa5b5;
+      --border: #323c4e;
+      --accent: #2dd4bf;
+      --accent-soft: rgba(20, 184, 166, 0.16);
+      --blue: #60a5fa;
+      --blue-soft: rgba(59, 130, 246, 0.16);
+      --amber: #fcd34d;
+      --amber-soft: rgba(245, 158, 11, 0.16);
+      --rose: #fda4af;
+      --rose-soft: rgba(244, 63, 94, 0.16);
+      --emerald: #34d399;
+      --emerald-soft: rgba(16, 185, 129, 0.16);
+      --purple: #c4b5fd;
+      --purple-soft: rgba(167, 139, 250, 0.16);
+      --topbar-bg: #0f131a;
+      --topbar-border: #283244;
+    }
+
+    .theme-opt-light { display: none; }
+    .theme-opt-dark { display: inline-flex; align-items: center; gap: 4px; }
+    :root[data-theme="dark"] .theme-opt-light { display: inline-flex; align-items: center; gap: 4px; }
+    :root[data-theme="dark"] .theme-opt-dark { display: none; }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.65;
+      padding-bottom: 72px;
+      overflow-wrap: break-word;
+    }
+
+    :where(a:any-link, button, input, select, textarea):focus-visible {
+      outline: 3px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .skip-link {
+      position: absolute;
+      left: -9999px;
+      top: 0;
+      background: var(--accent);
+      color: #ffffff;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-weight: 700;
+      z-index: 999;
+      text-decoration: none;
+    }
+    .skip-link:focus {
+      left: 12px;
+      top: 12px;
+    }
+
+    /* Top Global Nav */
+    .hub-topbar {
+      background: var(--topbar-bg);
+      border-bottom: 1px solid var(--topbar-border);
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+    .hub-topbar-inner {
+      max-width: 1360px;
+      margin: 0 auto;
+      padding: 8px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .hub-nav-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .hub-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      text-decoration: none;
+      color: var(--text-main);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-weight: 600;
+      min-height: 30px;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .hub-link:hover { border-color: var(--accent); color: var(--accent); }
+    .hub-link.current {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-soft);
+      font-weight: 800;
+    }
+
+    .theme-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--bg-card);
+      color: var(--text-main);
+      border: 1px solid var(--border);
+      padding: 5px 11px;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      min-height: 30px;
+      cursor: pointer;
+    }
+    .theme-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* Sticky Header */
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    }
+    .header-inner {
+      max-width: 1360px;
+      margin: 0 auto;
+      padding: 12px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .brand-area {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: var(--accent);
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .brand-title {
+      font-size: 1.08rem;
+      font-weight: 800;
+      line-height: 1.3;
+    }
+    .brand-sub {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .header-right {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .mode-group {
+      display: inline-flex;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 3px;
+      gap: 3px;
+    }
+    .mode-btn {
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      padding: 6px 11px;
+      border-radius: 7px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      min-height: 32px;
+    }
+    .mode-btn.active {
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    .timer-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+    .timer-display {
+      font-family: Consolas, 'Liberation Mono', monospace;
+      color: var(--amber);
+      font-size: 0.9rem;
+      min-width: 56px;
+      text-align: center;
+    }
+
+    .btn-sm {
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-main);
+      padding: 5px 10px;
+      border-radius: 7px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      cursor: pointer;
+      min-height: 28px;
+    }
+    .btn-sm:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* Container */
+    .container {
+      max-width: 1360px;
+      margin: 18px auto;
+      padding: 0 20px;
+    }
+
+    /* KPI / Progress HUD */
+    .hud-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .hud-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 13px 16px;
+    }
+    .hud-label {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+    .hud-val {
+      font-size: 1.32rem;
+      font-weight: 800;
+      color: var(--accent);
+      margin-top: 3px;
+    }
+    .hud-sub {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* Stage Toggle Tabs + View Tabs */
+    .tabs-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+      padding-bottom: 2px;
+    }
+    .stage-tablist {
+      display: flex;
+      overflow-x: auto;
+      gap: 6px;
+      scrollbar-width: none;
+    }
+    .stage-tablist::-webkit-scrollbar { display: none; }
+    .stage-tab {
+      position: relative;
+      flex: none;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-muted);
+      padding: 10px 16px 12px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      border-radius: 8px 8px 0 0;
+      min-height: 42px;
+    }
+    .stage-tab:hover { color: var(--text-main); background: var(--bg-elevated); }
+    .stage-tab[aria-selected="true"] {
+      color: var(--accent);
+      background: var(--accent-soft);
+    }
+    .stage-tab[aria-selected="true"]::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0;
+      border-block-end: 3px solid var(--accent);
+    }
+
+    .subview-group {
+      display: inline-flex;
+      gap: 6px;
+      padding-bottom: 6px;
+    }
+    .subview-btn {
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-muted);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      min-height: 34px;
+    }
+    .subview-btn.active {
+      border-color: var(--blue);
+      background: var(--blue-soft);
+      color: var(--blue);
+    }
+
+    /* Stage Info Banner */
+    .stage-banner {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin-bottom: 14px;
+      font-size: 0.82rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    /* Filter Bar */
+    .filter-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 16px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+      gap: 10px;
+      align-items: end;
+    }
+    .filter-field label {
+      display: block;
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    .filter-field select,
+    .filter-field input {
+      width: 100%;
+      padding: 7px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      color: var(--text-main);
+      font-size: 0.82rem;
+      min-height: 36px;
+    }
+
+    .result-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 12px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    /* Question Cards */
+    .card-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .q-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 20px;
+    }
+    .q-card-deferred {
+      content-visibility: auto;
+      contain-intrinsic-size: auto 320px;
+    }
+    .q-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 0.73rem;
+      font-weight: 700;
+      border: 1px solid var(--border);
+    }
+    .pill-written { background: var(--blue-soft); color: var(--blue); border-color: transparent; }
+    .pill-practical { background: var(--purple-soft); color: var(--purple); border-color: transparent; }
+    .pill-domain { background: var(--bg-elevated); color: var(--text-main); }
+    .pill-round { background: var(--amber-soft); color: var(--amber); border-color: transparent; }
+    .pill-source { background: var(--accent-soft); color: var(--accent); border-color: transparent; }
+
+    .bookmark-btn {
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      color: var(--text-muted);
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      cursor: pointer;
+      min-height: 30px;
+    }
+    .bookmark-btn.saved {
+      border-color: var(--amber);
+      background: var(--amber-soft);
+      color: var(--amber);
+    }
+
+    .q-title {
+      font-size: 1.02rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+      color: var(--text-main);
+    }
+    .q-body {
+      font-size: 0.92rem;
+      white-space: pre-wrap;
+      margin-bottom: 12px;
+    }
+
+    .code-block {
+      background: var(--bg-code);
+      color: #e6edf3;
+      border-radius: 9px;
+      padding: 12px 14px;
+      font-family: Consolas, 'Liberation Mono', Menlo, monospace;
+      font-size: 0.82rem;
+      line-height: 1.55;
+      overflow-x: auto;
+      margin-bottom: 12px;
+      border: 1px solid #2d3748;
+      white-space: pre;
+    }
+
+    /* MCQ Choices */
+    .choices-list {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 7px;
+      margin-bottom: 12px;
+    }
+    .choice-btn {
+      text-align: left;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      color: var(--text-main);
+      padding: 9px 13px;
+      border-radius: 9px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      min-height: 40px;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .choice-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
+    .choice-btn.selected-correct {
+      border-color: var(--emerald);
+      background: var(--emerald-soft);
+      color: var(--emerald);
+      font-weight: 700;
+    }
+    .choice-btn.selected-wrong {
+      border-color: var(--rose);
+      background: var(--rose-soft);
+      color: var(--rose);
+      font-weight: 700;
+    }
+    .choice-btn.reveal-correct {
+      border-color: var(--emerald);
+      background: var(--emerald-soft);
+      font-weight: 700;
+    }
+    .choice-static {
+      padding: 7px 11px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      font-size: 0.86rem;
+    }
+    .choice-static.is-answer {
+      border-color: var(--emerald);
+      background: var(--emerald-soft);
+      font-weight: 700;
+    }
+
+    /* Practical Scratchpad */
+    .practice-box {
+      border: 1px dashed var(--border);
+      background: var(--bg-elevated);
+      border-radius: 10px;
+      padding: 12px;
+      margin-top: 8px;
+    }
+    .practice-input {
+      width: 100%;
+      min-height: 92px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      color: var(--text-main);
+      border-radius: 8px;
+      padding: 10px;
+      font-family: Consolas, 'Liberation Mono', monospace;
+      font-size: 0.82rem;
+      resize: vertical;
+      margin-bottom: 8px;
+    }
+    .practice-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .answer-box {
+      background: var(--emerald-soft);
+      border: 1px solid var(--emerald);
+      border-radius: 9px;
+      padding: 12px 14px;
+      margin-top: 10px;
+    }
+    .answer-label {
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: var(--emerald);
+      margin-bottom: 5px;
+    }
+    .answer-text {
+      font-size: 0.88rem;
+      font-weight: 700;
+      white-space: pre-wrap;
+    }
+
+    .explain-box {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 12px 14px;
+      margin-top: 8px;
+      font-size: 0.86rem;
+    }
+    .explain-label {
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: var(--blue);
+      margin-bottom: 4px;
+    }
+    .kw-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 8px;
+    }
+    .kw-chip {
+      font-size: 0.72rem;
+      padding: 2px 7px;
+      border-radius: 6px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+    .meta-footer {
+      margin-top: 8px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Analytics Table */
+    .table-wrapper {
+      overflow: auto;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+    }
+    table.analytics-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.84rem;
+    }
+    table.analytics-table caption {
+      text-align: left;
+      font-weight: 800;
+      font-size: 0.96rem;
+      margin-bottom: 10px;
+      color: var(--text-main);
+    }
+    table.analytics-table th,
+    table.analytics-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+    table.analytics-table thead th {
+      background: var(--bg-elevated);
+      font-weight: 800;
+    }
+
+    /* Cheatsheet Grid */
+    .cheat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 14px;
+    }
+    .cheat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .cheat-card h2 {
+      font-size: 0.98rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+      color: var(--accent);
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">본문 학습 영역으로 바로가기</a>
+
+  <!-- Top Global Navigation -->
+  <nav class="hub-topbar" aria-label="K-Cert Hub 전역 내비게이션">
+    <div class="hub-topbar-inner">
+      <div class="hub-nav-group">
+        <a href="../../index.html" class="hub-link">🏠 K-Cert Hub 포털</a>
+        <a href="../sqld/index.html" class="hub-link">🗄️ SQLD</a>
+        <a href="../adsp/index.html" class="hub-link">📊 ADsP</a>
+        <span class="hub-link current" aria-current="page">📈 빅데이터분석기사 (BDA)</span>
+      </div>
+      <div class="hub-nav-group">
+        <button type="button" id="themeToggleBtn" class="theme-btn" aria-label="색상 테마 전환">
+          <span class="theme-opt-dark">🌙 다크 모드</span>
+          <span class="theme-opt-light">☀️ 라이트 모드</span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Sticky Header -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand-area">
+        <div class="brand-icon" aria-hidden="true">BDA</div>
+        <div>
+          <h1 class="brand-title">빅데이터분석기사 (BDA) 필기 · 실기 통합 RDB</h1>
+          <p class="brand-sub" id="headerSubtitle">데이터 로딩 중... (필기 4과목 CBT + 실기 작업형 1·2·3유형 Python 코드)</p>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <div class="mode-group" id="modeGroup" role="group" aria-label="학습 모드 선택">
+          <button type="button" class="mode-btn active" data-mode="solve">📝 실전 풀이</button>
+          <button type="button" class="mode-btn" data-mode="compare">👀 빠른 정답</button>
+          <button type="button" class="mode-btn" data-mode="explain">📖 상세 해설</button>
+        </div>
+
+        <div class="timer-box" aria-label="모의고사 타이머">
+          <span class="timer-display" id="timerDisplay">120:00</span>
+          <button type="button" class="btn-sm" id="timerToggleBtn">시작</button>
+          <button type="button" class="btn-sm" id="timerPresetBtn" title="필기 120분 / 실기 180분 전환">120/180분</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="main-content" class="container" tabindex="-1">
+    <!-- Progress & Score HUD -->
+    <section class="hud-grid" aria-label="학습 진행 현황 및 성적 요약">
+      <div class="hud-card">
+        <div class="hud-label">전체 RDB 문항 수</div>
+        <div class="hud-val" id="hudTotal">-</div>
+        <div class="hud-sub" id="hudBreakdown">필기 -문항 · 실기 -문항</div>
+      </div>
+      <div class="hud-card">
+        <div class="hud-label">현재 활성 단계 풀이율</div>
+        <div class="hud-val" id="hudSolved">0 / 0</div>
+        <div class="hud-sub" id="hudAccuracy">정답률: -% (필기 자동채점 + 실기 자가체크)</div>
+      </div>
+      <div class="hud-card">
+        <div class="hud-label">오답 / 북마크 노트</div>
+        <div class="hud-val" id="hudBookmarks">0문항</div>
+        <div class="hud-sub">틀린 문항은 별표(★)로 모아 집중 복습하세요</div>
+      </div>
+      <div class="hud-card">
+        <div class="hud-label">학습 기록 관리</div>
+        <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;">
+          <button type="button" class="btn-sm" id="resetProgressBtn">풀이 기록 초기화</button>
+          <button type="button" class="btn-sm" id="onlyWrongBtn">★ 북마크만 보기</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stage Toggle Tabs + Subview Toggle -->
+    <div class="tabs-row">
+      <div class="stage-tablist" id="stageTabList" role="tablist" aria-label="시험 단계 전환">
+        <button type="button" role="tab" id="tab-all" class="stage-tab" data-stage="ALL" aria-selected="true">📚 전체 (110)</button>
+        <button type="button" role="tab" id="tab-written" class="stage-tab" data-stage="필기" aria-selected="false">📝 필기 (4과목 CBT · 64)</button>
+        <button type="button" role="tab" id="tab-practical" class="stage-tab" data-stage="실기" aria-selected="false">⚙️ 실기 (작업형 1·2·3유형 · 46)</button>
+      </div>
+
+      <div class="subview-group" role="group" aria-label="화면 보기 전환">
+        <button type="button" class="subview-btn active" id="viewBtn-questions" data-view="questions">📋 문항 은행</button>
+        <button type="button" class="subview-btn" id="viewBtn-analytics" data-view="analytics">📊 RDB 출제분석</button>
+        <button type="button" class="subview-btn" id="viewBtn-cheatsheet" data-view="cheatsheet">🐍 실기 파이썬 치트시트</button>
+      </div>
+    </div>
+
+    <!-- Stage Guide Banner -->
+    <div class="stage-banner" id="stageBanner">
+      <span id="stageBannerText">전체 모드로 필기(4과목 4지선다)와 실기(작업형 1·2·3유형 Python 코드)를 통합 검색·학습합니다.</span>
+      <span id="stageExamSpec" style="font-weight:700;color:var(--accent);">필기 80문항(120분) · 실기 작업형 1·2·3유형(180분)</span>
+    </div>
+
+    <!-- View 1: Question Bank -->
+    <section id="view-questions">
+      <div class="filter-card" aria-label="문제 검색 및 필터">
+        <div class="filter-field">
+          <label for="filterDomain">과목 / 작업형 유형</label>
+          <select id="filterDomain">
+            <option value="ALL">전체 과목·유형</option>
+          </select>
+        </div>
+        <div class="filter-field">
+          <label for="filterRound">회차 / 출제유형</label>
+          <select id="filterRound">
+            <option value="ALL">전체 회차</option>
+          </select>
+        </div>
+        <div class="filter-field">
+          <label for="filterSource">출처 구분</label>
+          <select id="filterSource">
+            <option value="ALL">전체 출처</option>
+            <option value="REPO">공개 저장소 (BigDataCertificationCourses)</option>
+            <option value="KDATA">K-Data 출제기준 기반 창작·재구성</option>
+          </select>
+        </div>
+        <div class="filter-field">
+          <label for="filterStatus">풀이·오답 상태</label>
+          <select id="filterStatus">
+            <option value="ALL">전체 문항</option>
+            <option value="SAVED">★ 북마크 / 오답노트만</option>
+            <option value="WRONG">✕ 틀린 문항만</option>
+            <option value="UNSOLVED">미풀이 문항만</option>
+          </select>
+        </div>
+        <div class="filter-field">
+          <label for="searchInput">키워드 검색</label>
+          <input type="search" id="searchInput" placeholder="예: ROC-AUC, ttest, IQR, CRISP-DM..." />
+        </div>
+        <div class="filter-field">
+          <button type="button" class="btn-sm" id="resetFilterBtn" style="width:100%;min-height:36px;">필터 초기화</button>
+        </div>
+      </div>
+
+      <div class="result-bar">
+        <span id="resultCount">검색 결과: -문항</span>
+        <span id="modeHint">실전 풀이 모드: 필기는 선지 클릭 시 즉시 채점, 실기는 코드 작성 후 모범 코드와 비교할 수 있습니다.</span>
+      </div>
+
+      <div id="questionList" class="card-list"></div>
+    </section>
+
+    <!-- View 2: RDB Analytics -->
+    <section id="view-analytics" class="hidden">
+      <div class="table-wrapper">
+        <table class="analytics-table">
+          <caption>빅데이터분석기사 RDB 영역별 문항 분포 및 출처 통계 (SQLite analytics 테이블 실측치)</caption>
+          <thead>
+            <tr>
+              <th scope="col">구분</th>
+              <th scope="col">과목 / 작업형 영역</th>
+              <th scope="col">문항 수</th>
+              <th scope="col">전체 비중</th>
+              <th scope="col">수록 회차 수</th>
+              <th scope="col">공개저장소(기출·예시)</th>
+              <th scope="col">출제기준 창작·재구성</th>
+              <th scope="col">대표 문항 유형</th>
+            </tr>
+          </thead>
+          <tbody id="analyticsBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- View 3: Practical Python Cheatsheet -->
+    <section id="view-cheatsheet" class="hidden">
+      <div class="cheat-grid">
+        <article class="cheat-card">
+          <h2>1. 작업형 제1유형 (pandas 전처리 · 시계열 · 이상치)</h2>
+          <pre class="code-block"># 1) 정렬 후 상위 N개 최소값 치환 &amp; 조건 평균
+df = df.sort_values('f5', ascending=False).reset_index(drop=True)
+df.loc[:9, 'f5'] = df['f5'][:10].min()
+print(df[df['age'] &gt;= 80]['f5'].mean())
+
+# 2) 그룹별 결측치 중앙값 대치 (transform 필수)
+df['f1'] = df['f1'].fillna(df.groupby('city')['f1'].transform('median'))
+
+# 3) IQR 이상치 &amp; 표준편차 이상치
+q1, q3 = df['col'].quantile(0.25), df['col'].quantile(0.75)
+iqr = q3 - q1
+out = df[(df['col'] &lt; q1 - 1.5*iqr) | (df['col'] &gt; q3 + 1.5*iqr)]
+
+# 4) 시계열 날짜 파싱 &amp; 주말 필터
+dt = pd.to_datetime(df['date'].str.strip(), errors='coerce')
+is_wknd = dt.dt.dayofweek &gt;= 5  # 토=5, 일=6</pre>
+        </article>
+
+        <article class="cheat-card">
+          <h2>2. 작업형 제2유형 (분류·회귀 안전 파이프라인)</h2>
+          <pre class="code-block">from sklearn.model_selection import train_test_split
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import roc_auc_score
+
+pre = ColumnTransformer([
+  ('num', SimpleImputer(strategy='median'), num_cols),
+  ('cat', Pipeline([
+    ('imp', SimpleImputer(strategy='most_frequent')),
+    ('ohe', OneHotEncoder(handle_unknown='ignore'))
+  ]), cat_cols)
+])
+pipe = Pipeline([('pre', pre), ('clf', RandomForestClassifier(random_state=42))])
+pipe.fit(X_tr, y_tr)
+# ROC-AUC 제출: predict_proba[:, 1] / 클래스·회귀 제출: predict()
+pd.DataFrame({'id': test_id, 'target': pipe.predict_proba(test)[:, 1]}).to_csv('result.csv', index=False)</pre>
+        </article>
+
+        <article class="cheat-card">
+          <h2>3. 작업형 제3유형 (scipy.stats 가설검정)</h2>
+          <pre class="code-block">from scipy import stats
+# 1) 정규성 / 등분산성
+stats.shapiro(x)
+stats.levene(g1, g2)
+
+# 2) 단일 / 독립 / 대응 t-검정 &amp; ANOVA
+stats.ttest_1samp(x, popmean=150, alternative='two-sided')
+stats.ttest_ind(g1, g2, equal_var=True)
+stats.ttest_rel(after, before, alternative='less')
+stats.f_oneway(a, b, c)
+
+# 3) 카이제곱 적합도 / 독립성
+stats.chisquare(f_obs, f_exp)
+chi2, p, dof, exp = stats.chi2_contingency(pd.crosstab(df['a'], df['b']))</pre>
+        </article>
+
+        <article class="cheat-card">
+          <h2>4. 작업형 제3유형 (statsmodels OLS &amp; Logit)</h2>
+          <pre class="code-block">import numpy as np
+from statsmodels.formula.api import ols, logit
+
+# 다중선형회귀
+m_ols = ols('y ~ x1 + x2 + C(cat)', data=df).fit()
+print(m_ols.summary())
+print('Adj R2:', m_ols.rsquared_adj, 'SSE:', m_ols.ssr)
+sig_cnt = (m_ols.pvalues.drop('Intercept') &lt; 0.05).sum()
+
+# 로지스틱 회귀 (오즈비 &amp; 잔차이탈도)
+m_log = logit('target ~ x1 + C(cat)', data=train).fit()
+odds_ratio = np.exp(m_log.params)
+deviance = -2 * m_log.llf
+error_rate = 1 - (y_test == (m_log.predict(test) &gt;= 0.5).astype(int)).mean()</pre>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    let BDA_DATA = null;
+    let ACTIVE_STAGE = 'ALL';      // ALL | 필기 | 실기
+    let ACTIVE_VIEW = 'questions'; // questions | analytics | cheatsheet
+    let STUDY_MODE = 'solve';      // solve | compare | explain
+    let BOOKMARKS = new Set();
+    let PROGRESS = {};             // { [qid]: { correct: boolean, selected?: number } }
+    const REVEALED_IDS = new Set();
+
+    const BOOKMARK_KEY = 'k_cert_hub_bda_bookmarks_v1';
+    const PROGRESS_KEY = 'k_cert_hub_bda_progress_v1';
+
+    let timerPresetMins = 120;
+    let timerSeconds = 120 * 60;
+    let timerInterval = null;
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    // Theme management (Calm Study Paper light default + synced kcert_theme)
+    function applyTheme(scheme) {
+      document.documentElement.dataset.theme = scheme;
+      const meta = document.querySelector('meta[name="color-scheme"]');
+      if (meta) meta.content = scheme;
+    }
+
+    function toggleTheme() {
+      const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+      applyTheme(next);
+      try { localStorage.setItem('kcert_theme', next); } catch (e) {}
+    }
+
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'kcert_theme') {
+        applyTheme(e.newValue === 'dark' ? 'dark' : 'light');
+      }
+    });
+
+    // Storage helpers
+    function loadState() {
+      try {
+        const bm = localStorage.getItem(BOOKMARK_KEY);
+        if (bm) BOOKMARKS = new Set(JSON.parse(bm));
+        const pg = localStorage.getItem(PROGRESS_KEY);
+        if (pg) PROGRESS = JSON.parse(pg) || {};
+      } catch (e) {}
+    }
+
+    function saveBookmarks() {
+      try { localStorage.setItem(BOOKMARK_KEY, JSON.stringify([...BOOKMARKS])); } catch (e) {}
+      updateHUD();
+    }
+
+    function saveProgress() {
+      try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(PROGRESS)); } catch (e) {}
+      updateHUD();
+    }
+
+    // Timer
+    function renderTimer() {
+      const m = Math.floor(timerSeconds / 60);
+      const s = timerSeconds % 60;
+      document.getElementById('timerDisplay').textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    function stopTimer() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+      document.getElementById('timerToggleBtn').textContent = '시작';
+    }
+
+    function toggleTimer() {
+      if (timerInterval) {
+        stopTimer();
+      } else {
+        document.getElementById('timerToggleBtn').textContent = '일시정지';
+        timerInterval = setInterval(() => {
+          if (timerSeconds > 0) {
+            timerSeconds--;
+            renderTimer();
+          } else {
+            stopTimer();
+            alert('설정한 시험 타이머가 종료되었습니다!');
+          }
+        }, 1000);
+      }
+    }
+
+    function cycleTimerPreset() {
+      stopTimer();
+      timerPresetMins = timerPresetMins === 120 ? 180 : 120;
+      timerSeconds = timerPresetMins * 60;
+      renderTimer();
+    }
+
+    // Stage & View switching
+    function resolveInitialStageFromHash() {
+      const h = (window.location.hash || '').toLowerCase();
+      if (h === '#practical' || h === '#silgi') return '실기';
+      if (h === '#written' || h === '#pilgi') return '필기';
+      return 'ALL';
+    }
+
+    function setStage(stage, updateHash = true) {
+      ACTIVE_STAGE = stage;
+      const tabs = document.querySelectorAll('#stageTabList [role="tab"]');
+      tabs.forEach(tab => {
+        const isSel = tab.dataset.stage === stage;
+        tab.setAttribute('aria-selected', isSel ? 'true' : 'false');
+      });
+
+      const bannerText = document.getElementById('stageBannerText');
+      const specText = document.getElementById('stageExamSpec');
+      if (stage === '필기') {
+        bannerText.textContent = '📝 필기 CBT 모드: 4과목(분석기획·탐색·모델링·결과해석) 각 16문항씩 총 64문항 객관식 4지선다를 풀이합니다.';
+        specText.textContent = '필기 합격기준: 4과목 각 40점 이상 & 평균 60점 이상 (80문항/120분)';
+      } else if (stage === '실기') {
+        bannerText.textContent = '⚙️ 실기 작업형 모드: 제1유형(전처리 20) · 제2유형(모델링 14) · 제3유형(통계·가설검정 12) 총 46문항 Python 실습 코드를 학습합니다.';
+        specText.textContent = '실기 합격기준: 작업형 1·2·3유형 통합 100점 중 60점 이상 (180분)';
+      } else {
+        bannerText.textContent = '📚 전체 모드: 빅데이터분석기사 필기(64문항)와 실기 작업형(46문항) 총 110문항 RDB를 통합 탐색합니다.';
+        specText.textContent = '필기 64문항 + 실기 46문항 = 총 110문항';
+      }
+
+      if (updateHash) {
+        const nextHash = stage === '실기' ? '#practical' : (stage === '필기' ? '#written' : '#all');
+        if (window.location.hash !== nextHash) {
+          history.replaceState(null, '', nextHash);
+        }
+      }
+
+      populateDomainFilter();
+      updateHUD();
+      renderQuestions();
+    }
+
+    function setSubview(viewName) {
+      ACTIVE_VIEW = viewName;
+      ['questions', 'analytics', 'cheatsheet'].forEach(v => {
+        document.getElementById(`viewBtn-${v}`).classList.toggle('active', v === viewName);
+        document.getElementById(`view-${v}`).classList.toggle('hidden', v !== viewName);
+      });
+    }
+
+    function setStudyMode(mode) {
+      STUDY_MODE = mode;
+      document.querySelectorAll('#modeGroup .mode-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.mode === mode);
+      });
+      const hint = document.getElementById('modeHint');
+      if (mode === 'solve') {
+        hint.textContent = '실전 풀이 모드: 필기는 선지 클릭 시 즉시 채점, 실기는 코드 작성 후 모범 코드와 비교할 수 있습니다.';
+      } else if (mode === 'compare') {
+        hint.textContent = '빠른 정답 모드: 문제와 정답 핵심만 빠르게 회독합니다.';
+      } else {
+        hint.textContent = '상세 해설 모드: 문제, 모범 Python 코드, 상세 해설 및 출처를 한눈에 학습합니다.';
+      }
+      renderQuestions();
+    }
+
+    function populateDomainFilter() {
+      if (!BDA_DATA) return;
+      const sel = document.getElementById('filterDomain');
+      const prev = sel.value;
+      sel.innerHTML = '<option value="ALL">전체 과목·유형</option>';
+      BDA_DATA.domains
+        .filter(d => ACTIVE_STAGE === 'ALL' || d.exam_stage === ACTIVE_STAGE)
+        .forEach(d => {
+          const opt = document.createElement('option');
+          opt.value = String(d.domain_id);
+          opt.textContent = `[${d.exam_stage}] ${d.domain_name}`;
+          sel.appendChild(opt);
+        });
+      const stillValid = [...sel.options].some(o => o.value === prev);
+      sel.value = stillValid ? prev : 'ALL';
+    }
+
+    function updateHUD() {
+      if (!BDA_DATA) return;
+      const allQ = BDA_DATA.questions;
+      const stageQ = ACTIVE_STAGE === 'ALL' ? allQ : allQ.filter(q => q.exam_stage === ACTIVE_STAGE);
+      const solvedInStage = stageQ.filter(q => PROGRESS[q.question_id]);
+      const correctInStage = solvedInStage.filter(q => PROGRESS[q.question_id].correct);
+      const acc = solvedInStage.length > 0 ? Math.round((correctInStage.length / solvedInStage.length) * 100) : null;
+
+      document.getElementById('hudTotal').textContent = `${BDA_DATA.meta.questions_count}문항`;
+      document.getElementById('hudBreakdown').textContent = `필기 ${BDA_DATA.meta.written_count}문항 · 실기 ${BDA_DATA.meta.practical_count}문항`;
+      document.getElementById('hudSolved').textContent = `${solvedInStage.length} / ${stageQ.length}`;
+      document.getElementById('hudAccuracy').textContent = acc === null
+        ? '정답률: -% (실전 풀이 모드에서 채점 시작)'
+        : `정답률: ${acc}% (${correctInStage.length}개 정답 / ${solvedInStage.length - correctInStage.length}개 오답)`;
+      document.getElementById('hudBookmarks').textContent = `${BOOKMARKS.size}문항`;
+    }
+
+    function getFilteredQuestions() {
+      if (!BDA_DATA) return [];
+      const fDomain = document.getElementById('filterDomain').value;
+      const fRound = document.getElementById('filterRound').value;
+      const fSource = document.getElementById('filterSource').value;
+      const fStatus = document.getElementById('filterStatus').value;
+      const kw = document.getElementById('searchInput').value.trim().toLowerCase();
+
+      return BDA_DATA.questions.filter(q => {
+        if (ACTIVE_STAGE !== 'ALL' && q.exam_stage !== ACTIVE_STAGE) return false;
+        if (fDomain !== 'ALL' && String(q.domain_id) !== fDomain) return false;
+        if (fRound !== 'ALL' && String(q.round_id) !== fRound) return false;
+        if (fSource === 'REPO' && !q.source.startsWith('BigDataCertificationCourses')) return false;
+        if (fSource === 'KDATA' && !q.source.startsWith('한국데이터산업진흥원')) return false;
+
+        if (fStatus === 'SAVED' && !BOOKMARKS.has(q.question_id)) return false;
+        if (fStatus === 'WRONG' && !(PROGRESS[q.question_id] && !PROGRESS[q.question_id].correct)) return false;
+        if (fStatus === 'UNSOLVED' && PROGRESS[q.question_id]) return false;
+
+        if (kw) {
+          const hay = [
+            q.round_title, q.domain_name, q.title, q.question_text,
+            q.code_or_log, q.answer_text, q.solution_code, q.core_keywords, q.explanation,
+            (q.options || []).join(' ')
+          ].join(' ').toLowerCase();
+          if (!hay.includes(kw)) return false;
+        }
+        return true;
+      });
+    }
+
+    function renderQuestions() {
+      if (!BDA_DATA) return;
+      const filtered = getFilteredQuestions();
+      const stageTotal = ACTIVE_STAGE === 'ALL'
+        ? BDA_DATA.questions.length
+        : BDA_DATA.questions.filter(q => q.exam_stage === ACTIVE_STAGE).length;
+
+      document.getElementById('resultCount').textContent =
+        `표시 중: ${filtered.length}문항 / 현재 단계 전체 ${stageTotal}문항`;
+
+      const container = document.getElementById('questionList');
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="q-card" style="text-align:center;color:var(--text-muted);">조건에 맞는 문항이 없습니다. 필터나 검색어를 조정해 보세요.</div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map((q, idx) => {
+        const isSaved = BOOKMARKS.has(q.question_id);
+        const prog = PROGRESS[q.question_id];
+        const isRevealed = REVEALED_IDS.has(q.question_id) || Boolean(prog);
+        const deferredCls = idx >= 4 ? 'q-card-deferred' : '';
+
+        const stagePill = q.exam_stage === '필기'
+          ? `<span class="pill pill-written">📝 필기</span>`
+          : `<span class="pill pill-practical">⚙️ 실기</span>`;
+        const srcShort = q.source.startsWith('BigDataCertificationCourses')
+          ? '공개 저장소 기출·예시'
+          : 'K-Data 출제기준';
+
+        const keywordsHtml = (q.core_keywords || '').split(',').map(k => k.trim()).filter(Boolean)
+          .map(k => `<span class="kw-chip">#${escapeHtml(k)}</span>`).join('');
+
+        const codeInputBlock = q.code_or_log
+          ? `<pre class="code-block">${escapeHtml(q.code_or_log)}</pre>`
+          : '';
+
+        const solutionBlock = q.solution_code
+          ? `<pre class="code-block">${escapeHtml(q.solution_code)}</pre>`
+          : '';
+
+        const answerBox = `
+          <div class="answer-box">
+            <div class="answer-label">✅ 모범 정답</div>
+            <div class="answer-text">${escapeHtml(q.exam_stage === '실기' ? q.answer_text.split('\n\n[Python 모범 코드]')[0] : q.answer_text)}</div>
+            ${q.exam_stage === '실기' && q.solution_code ? `<div style="margin-top:8px;">${solutionBlock}</div>` : ''}
+            <div class="kw-row">${keywordsHtml}</div>
+          </div>
+        `;
+
+        const explainBox = `
+          <div class="explain-box">
+            <div class="explain-label">💡 핵심 해설 및 수험 포인트</div>
+            <div>${escapeHtml(q.explanation)}</div>
+            <div class="meta-footer">출처: ${escapeHtml(q.source)}${q.source_url ? ` (${escapeHtml(q.source_url)})` : ''} · 비고: ${escapeHtml(q.escalation_note)}</div>
+          </div>
+        `;
+
+        let interactiveBody = '';
+        if (q.exam_stage === '필기') {
+          if (STUDY_MODE === 'solve') {
+            const choicesHtml = (q.options || []).map((opt, cIdx) => {
+              const choiceNo = cIdx + 1;
+              let cls = 'choice-btn';
+              let statusBadge = '';
+              if (prog) {
+                if (choiceNo === q.correct_choice) {
+                  cls += prog.selected === choiceNo ? ' selected-correct' : ' reveal-correct';
+                  statusBadge = '<span>✓ 정답</span>';
+                } else if (prog.selected === choiceNo) {
+                  cls += ' selected-wrong';
+                  statusBadge = '<span>✕ 선택</span>';
+                }
+              }
+              return `<button type="button" class="${cls}" data-action="select-choice" data-qid="${q.question_id}" data-choice="${choiceNo}"><span>${escapeHtml(opt)}</span>${statusBadge}</button>`;
+            }).join('');
+
+            interactiveBody = `
+              <div class="choices-list">${choicesHtml}</div>
+              ${prog ? answerBox + explainBox : ''}
+            `;
+          } else {
+            const choicesStatic = (q.options || []).map((opt, cIdx) => {
+              const isAns = (cIdx + 1) === q.correct_choice;
+              return `<div class="choice-static ${isAns ? 'is-answer' : ''}">${escapeHtml(opt)}${isAns ? '  ✓' : ''}</div>`;
+            }).join('');
+            interactiveBody = `
+              <div class="choices-list">${choicesStatic}</div>
+              ${STUDY_MODE === 'explain' ? explainBox : ''}
+            `;
+          }
+        } else {
+          // 실기 작업형
+          if (STUDY_MODE === 'solve') {
+            interactiveBody = `
+              <div class="practice-box">
+                <textarea class="practice-input" aria-label="Python 풀이 코드 작성 영역" placeholder="# 여기에 Python (pandas / sklearn / scipy / statsmodels) 풀이 코드를 작성해 보세요..."></textarea>
+                <div class="practice-actions">
+                  <button type="button" class="btn-sm" data-action="toggle-reveal" data-qid="${q.question_id}">
+                    ${isRevealed ? '🙈 모범 코드 숨기기' : '👁️ 모범 코드·정답 비교'}
+                  </button>
+                  <button type="button" class="btn-sm" data-action="self-grade" data-qid="${q.question_id}" data-result="1">✅ 맞힘 체크</button>
+                  <button type="button" class="btn-sm" data-action="self-grade" data-qid="${q.question_id}" data-result="0">❌ 오답(북마크)</button>
+                  ${prog ? `<span style="font-size:0.78rem;font-weight:700;color:${prog.correct ? 'var(--emerald)' : 'var(--rose)'};">${prog.correct ? '✓ 자가채점: 정답' : '✕ 자가채점: 오답 복습필요'}</span>` : ''}
+                </div>
+                ${isRevealed ? answerBox + explainBox : ''}
+              </div>
+            `;
+          } else if (STUDY_MODE === 'compare') {
+            interactiveBody = answerBox;
+          } else {
+            interactiveBody = answerBox + explainBox;
+          }
+        }
+
+        return `
+          <article class="q-card ${deferredCls}" id="qcard-${q.question_id}">
+            <div class="q-meta">
+              <div class="badge-row">
+                ${stagePill}
+                <span class="pill pill-domain">${escapeHtml(q.domain_name)}</span>
+                <span class="pill pill-round">${escapeHtml(q.round_title)} #${q.question_no}</span>
+                <span class="pill pill-source">${escapeHtml(srcShort)}</span>
+              </div>
+              <button type="button" class="bookmark-btn ${isSaved ? 'saved' : ''}" data-action="toggle-bookmark" data-qid="${q.question_id}">
+                ${isSaved ? '★ 오답노트 저장됨' : '☆ 오답/북마크'}
+              </button>
+            </div>
+            <h2 class="q-title">Q${q.question_id}. ${escapeHtml(q.title)}</h2>
+            <div class="q-body">${escapeHtml(q.question_text)}</div>
+            ${codeInputBlock}
+            ${interactiveBody}
+          </article>
+        `;
+      }).join('');
+    }
+
+    function renderAnalytics() {
+      if (!BDA_DATA) return;
+      const tbody = document.getElementById('analyticsBody');
+      tbody.innerHTML = BDA_DATA.analytics.map(a => `
+        <tr>
+          <td><span class="pill ${a.exam_stage === '필기' ? 'pill-written' : 'pill-practical'}">${escapeHtml(a.exam_stage)}</span></td>
+          <th scope="row">${escapeHtml(a.domain_name)}</th>
+          <td><strong>${a.total_questions}문항</strong></td>
+          <td>${a.share_pct}%</td>
+          <td>${a.round_appearances}개 회차</td>
+          <td>${a.repo_source_count}문항</td>
+          <td>${a.kdata_source_count}문항</td>
+          <td>${escapeHtml(a.primary_qtype)}</td>
+        </tr>
+      `).join('');
+    }
+
+    function bindEvents() {
+      document.getElementById('themeToggleBtn').addEventListener('click', toggleTheme);
+      document.getElementById('timerToggleBtn').addEventListener('click', toggleTimer);
+      document.getElementById('timerPresetBtn').addEventListener('click', cycleTimerPreset);
+
+      document.getElementById('modeGroup').addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-mode]');
+        if (btn) setStudyMode(btn.dataset.mode);
+      });
+
+      const tabList = document.getElementById('stageTabList');
+      tabList.addEventListener('click', (e) => {
+        const tab = e.target.closest('[role="tab"]');
+        if (tab) setStage(tab.dataset.stage, true);
+      });
+      tabList.addEventListener('keydown', (e) => {
+        const tabs = [...tabList.querySelectorAll('[role="tab"]')];
+        const idx = tabs.indexOf(document.activeElement);
+        if (idx === -1) return;
+        let next = idx;
+        if (e.key === 'ArrowRight') next = (idx + 1) % tabs.length;
+        else if (e.key === 'ArrowLeft') next = (idx - 1 + tabs.length) % tabs.length;
+        else if (e.key === 'Home') next = 0;
+        else if (e.key === 'End') next = tabs.length - 1;
+        else return;
+        e.preventDefault();
+        tabs[next].focus();
+        setStage(tabs[next].dataset.stage, true);
+      });
+
+      document.querySelectorAll('[data-view]').forEach(btn => {
+        btn.addEventListener('click', () => setSubview(btn.dataset.view));
+      });
+
+      ['filterDomain', 'filterRound', 'filterSource', 'filterStatus'].forEach(id => {
+        document.getElementById(id).addEventListener('change', renderQuestions);
+      });
+      document.getElementById('searchInput').addEventListener('input', renderQuestions);
+
+      document.getElementById('resetFilterBtn').addEventListener('click', () => {
+        document.getElementById('filterDomain').value = 'ALL';
+        document.getElementById('filterRound').value = 'ALL';
+        document.getElementById('filterSource').value = 'ALL';
+        document.getElementById('filterStatus').value = 'ALL';
+        document.getElementById('searchInput').value = '';
+        renderQuestions();
+      });
+
+      document.getElementById('onlyWrongBtn').addEventListener('click', () => {
+        setSubview('questions');
+        document.getElementById('filterStatus').value = 'SAVED';
+        renderQuestions();
+      });
+
+      document.getElementById('resetProgressBtn').addEventListener('click', () => {
+        PROGRESS = {};
+        REVEALED_IDS.clear();
+        saveProgress();
+        renderQuestions();
+      });
+
+      // Delegated events inside questionList (never raw strings in inline onclick!)
+      document.getElementById('questionList').addEventListener('click', (e) => {
+        const target = e.target.closest('[data-action]');
+        if (!target) return;
+        const action = target.dataset.action;
+        const qid = Number(target.dataset.qid);
+        const q = BDA_DATA.questions.find(item => item.question_id === qid);
+        if (!q) return;
+
+        if (action === 'toggle-bookmark') {
+          if (BOOKMARKS.has(qid)) BOOKMARKS.delete(qid);
+          else BOOKMARKS.add(qid);
+          saveBookmarks();
+          renderQuestions();
+        } else if (action === 'select-choice') {
+          const choice = Number(target.dataset.choice);
+          const isCorrect = choice === q.correct_choice;
+          PROGRESS[qid] = { correct: isCorrect, selected: choice };
+          if (!isCorrect) {
+            BOOKMARKS.add(qid);
+            saveBookmarks();
+          }
+          saveProgress();
+          renderQuestions();
+        } else if (action === 'toggle-reveal') {
+          if (REVEALED_IDS.has(qid)) REVEALED_IDS.delete(qid);
+          else REVEALED_IDS.add(qid);
+          renderQuestions();
+        } else if (action === 'self-grade') {
+          const isCorrect = target.dataset.result === '1';
+          PROGRESS[qid] = { correct: isCorrect };
+          REVEALED_IDS.add(qid);
+          if (!isCorrect) {
+            BOOKMARKS.add(qid);
+            saveBookmarks();
+          }
+          saveProgress();
+          renderQuestions();
+        }
+      });
+
+      window.addEventListener('hashchange', () => {
+        const nextStage = resolveInitialStageFromHash();
+        if (nextStage !== ACTIVE_STAGE) {
+          setStage(nextStage, false);
+        }
+      });
+    }
+
+    async function initApp() {
+      loadState();
+      bindEvents();
+      renderTimer();
+
+      try {
+        const res = await fetch('./data/bda_rdb_export.json');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        BDA_DATA = await res.json();
+
+        document.getElementById('headerSubtitle').textContent =
+          `${BDA_DATA.meta.rounds_range} · 필기 ${BDA_DATA.meta.written_count}문항 + 실기 ${BDA_DATA.meta.practical_count}문항 (총 ${BDA_DATA.meta.questions_count}문항)`;
+
+        // Update tab counts dynamically
+        document.getElementById('tab-all').textContent = `📚 전체 (${BDA_DATA.meta.questions_count})`;
+        document.getElementById('tab-written').textContent = `📝 필기 (4과목 CBT · ${BDA_DATA.meta.written_count})`;
+        document.getElementById('tab-practical').textContent = `⚙️ 실기 (작업형 1·2·3유형 · ${BDA_DATA.meta.practical_count})`;
+
+        const roundSel = document.getElementById('filterRound');
+        BDA_DATA.rounds.forEach(r => {
+          const opt = document.createElement('option');
+          opt.value = String(r.round_id);
+          opt.textContent = r.round_title;
+          roundSel.appendChild(opt);
+        });
+
+        renderAnalytics();
+        const initialStage = resolveInitialStageFromHash();
+        setStage(initialStage, false);
+      } catch (err) {
+        document.getElementById('questionList').innerHTML =
+          `<div class="q-card" style="color:var(--rose);">데이터 로드 실패: 로컬 서버(node server.js) 또는 GitHub Pages 환경에서 열어주세요. (${escapeHtml(err.message)})</div>`;
+      }
+    }
+
+    initApp();
+  </script>
+</body>
+</html>

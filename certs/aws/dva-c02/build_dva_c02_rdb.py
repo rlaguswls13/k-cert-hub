@@ -1,0 +1,1716 @@
+import os
+import json
+import sqlite3
+
+PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.path.join(PROJECT_DIR, 'data')
+os.makedirs(DATA_DIR, exist_ok=True)
+
+DB_PATH = os.path.join(DATA_DIR, 'dva_c02_exam.db')
+SQL_DUMP_PATH = os.path.join(DATA_DIR, 'schema_and_data.sql')
+JSON_EXPORT_PATH = os.path.join(DATA_DIR, 'dva_c02_rdb_export.json')
+
+SOURCE_OFFICIAL_PDF = "AWS Official Sample Questions PDF"
+SOURCE_EXAM_GUIDE = "DVA-C02 공식 Exam Guide 도메인 핵심문제"
+
+# 1. 세트(회차) 메타데이터
+EXAM_ROUNDS = [
+    (1, '공식 Sample PDF (10문항)', SOURCE_OFFICIAL_PDF, 10,
+     'AWS 공식 DVA-C02 Sample Questions PDF 전 문항 (원문 선택지 + 한국어 핵심 요약/해설)'),
+    (2, '실전 세트 1회 — 개발·보안·배포 핵심 (25문항)', SOURCE_EXAM_GUIDE, 25,
+     'Lambda/API Gateway/DynamoDB, IAM/KMS/STS, SAM/CodeDeploy, X-Ray/DAX 균형 출제'),
+    (3, '실전 세트 2회 — 서버리스·CI/CD·컨테이너 (25문항)', SOURCE_EXAM_GUIDE, 25,
+     'Kinesis/EventBridge/Step Functions, SigV4/Cognito/VPC, CodePipeline/CloudFormation/Beanstalk'),
+    (4, '실전 세트 3회 — 트러블슈팅·최적화 종합 (25문항)', SOURCE_EXAM_GUIDE, 25,
+     'SnapStart/DLQ Redrive/Transactions, Permissions Boundary, CloudWatch Logs Insights/ElastiCache/오류 진단'),
+]
+
+# 2. 공식 DVA-C02 4대 도메인 (Exam Guide 배점 비율 반영)
+CATEGORIES_DOMAIN = [
+    (1, 'D1_DEV', 'Domain 1: Development with AWS Services (32%)', 32,
+     'Lambda, API Gateway, DynamoDB(GSI/LSI/RCU/WCU), Step Functions, SQS/SNS/EventBridge, Kinesis, AppSync'),
+    (2, 'D2_SEC', 'Domain 2: Security (26%)', 26,
+     'IAM Roles/Policies, STS, KMS Envelope Encryption, Secrets Manager, Parameter Store, Cognito, SigV4'),
+    (3, 'D3_DEP', 'Domain 3: Deployment (24%)', 24,
+     'AWS SAM, CodeBuild/CodePipeline/CodeDeploy(Blue-Green/Canary), Elastic Beanstalk, CloudFormation, ECS/ECR'),
+    (4, 'D4_OPT', 'Domain 4: Troubleshooting & Optimization (18%)', 18,
+     'AWS X-Ray, CloudWatch Logs Insights/EMF/Agent, DynamoDB Accelerator(DAX), ElastiCache, 오류 코드 진단'),
+]
+
+# 3. 문항 유형 (단일선택 vs 복수선택)
+CATEGORIES_QTYPE = [
+    (1, 'SINGLE', '단일 선택 (Single Choice)', 0, '4지선다 중 가장 적합한 정답 1개 선택'),
+    (2, 'MULTI2', '복수 선택 (Select TWO)', 1, '5지선다 중 조건을 충족하는 정답 2개 선택'),
+]
+
+
+def make_q(
+    round_id, q_no, domain_id, qtype_id, select_count,
+    title, question_text, code_or_log, options, correct_keys,
+    core_keywords, explanation, source
+):
+    opt_map = {k: v for k, v in options}
+    answer_lines = [f"{k}) {opt_map[k]}" for k in correct_keys]
+    answer_text = "\n".join(answer_lines)
+    return {
+        "round_id": round_id,
+        "question_no": q_no,
+        "domain_id": domain_id,
+        "qtype_id": qtype_id,
+        "select_count": select_count,
+        "title": title,
+        "question_text": question_text,
+        "code_or_log": code_or_log,
+        "options": [{"key": k, "text": v} for k, v in options],
+        "correct_keys": correct_keys,
+        "answer_text": answer_text,
+        "core_keywords": core_keywords,
+        "explanation": explanation,
+        "source": source,
+    }
+
+
+QUESTIONS_DATA = [
+    # =========================================================================
+    # Round 1: AWS Official Sample Questions PDF (Q1 ~ Q10)
+    # =========================================================================
+    make_q(
+        1, 1, 2, 1, 1,
+        "[공식 샘플 #1] RDS MySQL 자격증명 보안 저장 및 자동 로테이션 (Secrets Manager)",
+        "A company is migrating a legacy application to Amazon EC2 instances. The application uses a user name and password that are stored in the source code to connect to a MySQL database. The company will migrate the database to an Amazon RDS for MySQL DB instance. As part of the migration, the company needs to implement a secure way to store and automatically rotate the database credentials.\n\nWhich solution will meet these requirements?\n(레거시 EC2 애플리케이션이 소스코드 내 평문 DB 계정 대신 Amazon RDS for MySQL 자격증명을 안전하게 저장하고 자동 로테이션(Automatic Rotation)하려면 어떤 서비스를 사용해야 하는가?)",
+        "",
+        [
+            ("A", "Store the database credentials in environment variables in an Amazon Machine Image (AMI). Rotate the credentials by replacing the AMI."),
+            ("B", "Store the database credentials in AWS Systems Manager Parameter Store. Configure Parameter Store to automatically rotate the credentials."),
+            ("C", "Store the database credentials in environment variables on the EC2 instances. Rotate the credentials by relaunching the EC2 instances."),
+            ("D", "Store the database credentials in AWS Secrets Manager. Configure Secrets Manager to automatically rotate the credentials."),
+        ],
+        ["D"],
+        "AWS Secrets Manager, Automatic Rotation, Amazon RDS, Credentials",
+        "AWS Secrets Manager는 DB 자격증명, API 키 등 비밀 정보를 암호화해 저장하고 API 호출로 런타임에 안전하게 조회할 수 있습니다. 특히 Amazon RDS, Redshift, DocumentDB에 대한 기본 제공(Built-in) 자동 로테이션 기능을 지원합니다. 반면 Parameter Store(SecureString)는 기본 자동 로테이션 기능이 내장되어 있지 않아 별도 Lambda+EventBridge 구성이 필요합니다.",
+        SOURCE_OFFICIAL_PDF,
+    ),
+    make_q(
+        1, 2, 1, 2, 2,
+        "[공식 샘플 #2] 준실시간 댓글 및 피드백 웹 애플리케이션 구현 (AppSync / WebSocket API)",
+        "A developer is creating a web application that must give users the ability to post comments and receive feedback in near real time.\n\nWhich solutions will meet these requirements? (Select TWO.)\n(사용자가 댓글을 게시하고 준실시간(near real-time)으로 피드백을 받을 수 있는 웹 애플리케이션 아키텍처로 적합한 2가지를 고르시오.)",
+        "",
+        [
+            ("A", "Create an AWS AppSync schema and corresponding APIs. Use an Amazon DynamoDB table as the data store."),
+            ("B", "Create a WebSocket API in Amazon API Gateway. Use an AWS Lambda function as the backend. Use an Amazon DynamoDB table as the data store."),
+            ("C", "Create an AWS Elastic Beanstalk application that is backed by an Amazon RDS database. Configure the application to allow long-lived TCP/IP sockets."),
+            ("D", "Create a GraphQL endpoint in Amazon API Gateway. Use an Amazon DynamoDB table as the data store."),
+            ("E", "Establish WebSocket connections to Amazon CloudFront. Use an AWS Lambda function as the CloudFront distribution's origin. Use an Amazon Aurora DB cluster as the data store."),
+        ],
+        ["A", "B"],
+        "AWS AppSync, GraphQL Subscriptions, API Gateway WebSocket API, DynamoDB, Real-time",
+        "AWS AppSync는 관리형 GraphQL 서비스로 Subscriptions 기능을 통해 DynamoDB 등의 데이터 변경을 클라이언트에 실시간 브로드캐스트합니다. 또한 Amazon API Gateway의 WebSocket API는 양방향(Two-way) 실시간 통신을 지원하며 Lambda·DynamoDB와 결합해 상태 기반 서버리스 실시간 앱을 구축할 수 있습니다. API Gateway 자체는 기본 GraphQL 엔드포인트를 제공하지 않으며(D 오답), CloudFront 단독으로는 Lambda를 직접 WebSocket 오리진으로 연결하지 않습니다(E 오답).",
+        SOURCE_OFFICIAL_PDF,
+    ),
+    make_q(
+        1, 3, 2, 2, 2,
+        "[공식 샘플 #3] Cognito 회원가입/로그인 및 인증 이벤트 커스텀 분석 로깅",
+        "A developer is adding sign-up and sign-in functionality to an application. The application must make an API call to a custom analytics solution to log user sign-in events.\n\nWhich combination of actions should the developer perform to meet these requirements? (Select TWO.)\n(애플리케이션에 회원가입/로그인 기능을 추가하고, 사용자 로그인 성공 시 커스텀 분석 솔루션 API를 호출해 로깅하기 위한 2가지 조합은?)",
+        "",
+        [
+            ("A", "Use Amazon Cognito to provide the sign-up and sign-in functionality."),
+            ("B", "Use AWS Identity and Access Management (IAM) to provide the sign-up and sign-in functionality."),
+            ("C", "Configure an AWS Config rule to make the API call when a user is authenticated."),
+            ("D", "Invoke an Amazon API Gateway method to make the API call when a user is authenticated."),
+            ("E", "Invoke an AWS Lambda function to make the API call when a user is authenticated."),
+        ],
+        ["A", "E"],
+        "Amazon Cognito, User Pools, Post Authentication Trigger, AWS Lambda",
+        "웹/모바일 앱의 최종 사용자 회원가입·로그인(Sign-up/Sign-in)은 IAM(AWS 계정/리소스 관리용)이 아니라 Amazon Cognito User Pools로 구현합니다. 또한 사용자 인증 직후 커스텀 분석 API 호출 등 후속 처리는 Cognito의 Post Authentication Lambda Trigger를 연결해 Lambda 함수를 자동 호출하는 것이 표준 패턴입니다.",
+        SOURCE_OFFICIAL_PDF,
+    ),
+    make_q(
+        1, 4, 2, 2, 2,
+        "[공식 샘플 #4] 타 AWS 계정 IAM 사용자 전용 API Gateway REST API 교차 계정 접근 제어",
+        "A company is using Amazon API Gateway for its REST APIs in an AWS account. A developer wants to allow only IAM users from another AWS account to access the APIs.\n\nWhich combination of steps should the developer take to meet these requirements? (Select TWO.)\n(한 AWS 계정의 API Gateway REST API에 대해 '다른 AWS 계정의 특정 IAM 사용자들만' 접근하도록 허용하려면 어떤 2가지 단계를 수행해야 하는가?)",
+        "",
+        [
+            ("A", "Create an IAM permission policy. Attach the policy to each IAM user. Set the method authorization type for the APIs to AWS_IAM. Use Signature Version 4 to sign the API requests."),
+            ("B", "Create an Amazon Cognito user pool. Add each IAM user to the user pool. Set the method authorization type for the APIs to COGNITO_USER_POOLS. Authenticate by using the IAM credentials in Amazon Cognito. Add the ID token to the request headers."),
+            ("C", "Create an Amazon Cognito identity pool. Add each IAM user to the identity pool. Set the method authorization type for the APIs to COGNITO_USER_POOLS. Authenticate by using the IAM credentials in Amazon Cognito. Add the access token to the request headers."),
+            ("D", "Create a resource policy for the APIs to allow access for each IAM user only."),
+            ("E", "Create an Amazon Cognito authorizer for the APIs to allow access for each IAM user only. Set the method authorization type for the APIs to COGNITO_USER_POOLS."),
+        ],
+        ["A", "D"],
+        "API Gateway, AWS_IAM, Signature Version 4 (SigV4), Resource Policy, Cross-Account",
+        "교차 계정(Cross-Account) IAM 사용자가 API Gateway REST API를 호출하려면 ① API 메서드의 Authorization Type을 AWS_IAM으로 설정하고 호출 계정의 IAM 사용자에게 execute-api:Invoke 권한 정책을 부여한 뒤 SigV4(Signature Version 4)로 요청을 서명해야 하며(A), ② API Gateway 측에서는 Resource Policy를 작성해 해당 타 계정의 IAM 사용자 ARN만 명시적으로 허용해야 합니다(D).",
+        SOURCE_OFFICIAL_PDF,
+    ),
+    make_q(
+        1, 5, 2, 1, 1,
+        "[공식 샘플 #5] S3 트리거 Lambda 함수의 권한 부여 (Execution Role)",
+        "A developer is building a new application that transforms text files to .pdf files. A separate application writes the text files to a source Amazon S3 bucket. The new application must read the files as they arrive in Amazon S3 and must convert the files to .pdf files by using an AWS Lambda function. The developer has written an IAM policy to allow access to Amazon S3 and Amazon CloudWatch Logs.\n\nWhat should the developer do to ensure that the Lambda function has the correct permissions?\n(S3와 CloudWatch Logs 접근 권한을 담은 IAM 정책을 작성했을 때, Lambda 함수가 이 권한을 실제로 사용하도록 하려면 어떻게 설정해야 하는가?)",
+        "",
+        [
+            ("A", "Create a Lambda execution role by using AWS Identity and Access Management (IAM). Attach the IAM policy to the role. Assign the Lambda execution role to the Lambda function."),
+            ("B", "Create a Lambda execution user by using AWS Identity and Access Management (IAM). Attach the IAM policy to the user. Assign the Lambda execution user to the Lambda function."),
+            ("C", "Create a Lambda execution role by using AWS Identity and Access Management (IAM). Attach the IAM policy to the role. Store the IAM role as an environment variable in the Lambda function."),
+            ("D", "Create a Lambda execution user by using AWS Identity and Access Management (IAM). Attach the IAM policy to the user. Store the IAM user credentials as environment variables in the Lambda function."),
+        ],
+        ["A"],
+        "Lambda Execution Role, IAM Role, Temporary Credentials, Least Privilege",
+        "AWS Lambda 함수는 실행 시 IAM Role(실행 역할, Execution Role)을 수임(AssumeRole)하여 임시 자격증명을 받아 S3·CloudWatch Logs 등 AWS 리소스에 접근합니다. IAM User 키를 환경변수에 저장하는 것은 안티패턴이며(D 오답), Lambda에는 IAM Role을 직접 함수 속성으로 할당해야 합니다(A).",
+        SOURCE_OFFICIAL_PDF,
+    ),
+    make_q(
+        1, 6, 2, 1, 1,
+        "[공식 샘플 #6] AWS KMS 봉투 암호화(Envelope Encryption) 데이터 키 저장 방식",
+        "A developer is working on an application that stores highly confidential data in a database. The developer must use AWS Key Management Service (AWS KMS) with envelope encryption to protect the data.\n\nHow should the developer configure the data encryption to meet these requirements?\n(AWS KMS의 봉투 암호화(Envelope Encryption)를 사용해 민감 데이터를 DB에 보호 저장할 때 올바른 구현 방식은?)",
+        "",
+        [
+            ("A", "Encrypt the data by using a KMS key. Store the encrypted data in the database."),
+            ("B", "Encrypt the data by using a generated data key. Store the encrypted data in the database."),
+            ("C", "Encrypt the data by using a generated data key. Store the encrypted data and the data key ID in the database."),
+            ("D", "Encrypt the data by using a generated data key. Store the encrypted data and the encrypted data key in the database."),
+        ],
+        ["D"],
+        "AWS KMS, Envelope Encryption, GenerateDataKey, Encrypted Data Key",
+        "KMS 봉투 암호화는 GenerateDataKey API로 평문 데이터 키(Plaintext Data Key)와 KMS 키로 암호화된 데이터 키(Encrypted Data Key)를 발급받은 뒤, 평문 데이터 키로 실제 데이터를 로컬 암호화하고 메모리에서 평문 키를 삭제합니다. 추후 복호화를 위해 '암호화된 데이터'와 '암호화된 데이터 키(CiphertextBlob)'를 함께 DB에 저장해야 합니다(D). KMS 키 직접 호출(Encrypt)은 4KB 크기 제한이 있어 대용량 데이터에 부적합합니다.",
+        SOURCE_OFFICIAL_PDF,
+    ),
+    make_q(
+        1, 7, 4, 1, 1,
+        "[공식 샘플 #7] Amazon ElastiCache Lazy Loading 캐싱 패턴 의사코드",
+        "A developer is adding Amazon ElastiCache for Memcached to a company's existing record storage application. The developer has decided to use lazy loading based on an analysis of common record handling patterns.\n\nWhich pseudocode example will correctly implement lazy loading?\n(Amazon ElastiCache for Memcached에 Lazy Loading 전략을 적용할 때 올바른 의사코드 흐름은?)",
+        "",
+        [
+            ("A", "record_value = db.query(\"UPDATE Records SET Details = {1} WHERE ID == {0}\", record_key, record_value)\ncache.set(record_key, record_value)"),
+            ("B", "record_value = cache.get(record_key)\nif (record_value == NULL)\n    record_value = db.query(\"SELECT Details FROM Records WHERE ID == {0}\", record_key)\n    cache.set(record_key, record_value)"),
+            ("C", "record_value = cache.get(record_key)\ndb.query(\"UPDATE Records SET Details = {1} WHERE ID == {0}\", record_key, record_value)"),
+            ("D", "record_value = db.query(\"SELECT Details FROM Records WHERE ID == {0}\", record_key)\nif (record_value != NULL)\n    cache.set(record_key, record_value)"),
+        ],
+        ["B"],
+        "ElastiCache, Lazy Loading, Cache-Aside, Cache Miss",
+        "Lazy Loading(지연 로딩)은 요청된 데이터가 필요할 때만 캐시에 적재하는 전략입니다. ① 먼저 cache.get(key)로 캐시를 조회하고, ② Cache Miss(NULL)인 경우에만 DB에서 SELECT로 조회한 뒤 cache.set(key, value)으로 캐시에 채웁니다(B). A는 Write-Through 패턴에 해당하며, D는 캐시를 조회하지 않고 매번 DB를 먼저 타므로 Lazy Loading이 아닙니다.",
+        SOURCE_OFFICIAL_PDF,
+    ),
+    make_q(
+        1, 8, 1, 1, 1,
+        "[공식 샘플 #8] API Gateway Stage Variables를 활용한 dev/prod Lambda Alias 최소 구성",
+        "A developer is building a web application that uses Amazon API Gateway. The developer wants to maintain different environments for development (dev) and production (prod) workloads. The API will be backed by an AWS Lambda function with two aliases: one for dev and one for prod.\n\nHow can the developer maintain these environments with the LEAST amount of configuration?\n(단일 Lambda 함수의 dev/prod 두 별칭(Alias)에 연동되는 API Gateway 환경을 '가장 적은 구성(LEAST configuration)'으로 분리 유지하는 방법은?)",
+        "",
+        [
+            ("A", "Create a REST API for each environment. Integrate the APIs with the corresponding dev and prod aliases of the Lambda function. Deploy the APIs to their respective stages. Access the APIs by using the stage URLs."),
+            ("B", "Create one REST API. Integrate the API with the Lambda function by using a stage variable in place of an alias. Deploy the API to two different stages: dev and prod. Create a stage variable in each stage with different aliases as the values. Access the API by using the different stage URLs."),
+            ("C", "Create one REST API. Integrate the API with the dev alias of the Lambda function. Deploy the API to the dev environment. Configure a canary release deployment for the prod environment where the canary will integrate with the Lambda prod alias."),
+            ("D", "Create one REST API. Integrate the API with the prod alias of the Lambda function. Deploy the API to the prod environment. Configure a canary release deployment for the dev environment where the canary will integrate with the Lambda dev alias."),
+        ],
+        ["B"],
+        "API Gateway, Stage Variables, Lambda Alias, dev/prod Environments",
+        "API Gateway에서 단일 REST API를 유지하면서 dev/prod 스테이지별로 서로 다른 Lambda Alias를 호출하려면 통합 URI에 Stage Variable(예: `arn:aws:lambda:...:function:myFunc:${stageVariables.lambdaAlias}`)을 지정하고, 각 Stage(dev, prod)에 Stage Variable 값을 각각 dev, prod로 설정하면 API를 복제하지 않고 최소 구성으로 환경을 분리할 수 있습니다.",
+        SOURCE_OFFICIAL_PDF,
+    ),
+    make_q(
+        1, 9, 4, 1, 1,
+        "[공식 샘플 #9] EC2 플릿 응답 시간 모니터링 및 임계치 초과 즉시 알림 (CloudWatch Agent + Metric Filter)",
+        "A developer wants to track the performance of an application that runs on a fleet of Amazon EC2 instances. The developer wants to view and track statistics, such as the average request latency and the maximum request latency, across the fleet. The developer wants to receive immediate notification if the average response time exceeds a threshold.\n\nWhich solution will meet these requirements?\n(EC2 플릿 전체 애플리케이션의 평균/최대 요청 지연시간을 추적하고 평균 응답시간 임계치 초과 시 즉시 알림을 받기 위한 최적 아키텍처는?)",
+        "",
+        [
+            ("A", "Configure a cron job on each EC2 instance to measure the response time and update a log file stored in an Amazon S3 bucket every minute. Use an Amazon S3 event notification to invoke an AWS Lambda function that reads the log file and writes new entries to an Amazon OpenSearch Service cluster. Visualize the results in OpenSearch Dashboards. Configure OpenSearch Service to send an alert to an Amazon Simple Notification Service (Amazon SNS) topic when the response time exceeds the threshold."),
+            ("B", "Configure the application to write the response times to the system log. Install and configure the Amazon Inspector agent on the EC2 instances to continually read the logs and send the response times to Amazon EventBridge (Amazon CloudWatch Events). View the metrics graphs in the EventBridge (CloudWatch Events) console. Configure an EventBridge (CloudWatch Events) custom rule to send an Amazon Simple Notification Service (Amazon SNS) notification when the average of the response time metric exceeds the threshold."),
+            ("C", "Configure the application to write the response times to a log file. Install and configure the Amazon CloudWatch agent on the EC2 instances to stream the application log to CloudWatch Logs. Create a metric filter of the response time from the log. View the metrics graphs in the CloudWatch console. Create a CloudWatch alarm to send an Amazon Simple Notification Service (Amazon SNS) notification when the average of the response time metric exceeds the threshold."),
+            ("D", "Install and configure AWS Systems Manager Agent (SSM Agent) on the EC2 instances to monitor the response time and send the response time to Amazon CloudWatch as a custom metric. View the metrics graphs in Amazon QuickSight. Create a CloudWatch alarm to send an Amazon Simple Notification Service (Amazon SNS) notification when the average of the response time metric exceeds the threshold."),
+        ],
+        ["C"],
+        "Amazon CloudWatch Agent, CloudWatch Logs, Metric Filter, CloudWatch Alarm, SNS",
+        "EC2 인스턴스 내부의 애플리케이션 로그를 수집하려면 Amazon CloudWatch Agent를 설치해 CloudWatch Logs로 실시간 스트리밍해야 합니다. 이후 CloudWatch Logs에서 Metric Filter(지표 필터)를 생성해 응답 시간 수치를 커스텀 지표로 추출하고 Average/Maximum 통계를 모니터링하며, CloudWatch Alarm으로 임계치 초과 시 SNS 알림을 즉시 발송할 수 있습니다(C). Inspector는 취약점 스캔, SSM Agent는 관리 명령 실행용입니다.",
+        SOURCE_OFFICIAL_PDF,
+    ),
+    make_q(
+        1, 10, 1, 1, 1,
+        "[공식 샘플 #10] Lambda 배포 패키지 용량 초과 회피 및 의존성 분리 (Lambda Layers)",
+        "A developer is testing an application locally and has deployed the application to an AWS Lambda function. To avoid exceeding the deployment package size quota, the developer did not include the dependencies in the deployment file. When the developer tests the application remotely, the Lambda function does not run because of missing dependencies.\n\nWhich solution will resolve this issue?\n(배포 패키지 크기 제한을 피하기 위해 의존성을 제외하고 Lambda를 배포해 실행 오류가 발생할 때, 가장 올바른 해결 방법은?)",
+        "",
+        [
+            ("A", "Use the Lambda console editor to update the code and include the missing dependencies."),
+            ("B", "Create an additional .zip file that contains the missing dependencies. Include the .zip file in the original Lambda deployment package."),
+            ("C", "Add references to the missing dependencies in the Lambda function's environment variables."),
+            ("D", "Create a layer that contains the missing dependencies. Attach the layer to the Lambda function."),
+        ],
+        ["D"],
+        "AWS Lambda Layers, Deployment Package Quota, Dependencies",
+        "AWS Lambda Layers(계층)는 공통 라이브러리, 커스텀 런타임, 의존성을 별도의 .zip 아카이브로 패키징하여 최대 5개까지 Lambda 함수에 연결할 수 있는 기능입니다. 이를 통해 핵심 비즈니스 로직 배포 패키지 크기를 작게 유지하고 여러 함수 간 의존성을 재사용할 수 있습니다(전체 압축 해제 총합 한도 250MB 준수, 대용량은 최대 10GB 컨테이너 이미지 사용).",
+        SOURCE_OFFICIAL_PDF,
+    ),
+
+    # =========================================================================
+    # Round 2: 실전 세트 1회 — 개발·보안·배포 핵심 (25문항, Q11 ~ Q35)
+    # D1=9, D2=6, D3=6, D4=4
+    # =========================================================================
+    make_q(
+        2, 11, 1, 1, 1,
+        "Lambda 비동기 호출(Asynchronous Invocation) 실패 시 재시도 및 Destination 구성",
+        "S3 이벤트 알림이나 SNS 토픽이 AWS Lambda 함수를 비동기(Asynchronous)로 호출할 때, 일시적 오류로 함수 실행이 실패한 경우 Lambda 내부 이벤트 큐에 보관되어 자동 재시도한 후 최종 실패 이벤트를 손실 없이 다른 대상(SQS/SNS/EventBridge)으로 라우팅하려고 한다. 올바른 설계는?",
+        "InvocationType: Event (Async)\nDefault Retries: 2 (MaximumEventAgeInSeconds: 60~21600)",
+        [
+            ("A", "Event Source Mapping의 ReportBatchItemFailures 옵션을 활성화한다."),
+            ("B", "Lambda Function Event Invoke Config에서 MaximumRetryAttempts와 On-failure Destination(SQS/SNS/EventBridge)을 설정한다."),
+            ("C", "API Gateway의 Retry Policy를 활성화하고 Lambda Alias를 지정한다."),
+            ("D", "Lambda 함수의 Reserved Concurrency를 0으로 설정하여 재시도를 방지한다."),
+        ],
+        ["B"],
+        "Lambda Asynchronous Invocation, Destinations, MaximumRetryAttempts, DLQ",
+        "비동기 호출(S3, SNS, EventBridge 등) 실패 시 Lambda는 기본 2회(0~2회 설정 가능) 자동 재시도합니다. 최종 실패(및 성공) 페이로드를 컨텍스트 메타데이터와 함께 전송하려면 Lambda Destinations(On-failure / On-success)를 사용하는 것이 기존 DLQ(SQS/SNS만 지원)보다 권장됩니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        2, 12, 1, 1, 1,
+        "Lambda Reserved Concurrency vs Provisioned Concurrency 구분",
+        "결제 처리용 Lambda 함수는 트래픽 급증 시에도 Cold Start 없이 100ms 이내로 응답해야 하며, 동시에 연결된 레거시 RDS DB 커넥션 고갈을 막기 위해 최대 동시 실행 수도 50개로 제한하고 싶다. 올바른 동시성 설정 조합은?",
+        "",
+        [
+            ("A", "Provisioned Concurrency를 50으로 설정하면 Cold Start 제거와 최대 동시성 50 제한이 동시에 보장된다."),
+            ("B", "Reserved Concurrency를 50으로 설정해 최대 동시 실행을 제한하고, 별도 RDS Proxy 또는 Warm-up 호출을 고려하거나 필요 시 최대치 이내에서 Provisioned Concurrency를 함께 구성한다."),
+            ("C", "Unreserved Account Concurrency를 50으로 축소하여 계정 전체 동시성을 제한한다."),
+            ("D", "Lambda 타임아웃을 15분으로 늘려 실행 환경을 장기간 유지한다."),
+        ],
+        ["B"],
+        "Reserved Concurrency, Provisioned Concurrency, Cold Start, Throttling",
+        "Provisioned Concurrency는 지정된 수의 실행 환경을 사전 초기화(Warm 상태 유지)해 Cold Start를 제거하지만, 초과 트래픽이 들어오면 일반 On-Demand 동시성으로 계속 확장되므로 상한(Cap) 역할을 하지 않습니다. 최대 동시성을 50으로 엄격히 제한하려면 반드시 Reserved Concurrency=50을 설정해야 합니다(단, Reserved Concurrency >= Provisioned Concurrency 관계 준수).",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        2, 13, 1, 1, 1,
+        "Lambda Event Source Mapping(SQS) 부분 배치 실패 처리 (Partial Batch Response)",
+        "SQS 표준 큐를 트리거로 사용하는 Lambda 함수가 한 번에 최대 10개의 메시지를 배치로 처리한다. 10개 중 8번째 메시지 처리에서 일시적 예외가 발생했을 때, 이미 성공한 1~7번 메시지가 다시 큐로 돌아가 중복 처리되는 것을 막으려면 어떻게 구현해야 하는가?",
+        '{\n  "batchItemFailures": [\n    { "itemIdentifier": "msg-id-08" }\n  ]\n}',
+        [
+            ("A", "Lambda 함수에서 예외를 throw하지 않고 성공한 메시지만 수동으로 sqs.delete_message() 호출 후 정상 종료한다."),
+            ("B", "Event Source Mapping에 FunctionResponseTypes: [\"ReportBatchItemFailures\"]를 활성화하고, 실패한 메시지의 messageId만 batchItemFailures 배열에 담아 반환한다."),
+            ("C", "SQS Visibility Timeout을 0초로 설정하여 모든 메시지를 즉시 재전송한다."),
+            ("D", "BatchSize를 1로 고정하고 MaximumBatchingWindowInSeconds를 300초로 설정한다."),
+        ],
+        ["B"],
+        "ReportBatchItemFailures, batchItemFailures, Event Source Mapping, SQS",
+        "SQS/Kinesis/DynamoDB Streams의 Event Source Mapping에서 Partial Batch Response(`ReportBatchItemFailures`)를 활성화하면, 함수가 `batchItemFailures` JSON 객체에 실패한 항목의 `itemIdentifier`만 반환할 수 있습니다. 성공한 나머지 메시지는 자동 삭제되고 실패 항목만 재시도되므로 중복 처리가 방지됩니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        2, 14, 1, 1, 1,
+        "API Gateway REST API vs HTTP API 아키텍처 선택 기준",
+        "개발팀이 Amazon Cognito 또는 외부 Auth0의 OIDC JWT 토큰을 검증하여 Lambda 백엔드를 호출하는 저지연(Low-latency)·저비용 서버리스 API를 신규 구축하려고 한다. API Key/Usage Plan, 응답 캐싱, VTL 매핑 템플릿은 필요하지 않다. 가장 적합한 API Gateway 유형은?",
+        "",
+        [
+            ("A", "Amazon API Gateway REST API + Lambda Authorizer"),
+            ("B", "Amazon API Gateway HTTP API + 내장 JWT Authorizer"),
+            ("C", "Amazon API Gateway WebSocket API + Lambda Proxy Integration"),
+            ("D", "Amazon API Gateway Private REST API + Resource Policy"),
+        ],
+        ["B"],
+        "API Gateway HTTP API, JWT Authorizer, REST API, Cost Optimization",
+        "HTTP API는 REST API 대비 최대 70% 저렴한 비용과 더 낮은 지연시간을 제공하며, OIDC/OAuth 2.0 기반 내장 JWT Authorizer와 자동 CORS 구성을 기본 지원합니다. 반면 API Keys/Usage Plans, Request Validation, Edge-optimized, VTL Mapping Templates, API Caching이 필요한 경우에만 REST API를 선택합니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        2, 15, 1, 1, 1,
+        "DynamoDB RCU / WCU 용량 단위 산정 계산",
+        "DynamoDB 테이블의 평균 항목 크기가 5.5 KB이다. 이 테이블에 초당 10회의 Strongly Consistent Read(강력한 일관성 읽기)와 초당 10회의 일반 Write(쓰기)가 발생할 때, 최소 필요한 RCU(Read Capacity Units)와 WCU(Write Capacity Units)는 각각 얼마인가?",
+        "Item Size = 5.5 KB\nReads = 10/sec (Strongly Consistent)\nWrites = 10/sec (Standard)",
+        [
+            ("A", "10 RCU, 55 WCU"),
+            ("B", "20 RCU, 60 WCU"),
+            ("C", "10 RCU, 60 WCU"),
+            ("D", "20 RCU, 30 WCU"),
+        ],
+        ["B"],
+        "DynamoDB, RCU, WCU, Strongly Consistent Read, 4KB, 1KB",
+        "DynamoDB 읽기(RCU)는 4KB 단위로 올림하므로 5.5KB → 8KB(2블록)입니다. Strongly Consistent Read는 블록당 1 RCU이므로 10회 × 2 = 20 RCU가 필요합니다(Eventually Consistent였다면 10 RCU). 쓰기(WCU)는 1KB 단위로 올림하므로 5.5KB → 6KB(6블록)이며, 초당 10회 × 6 = 60 WCU가 필요합니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        2, 16, 1, 1, 1,
+        "DynamoDB LSI(Local Secondary Index) vs GSI(Global Secondary Index) 제약 및 특성",
+        "이미 운영 중인 프로덕션 DynamoDB 테이블(Partition Key: userId, Sort Key: orderId)에 대해, 추후 새로운 속성인 `status`를 Partition Key로 하고 `createdAt`을 Sort Key로 하는 조회 패턴을 추가해야 한다. 올바른 인덱스 선택과 이유는?",
+        "",
+        [
+            ("A", "LSI를 추가한다. 기존 테이블에 언제든 추가 가능하며 기본 테이블의 RCU/WCU를 공유해 비용이 절감된다."),
+            ("B", "GSI를 추가한다. 테이블 생성 이후에도 언제든 생성·삭제가 가능하며 기본 테이블과 다른 Partition Key(`status`)를 지정할 수 있다."),
+            ("C", "LSI를 추가하되 Strongly Consistent Read를 포기하고 별도 WCU를 프로비저닝한다."),
+            ("D", "DynamoDB는 생성 후 인덱스를 추가할 수 없으므로 새 테이블을 만들어 데이터를 이관해야 한다."),
+        ],
+        ["B"],
+        "DynamoDB, GSI, LSI, Partition Key, Sort Key, Eventually Consistent",
+        "LSI는 테이블 생성 시에만 정의할 수 있고 기본 테이블과 동일한 Partition Key를 가져야 하며, 파티션당 10GB 크기 제한이 있습니다. 반면 GSI는 테이블 생성 후 언제든 온라인으로 추가/삭제 가능하며, 전혀 다른 Partition Key와 Sort Key를 지정할 수 있고 독립적인 RCU/WCU를 가집니다(단, GSI는 Eventually Consistent Read만 지원).",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        2, 17, 1, 1, 1,
+        "DynamoDB 낙관적 잠금(Optimistic Locking)을 통한 동시 쓰기 충돌 방지",
+        "재고 차감 API가 동시에 여러 요청을 처리할 때, 두 Lambda 인스턴스가 동일한 재고 값(10개)을 읽은 뒤 각각 -1 업데이트를 덮어써서(Lost Update) 재고가 8개가 아닌 9개로 저장되는 문제가 발생했다. DynamoDB에서 이를 해결하는 표준 개발 패턴은?",
+        "UpdateItem(\n  Key={'productId': 'P100'},\n  UpdateExpression='SET stock = stock - :q, version = version + :inc',\n  ConditionExpression='version = :cur_ver AND stock >= :q'\n)",
+        [
+            ("A", "DynamoDB 테이블에 비관적 잠금(Pessimistic Table Lock) 옵션을 활성화한다."),
+            ("B", "항목에 `version` 속성을 추가하고 `ConditionExpression`으로 버전 일치를 검증하는 조건부 쓰기(Optimistic Locking)를 적용한다."),
+            ("C", "GSI에 Strongly Consistent Read를 설정하여 최신 값을 조회한다."),
+            ("D", "BatchWriteItem API를 사용해 업데이트를 순차 큐잉한다."),
+        ],
+        ["B"],
+        "Optimistic Locking, ConditionExpression, ConditionalCheckFailedException, DynamoDB",
+        "DynamoDB는 기본 비관적 행 잠금을 제공하지 않는 대신, 항목에 `version` 번호를 두고 `UpdateItem`/`PutItem` 시 `ConditionExpression`으로 현재 버전을 검증하는 낙관적 잠금(Optimistic Locking) 패턴을 사용합니다. 다른 트랜잭션이 먼저 수정했다면 `ConditionalCheckFailedException`이 발생하며 앱이 최신 값을 재조회 후 재시도합니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        2, 18, 1, 1, 1,
+        "Step Functions Callback Pattern (.waitForTaskToken) 활용",
+        "주문 처리 워크플로우에서 외부 신용평가/수동 승인 시스템이 작업을 완료할 때까지 Step Functions 실행을 비용 발생 없이 일시 중지(최대 수 시간~수일)했다가, 외부 시스템이 처리를 마치면 워크플로우를 다음 단계로 재개해야 한다. 적합한 통합 패턴은?",
+        'Resource: "arn:aws:states:::sqs:sendMessage.waitForTaskToken"\nParameters:\n  QueueUrl: "..."\n  MessageBody:\n    TaskToken.$: "$$.Task.Token"',
+        [
+            ("A", "Wait 상태(State)를 1분 간격으로 루프 돌리며 Lambda로 DB 상태를 폴링한다."),
+            ("B", "서비스 통합에 `.waitForTaskToken` Callback 패턴을 지정해 `$$.Task.Token`을 전달하고, 완료 시 외부 시스템이 `SendTaskSuccess` 또는 `SendTaskFailure` API를 호출한다."),
+            ("C", "Express Workflow로 전환하고 Lambda 타임아웃을 최대로 늘려 대기한다."),
+            ("D", "Parallel State의 두 번째 브랜치에서 sleep 루프를 실행한다."),
+        ],
+        ["B"],
+        "Step Functions, waitForTaskToken, SendTaskSuccess, Callback Pattern",
+        "Step Functions Standard Workflow의 Callback 패턴(`.waitForTaskToken`)을 사용하면 Task 상태가 `$$.Task.Token`을 SQS/SNS/Lambda 등으로 전달한 뒤 추가 상태 전이 비용 없이 대기(최대 1년)합니다. 외부 시스템은 작업 완료 시 해당 토큰과 함께 `SendTaskSuccess` 또는 `SendTaskFailure` API를 호출해 워크플로우를 즉시 재개합니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        2, 19, 1, 1, 1,
+        "SNS + SQS Fan-out 및 Subscription Filter Policy를 통한 불필요한 호출 절감",
+        "주문 완료 이벤트가 단일 SNS 토픽으로 발행된다. 결제 서비스, 배송 서비스, VIP 전담 서비스가 각각 SQS 큐를 통해 이벤트를 구독 중인데, VIP 전담 서비스의 Lambda는 주문 속성의 `tier`가 `'VIP'`인 경우에만 실행되어야 한다. 가장 효율적인 구현 방법은?",
+        "",
+        [
+            ("A", "모든 메시지를 VIP 큐로 전달하고 Lambda 함수 내부 첫 줄에서 `tier != 'VIP'`이면 즉시 return 한다."),
+            ("B", "SNS 토픽에서 VIP SQS 큐로 연결된 구독(Subscription)에 `FilterPolicy`를 설정해 `tier: [\"VIP\"]` 조건에 맞는 메시지만 큐로 전달한다."),
+            ("C", "SQS 큐 자체에 Message Filter Policy를 구성한다."),
+            ("D", "SNS 대신 S3 버킷에 파일을 쓰고 S3 Lifecycle 규칙으로 필터링한다."),
+        ],
+        ["B"],
+        "SNS Fan-out, Subscription Filter Policy, SQS, Cost Optimization",
+        "SNS Subscription Filter Policy를 사용하면 메시지 속성(MessageAttributes) 또는 메시지 본문(MessageBody, FilterPolicyScope 설정)을 기준으로 구독자(SQS/Lambda)에게 전달하기 전 SNS 레벨에서 필터링할 수 있습니다. 이를 통해 불필요한 SQS 저장 및 Lambda 호출 비용을 원천 차단합니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        2, 20, 2, 1, 1,
+        "IAM 정책 평가 논리 (Explicit Deny vs Allow & SCP / Permissions Boundary)",
+        "동일 AWS 계정 내 개발자 IAM User에게 Identity-based Policy로 `s3:*` 권한이 부여되어 있고, 해당 계정이 속한 AWS Organizations OU의 SCP(Service Control Policy)에는 `s3:DeleteBucket`에 대한 Explicit Deny가 설정되어 있으며, 대상 S3 버킷의 Resource-based Policy에는 해당 User에 대한 `s3:DeleteBucket` Allow가 명시되어 있다. 개발자가 버킷 삭제를 시도하면 결과는?",
+        "",
+        [
+            ("A", "Resource-based Policy의 명시적 Allow가 Identity Policy와 결합되어 삭제가 허용된다."),
+            ("B", "SCP의 Explicit Deny가 모든 Allow 정책보다 우선하므로 요청은 거부(Deny)된다."),
+            ("C", "IAM User에게 AdministratorAccess를 추가하면 SCP를 우회하여 허용된다."),
+            ("D", "Permissions Boundary가 없으면 SCP는 적용되지 않는다."),
+        ],
+        ["B"],
+        "IAM Policy Evaluation, Explicit Deny, SCP, Resource-based Policy",
+        "AWS IAM 정책 평가의 제1원칙은 '모든 정책(Identity, Resource, SCP, Permissions Boundary, Session Policy) 중 단 하나라도 Explicit Deny가 있으면 무조건 Deny'입니다. 또한 SCP는 계정 루트 사용자를 포함한 모든 IAM 주체가 가질 수 있는 최대 권한 한계를 제한합니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        2, 21, 2, 1, 1,
+        "STS AssumeRole과 ExternalId를 이용한 Confused Deputy 문제 방지",
+        "SaaS 모니터링 파트너사가 고객사의 AWS 계정에 있는 CloudWatch 지표를 수집하기 위해 교차 계정(Cross-Account) IAM Role을 수임(AssumeRole)하려 한다. 제3의 악의적 고객이 파트너사를 속여 다른 고객의 리소스에 접근하는 'Confused Deputy(혼동된 대리인)' 공격을 방지하기 위해 고객사 IAM Role의 Trust Policy에 필수로 추가해야 하는 조건은?",
+        '{\n  "Effect": "Allow",\n  "Principal": { "AWS": "arn:aws:iam::PARTNER_ACCT:root" },\n  "Action": "sts:AssumeRole",\n  "Condition": {\n    "StringEquals": { "sts:ExternalId": "unique-tenant-secret-id" }\n  }\n}',
+        [
+            ("A", "Condition에 `aws:MultiFactorAuthPresent: true` 추가"),
+            ("B", "Trust Policy의 Condition에 파트너사가 고객별로 발급한 고유 `sts:ExternalId` 일치 조건 추가"),
+            ("C", "파트너사에게 고객 계정의 루트 액세스 키 공유"),
+            ("D", "S3 버킷 ACL을 public-read로 설정"),
+        ],
+        ["B"],
+        "STS AssumeRole, ExternalId, Confused Deputy, Trust Policy",
+        "서드파티(파트너) 계정이 다수 고객의 IAM Role을 수임할 때 발생하는 Confused Deputy 취약점을 막기 위해, 파트너가 고객에게 고유 식별자(`ExternalId`)를 발급하고 고객은 Trust Policy의 Condition에 `sts:ExternalId`를 요구하도록 설정해야 합니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        2, 22, 2, 1, 1,
+        "IAM `iam:PassRole` 권한 필요 시나리오",
+        "개발자가 CI/CD 자동화 스크립트를 실행해 새 AWS Lambda 함수를 생성하고, 미리 만들어 둔 `AppLambdaExecRole`을 해당 함수의 실행 역할로 지정하려 하자 `AccessDeniedException`이 발생했다. 개발자 IAM 역할에는 `lambda:CreateFunction` 권한이 이미 있다. 추가로 부여해야 할 핵심 권한은?",
+        "",
+        [
+            ("A", "`sts:AssumeRole` on `AppLambdaExecRole`"),
+            ("B", "`iam:PassRole` on `AppLambdaExecRole` (선택적으로 `iam:PassedToService: lambda.amazonaws.com` 조건 포함)"),
+            ("C", "`iam:CreateRole` on `*`"),
+            ("D", "`lambda:InvokeFunction` on `AppLambdaExecRole`"),
+        ],
+        ["B"],
+        "iam:PassRole, PassedToService, Privilege Escalation, Lambda",
+        "사용자가 EC2, Lambda, ECS, CodeBuild 등 AWS 서비스에 특정 IAM Role을 연결(전달)하여 생성·수정할 때는 서비스 권한(`lambda:CreateFunction`) 외에 해당 Role ARN에 대한 `iam:PassRole` 권한이 별도로 필요합니다. 최소 권한 원칙을 위해 특정 Role ARN과 `iam:PassedToService` 조건을 함께 제한하는 것이 모범 사례입니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        2, 23, 2, 2, 2,
+        "AWS KMS Encryption Context 및 Key Policy 관리 모범 사례",
+        "AWS KMS 대칭 CMK를 사용해 민감한 금융 거래 데이터를 암호화할 때 무결성 검증(AAD) 강화 및 안전한 키 관리를 위해 준수해야 할 사항 2가지는?",
+        "kms.encrypt(\n  KeyId='alias/prod-key',\n  Plaintext=data,\n  EncryptionContext={'userId': 'u-991', 'env': 'prod'}\n)",
+        [
+            ("A", "`Encrypt`/`GenerateDataKey` 호출 시 전달한 `EncryptionContext` 키-값 쌍을 `Decrypt` 호출 시에도 정확히 동일하게 전달해야 복호화가 성공한다."),
+            ("B", "`EncryptionContext` 자체도 암호문 내부에 숨겨져 CloudTrail 로그에는 절대 기록되지 않는다."),
+            ("C", "KMS 고객 관리형 키(CMK)의 Key Policy는 기본적으로 IAM 정책만으로 접근을 허용하므로 Key Policy 내 루트 계정(`arn:aws:iam::ACCT:root`) 권한을 삭제해도 IAM 관리자가 항상 키를 수정할 수 있다."),
+            ("D", "`EncryptionContext`는 KMS IAM/Key Policy의 Condition(`kms:EncryptionContext:*`)으로 세밀한 접근 제어에 활용할 수 있다."),
+            ("E", "KMS Asymmetric Key를 사용하면 S3 SSE-KMS 버킷 기본 암호화에 즉시 적용할 수 있다."),
+        ],
+        ["A", "D"],
+        "KMS EncryptionContext, AAD, Key Policy, CloudTrail, IAM Condition",
+        "EncryptionContext는 암호화되지 않은 추가 인증 데이터(AAD)로서, 암호화·복호화 시 정확히 일치해야 하며 CloudTrail 로그에 평문으로 기록되어 감사 추적이 가능합니다(B 오답). 또한 KMS Key Policy 조건(`kms:EncryptionContext:*`)으로 특정 컨텍스트일 때만 복호화를 허용할 수 있습니다(D). Key Policy에 루트 계정 위임 구문이 없으면 IAM 정책만으로는 키에 접근할 수 없어 Unmanageable 상태가 될 수 있습니다(C 오답).",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        2, 24, 2, 1, 1,
+        "Amazon Cognito User Pools vs Identity Pools (Federated Identities)",
+        "모바일 앱 사용자가 소셜 로그인(Google/Apple) 또는 이메일로 인증한 뒤, 앱 클라이언트에서 직접 사용자의 전용 S3 버킷 폴더(`s3://app-bucket/${cognito-identity.amazonaws.com:sub}/*`)에 파일을 업로드할 수 있도록 임시 AWS IAM 자격증명(Access Key, Secret Key, Session Token)을 발급해야 한다. 필요한 Cognito 구성은?",
+        "",
+        [
+            ("A", "Cognito User Pool만 생성하면 ID Token이 곧바로 S3 PutObject용 IAM 자격증명으로 동작한다."),
+            ("B", "Cognito Identity Pool(페더레이션 자격증명)을 구성하여 User Pool/소셜 ID 토큰을 임시 STS IAM 자격증명으로 교환하고, Authenticated Role의 S3 정책에 `${cognito-identity.amazonaws.com:sub}` 변수를 사용한다."),
+            ("C", "Cognito User Pool의 App Client Secret을 모바일 앱 바이너리에 하드코딩한다."),
+            ("D", "IAM User를 사용자마다 동적으로 생성해 모바일 앱에 배포한다."),
+        ],
+        ["B"],
+        "Cognito Identity Pools, User Pools, Temporary STS Credentials, S3 Policy Variable",
+        "Cognito User Pools는 인증(AuthN) 후 JWT(ID/Access/Refresh Token)를 발급하는 사용자 디렉터리이며, 발급된 토큰을 실제 AWS 리소스(S3, DynamoDB 등) 접근용 임시 IAM 자격증명(STS)으로 교환해 주는 역할을 하는 것이 Cognito Identity Pools입니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        2, 25, 2, 1, 1,
+        "Secrets Manager vs Systems Manager Parameter Store 선택 기준",
+        "수천 대의 마이크로컨테이너가 실행 시 데이터베이스 비밀번호를 제외한 일반 환경설정 값(API 타임아웃 초, 기능 플래그, 리전 엔드포인트 URL)과 간단한 암호화 API 키를 빈번하게 조회해야 한다. 비용을 최소화하면서 계층형 경로(`/app/prod/timeout`)로 관리할 수 있는 최적의 서비스는?",
+        "",
+        [
+            ("A", "AWS Secrets Manager (비밀당 월 $0.40 과금, 자동 로테이션 미사용 시에도 동일 비용)"),
+            ("B", "AWS Systems Manager Parameter Store (Standard Tier 무료, KMS SecureString 지원, 계층적 경로 조회 `GetParametersByPath`)"),
+            ("C", "AWS KMS에 문자열을 직접 저장하고 RetrieveKey API로 조회"),
+            ("D", "Elastic Beanstalk Saved Configurations"),
+        ],
+        ["B"],
+        "SSM Parameter Store, Standard Tier, SecureString, GetParametersByPath, Cost",
+        "자동 비밀번호 로테이션이나 RDS 네이티브 통합이 필요 없는 일반 설정값과 암호화 문자열(4KB 이하 Standard Tier)은 SSM Parameter Store가 추가 비밀 보관 비용 없이 무료로 제공되며 `/env/app/key` 형태의 계층적 일괄 조회(`GetParametersByPath`)가 가능해 비용 효율적입니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        2, 26, 3, 1, 1,
+        "AWS SAM `template.yaml` 카나리(Canary) 배포 및 트래픽 검증 훅",
+        "AWS SAM으로 서버리스 API를 배포할 때, 새 Lambda 버전 배포 시 전체 트래픽의 10%만 먼저 새 버전으로 보내 5분간 CloudWatch 5XX 에러 알람을 모니터링하고 이상 없으면 나머지 90%를 전환하며, 트래픽 전환 직전 스모크 테스트(PreTraffic Hook)를 실행하려 한다. 올바른 SAM 설정은?",
+        "Transform: AWS::Serverless-2016-10-31\nResources:\n  MyFunction:\n    Type: AWS::Serverless::Function\n    Properties:\n      AutoPublishAlias: live\n      DeploymentPreference:\n        Type: Canary10Percent5Minutes",
+        [
+            ("A", "CloudFormation `UpdatePolicy`에 `AutoScalingRollingUpdate`를 지정한다."),
+            ("B", "`AutoPublishAlias`와 `DeploymentPreference`에 `Type: Canary10Percent5Minutes`, `Alarms`, `Hooks: PreTraffic`을 설정한다."),
+            ("C", "SAM CLI 실행 시 `--canary 10` 플래그만 넘기면 템플릿 설정 없이 동작한다."),
+            ("D", "Elastic Beanstalk `TrafficSplitting` 정책을 SAM 템플릿에 임베드한다."),
+        ],
+        ["B"],
+        "AWS SAM, AutoPublishAlias, DeploymentPreference, Canary10Percent5Minutes, CodeDeploy",
+        "AWS SAM의 `AWS::Serverless::Function`에서 `AutoPublishAlias`와 `DeploymentPreference`를 선언하면 내부적으로 AWS CodeDeploy 애플리케이션·배포 그룹이 생성되어 Canary/Linear/AllAtOnce 트래픽 전환, `PreTraffic`/`PostTraffic` 검증 훅, CloudWatch Alarms 기반 자동 롤백을 수행합니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        2, 27, 3, 1, 1,
+        "AWS CodeBuild `buildspec.yml` 내 민감 정보 안전 주입",
+        "CodeBuild에서 Docker 이미지를 빌드하고 외부 npm private registry 토큰과 DB 테스트 비밀번호를 사용해야 한다. Git 저장소의 `buildspec.yml`에 평문으로 노출하지 않고 CodeBuild가 런타임에 안전하게 가져오도록 하려면 어떻게 작성해야 하는가?",
+        "version: 0.2\nenv:\n  parameter-store:\n    NPM_TOKEN: \"/ci/npm/token\"\n  secrets-manager:\n    DB_PASS: \"arn:aws:secretsmanager:...:secret:test-db:password\"",
+        [
+            ("A", "`buildspec.yml`의 `env.variables` 섹션에 Base64 인코딩해 기록한다."),
+            ("B", "`env.parameter-store` 또는 `env.secrets-manager` 섹션에 파라미터 경로/시크릿 ARN을 매핑하고 CodeBuild 서비스 역할에 해당 조회 및 KMS 복호화 권한을 부여한다."),
+            ("C", "소스 코드 루트에 `.env` 파일을 커밋해 CodeBuild가 읽도록 한다."),
+            ("D", "`post_build` 단계에서 수동으로 콘솔 입력 프롬프트를 띄운다."),
+        ],
+        ["B"],
+        "CodeBuild, buildspec.yml, parameter-store, secrets-manager, env",
+        "CodeBuild `buildspec.yml` v0.2에서는 `env.parameter-store`와 `env.secrets-manager` 섹션을 기본 지원하여 SSM Parameter Store와 Secrets Manager의 비밀 값을 빌드 환경변수로 안전하게 주입하며, 빌드 로그에서도 마스킹 처리됩니다(CodeBuild IAM Service Role에 `ssm:GetParameters` / `secretsmanager:GetSecretValue` 및 `kms:Decrypt` 권한 필요).",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        2, 28, 3, 1, 1,
+        "Elastic Beanstalk 배포 정책 비교 (Immutable vs Rolling with additional batch)",
+        "Elastic Beanstalk 프로덕션 환경에 새 버전을 배포할 때 ① 기존 운영 인스턴스에 어떤 변경도 가하지 않아야 하며, ② 배포 실패 시 기존 용량 100%가 그대로 유지된 상태에서 새 인스턴스만 종료해 가장 빠르고 깨끗하게 롤백할 수 있어야 한다. 적합한 배포 정책은?",
+        "",
+        [
+            ("A", "All at once"),
+            ("B", "Rolling"),
+            ("C", "Rolling with additional batch"),
+            ("D", "Immutable"),
+        ],
+        ["D"],
+        "Elastic Beanstalk, Immutable Deployment, Rolling, Zero Downtime, Rollback",
+        "Immutable 배포는 임시 Auto Scaling 그룹에 기존과 동일한 수의 새 인스턴스를 완전히 새로 띄워 헬스체크 통과 후 트래픽을 전환합니다. 기존 인스턴스를 전혀 수정하지 않으므로 실패 시 새 ASG만 종료하면 즉시 원복되어 가장 안전한 무중단 배포 및 롤백이 가능합니다(단, 일시적으로 인스턴스 비용 2배 발생).",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        2, 29, 3, 1, 1,
+        "AWS CodeDeploy Blue/Green vs In-Place 배포 지원 대상 구분",
+        "다음 중 AWS CodeDeploy를 이용해 Blue/Green 배포 전략(신규 인스턴스/태스크셋 프로비저닝 후 ALB/NLB 타깃 그룹 트래픽 전환)을 구성할 수 있는 컴퓨팅 플랫폼 조합은?",
+        "",
+        [
+            ("A", "AWS Lambda, Amazon ECS, Amazon EC2 (On-Premises 서버는 In-Place만 지원)"),
+            ("B", "Amazon EC2와 On-Premises 서버만 지원하며 Lambda와 ECS는 불가"),
+            ("C", "Amazon ECS만 지원하며 EC2는 Rolling만 가능"),
+            ("D", "AWS Elastic Beanstalk 내부 워커 환경 전용"),
+        ],
+        ["A"],
+        "AWS CodeDeploy, Blue/Green, In-Place, ECS, Lambda, EC2",
+        "CodeDeploy는 Amazon EC2, AWS Lambda, Amazon ECS 3가지 플랫폼 모두에서 Blue/Green 배포를 지원합니다. 반면 On-Premises 서버는 In-Place 배포만 지원하며, Lambda와 ECS는 Blue/Green(트래픽 시프팅) 배포만 지원합니다(In-Place 미지원).",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        2, 30, 3, 1, 1,
+        "CloudFormation `Outputs` + `Export` & `Fn::ImportValue` 교차 스택 참조",
+        "네트워크 팀이 관리하는 CloudFormation `network-stack`에서 생성한 VPC ID와 Subnet ID를, 애플리케이션 팀의 별도 `app-stack` 템플릿에서 동적으로 참조해 배포하려고 한다. 가장 표준적인 CloudFormation 연계 방법은?",
+        "Outputs:\n  ProdVpcId:\n    Value: !Ref MyVPC\n    Export:\n      Name: \"Prod-VPC-ID\"",
+        [
+            ("A", "`network-stack`의 `Outputs`에 `Export` 이름을 정의하고, `app-stack`에서 `Fn::ImportValue` (`!ImportValue`)로 참조한다."),
+            ("B", "`app-stack`에서 `!Ref network-stack.MyVPC` 문법으로 직접 참조한다."),
+            ("C", "`network-stack`의 `Mappings` 섹션을 외부 URL로 export한다."),
+            ("D", "반드시 단일 YAML 파일로 합쳐야만 스택 간 참조가 가능하다."),
+        ],
+        ["A"],
+        "CloudFormation, Export, Fn::ImportValue, Cross-Stack Reference",
+        "동일 리전·계정 내 별도 CloudFormation 스택 간 리소스 값을 공유할 때는 상위 스택의 `Outputs`에 `Export`를 정의하고, 하위 스택에서 `Fn::ImportValue`로 가져옵니다. 단, 다른 스택이 Import 중인 Export 값은 삭제하거나 이름을 바꿀 수 없다는 제약이 있습니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        2, 31, 3, 1, 1,
+        "AWS SAM / CloudFormation에서 `aws cloudformation package` (또는 `sam package`)의 역할",
+        "로컬 디렉터리에 작성된 Lambda 소스코드 폴더(`src/`)가 포함된 CloudFormation/SAM 템플릿(`CodeUri: ./src`)을 그대로 `aws cloudformation deploy`로 실행하면 실패한다. 배포 전 `sam package` 또는 `aws cloudformation package`가 수행하는 필수 작업은?",
+        "",
+        [
+            ("A", "로컬 소스 코드를 컴파일해 DynamoDB 테이블에 저장한다."),
+            ("B", "로컬 아티팩트(`CodeUri`, `DefinitionUri` 등)를 ZIP으로 압축해 지정된 S3 버킷에 업로드하고, 해당 S3 URI로 치환된 새 템플릿 파일을 출력한다."),
+            ("C", "IAM 사용자를 자동 생성하고 AWS 루트 키를 템플릿에 삽입한다."),
+            ("D", "EC2 AMI 이미지를 자동으로 빌드한다."),
+        ],
+        ["B"],
+        "sam package, cloudformation package, CodeUri, S3 Artifact",
+        "CloudFormation 서비스는 개발자 로컬 파일시스템 경로(`./src`)에 접근할 수 없습니다. 따라서 `sam package`(또는 `aws cloudformation package`) 명령이 로컬 코드·Swagger 파일 등을 ZIP으로 묶어 S3 버킷에 업로드한 뒤, 템플릿의 `CodeUri` 등을 `s3://bucket/key`로 변환한 패키징 템플릿을 생성해 줍니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        2, 32, 4, 1, 1,
+        "AWS X-Ray Annotations vs Metadata 차이 및 Trace 필터링",
+        "분산 마이크로서비스에서 특정 고객 ID(`customerId`)나 주문 상태(`orderStatus`)별로 X-Ray Trace를 콘솔에서 필터링 검색(`annotation.customerId = \"C-102\"`)하고 싶고, 동시에 요청의 전체 JSON 장바구니 내역도 디버깅용으로 Trace에 첨부하고 싶다. 올바른 X-Ray SDK 계측 방법은?",
+        "subsegment.put_annotation('customerId', 'C-102')\nsubsegment.put_metadata('cartPayload', cart_dict, 'checkout')",
+        [
+            ("A", "고객 ID와 장바구니 JSON 모두 Metadata로 기록하면 전체 검색이 가능하다."),
+            ("B", "필터링 검색이 필요한 `customerId`/`orderStatus`는 `Annotations`로 기록하고(인덱싱됨), 인덱싱이 불필요한 상세 JSON 페이로드는 `Metadata`로 기록한다."),
+            ("C", "둘 다 X-Ray Daemon 환경변수에만 등록한다."),
+            ("D", "Annotations는 1MB까지 무제한 저장 가능하며 인덱싱되지 않는다."),
+        ],
+        ["B"],
+        "AWS X-Ray, Annotations, Metadata, Filter Expression, Trace",
+        "X-Ray에서 **Annotations**는 키-값(문자열·숫자·불리언) 쌍으로 자동 인덱싱되어 Filter Expression 검색 및 Trace 그룹핑에 사용됩니다(트레이스당 최대 50개). 반면 **Metadata**는 인덱싱되지 않는 임의 JSON 객체/배열을 디버깅 컨텍스트용으로 저장할 때 사용합니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        2, 33, 4, 1, 1,
+        "DynamoDB Accelerator (DAX) 캐싱 동작 및 비적합 사례",
+        "다음 중 Amazon DynamoDB 앞단에 DynamoDB Accelerator (DAX) 클러스터를 도입했을 때 기대하는 캐싱 성능 향상 효과를 얻기 **어려운** 워크로드는?",
+        "",
+        [
+            ("A", "동일한 인기 상품 정보를 초당 수만 회 반복 조회(`GetItem`)하는 읽기 집약적 이커머스 카탈로그"),
+            ("B", "항상 최신 커밋 데이터를 보장하기 위해 모든 읽기 호출에 `ConsistentRead=True`를 명시하는 금융 원장 조회"),
+            ("C", "마이크로초(µs) 수준의 응답 속도가 필요한 게임 리더보드/프로필 읽기 요청"),
+            ("D", "기존 DynamoDB SDK API 호환성을 유지하면서 코드 변경을 최소화해 인메모리 캐시를 추가하려는 경우"),
+        ],
+        ["B"],
+        "DynamoDB Accelerator (DAX), Strongly Consistent Read, Write-Through, Cache Bypass",
+        "DAX는 Write-Through 캐시로 동작해 Eventually Consistent Read 요청을 마이크로초 단위로 캐싱해 줍니다. 하지만 `ConsistentRead=True`(강력한 일관성 읽기) 요청은 DAX 캐시를 우회(Bypass)하여 항상 원본 DynamoDB 테이블로 직접 전달되므로 캐시 적중 혜택을 받을 수 없습니다. 또한 쓰기 위주(Write-heavy) 워크로드에도 부적합합니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        2, 34, 4, 1, 1,
+        "AWS X-Ray Active Tracing 활성화 범위 (Lambda + API Gateway)",
+        "API Gateway → AWS Lambda → DynamoDB로 이어지는 서버리스 요청의 End-to-End 지연시간과 DynamoDB 쿼리 구간 세부 지연을 X-Ray Service Map에서 모두 확인하려 한다. 필요한 설정 조합은?",
+        "",
+        [
+            ("A", "API Gateway Stage에서만 X-Ray Tracing을 켜면 Lambda 내부 DynamoDB SDK 호출까지 자동 계측된다."),
+            ("B", "① API Gateway Stage에서 X-Ray Tracing 활성화, ② Lambda 함수에서 Active Tracing 활성화(실행 역할에 `AWSXRayDaemonWriteAccess` 부여), ③ Lambda 코드 내 AWS SDK 클라이언트를 X-Ray SDK(`aws-xray-sdk`)로 패치/래핑한다."),
+            ("C", "DynamoDB 콘솔에서 X-Ray Daemon을 직접 EC2에 설치한다."),
+            ("D", "API Gateway Resource Policy에 `xray:PutTraceSegments`만 추가하면 코드 수정 없이 DynamoDB Subsegment가 생성된다."),
+        ],
+        ["B"],
+        "X-Ray Active Tracing, AWSXRayDaemonWriteAccess, aws-xray-sdk, Subsegment",
+        "Lambda에서 Active Tracing을 켜면 Lambda 서비스가 Function 초기화/실행 Segment를 자동 생성하지만, Lambda 내부에서 호출하는 DynamoDB·S3·HTTP 요청을 Subsegment로 분리 추적하려면 코드에서 X-Ray SDK(`patch_all()` 등)로 AWS SDK를 래핑하고 실행 역할에 `xray:PutTraceSegments`, `xray:PutTelemetryRecords` 권한을 부여해야 합니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        2, 35, 4, 1, 1,
+        "CloudWatch Logs Insights 쿼리 활용한 Lambda 에러·지연시간 분석",
+        "수십 개의 Lambda 함수 로그가 쌓인 CloudWatch Log Group에서 최근 1시간 동안 실행 시간(Duration)이 가장 길었던 상위 10개 요청을 추출해 병목을 찾으려 한다. AWS에서 별도 서버 구축 없이 즉시 실행할 수 있는 가장 적합한 쿼리 도구는?",
+        "fields @timestamp, @requestId, @duration\n| filter @type = \"REPORT\"\n| sort @duration desc\n| limit 10",
+        [
+            ("A", "CloudWatch Logs Insights"),
+            ("B", "AWS Config Advanced Queries"),
+            ("C", "Amazon Athena에 수동으로 로그 파일을 매일 S3 export 후 파티셔닝"),
+            ("D", "EC2에 ELK 스택 직접 구축"),
+        ],
+        ["A"],
+        "CloudWatch Logs Insights, @duration, REPORT, Query Syntax",
+        "CloudWatch Logs Insights는 CloudWatch Logs에 저장된 JSON/텍스트 및 Lambda `REPORT` 로그를 대상으로 `fields`, `filter`, `stats`, `sort`, `limit`, `parse` 파이프라인 문법을 사용해 수초 만에 대화형 분석·시각화를 수행할 수 있는 완전 관리형 도구입니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+
+    # =========================================================================
+    # Round 3: 실전 세트 2회 — 서버리스·CI/CD·컨테이너 (25문항, Q36 ~ Q60)
+    # D1=8, D2=6, D3=7, D4=4
+    # =========================================================================
+    make_q(
+        3, 36, 1, 1, 1,
+        "Amazon Kinesis Data Streams 샤드 용량 및 Hot Shard(Throttling) 해결",
+        "Kinesis Data Streams(Provisioned 모드, 4개 샤드)에 실시간 IoT 센서 데이터를 `PutRecord`로 전송 중인데, 전체 유입량은 1.5 MB/s임에도 특정 테넌트 데이터가 몰리며 `ProvisionedThroughputExceededException` 오류가 발생했다. 근본 원인과 해결책은?",
+        "",
+        [
+            ("A", "단일 샤드의 최대 쓰기 용량은 1 MB/s(1,000 records/sec)인데, 낮은 카디널리티의 Partition Key(예: 고정된 `tenantId`)를 사용해 모든 레코드가 1개 샤드에만 집중(Hot Shard)되었다. 높은 카디널리티의 Partition Key(예: `deviceId` 또는 UUID 조합)를 사용하도록 변경한다."),
+            ("B", "Kinesis Data Streams는 1MB/s 이상을 전혀 지원하지 않으므로 SQS FIFO로 교체해야 한다."),
+            ("C", "소비자 측에 Enhanced Fan-Out을 켜면 생산자(PutRecord) 쓰기 스로틀링이 해결된다."),
+            ("D", "샤드 보존 기간(Retention Period)을 365일로 늘린다."),
+        ],
+        ["A"],
+        "Kinesis Data Streams, Shard Limit, 1MB/s, 1000 records/s, Hot Shard, Partition Key",
+        "Kinesis Data Streams의 각 샤드는 쓰기 최대 1MB/sec 또는 1,000 records/sec, 읽기 최대 2MB/sec(공유)를 지원합니다. 전체 트래픽이 총합 이하라도 Partition Key의 MD5 해시가 특정 샤드에 몰리면 Hot Shard Throttling이 발생하므로 분산도가 높은 Partition Key를 선택하거나 Hot Shard를 Split해야 합니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        3, 37, 1, 1, 1,
+        "Kinesis Data Streams Enhanced Fan-Out을 통한 다중 컨슈머 읽기 병목 해소",
+        "하나의 Kinesis Data Stream을 실시간 분석, 사기 탐지, 감사 로깅, 대시보드 등 5개의 독립적인 컨슈머 애플리케이션이 동시에 `GetRecords`로 읽고 있다. 샤드당 읽기 대역폭(2MB/sec) 경합으로 `ReadProvisionedThroughputExceeded`가 발생하고 지연이 2초를 넘긴다. 해결 방법은?",
+        "",
+        [
+            ("A", "Kinesis Data Streams의 Enhanced Fan-Out(`RegisterStreamConsumer`)을 활성화해 각 컨슈머에게 HTTP/2 기반 전용 2MB/sec Push 스트림을 제공한다."),
+            ("B", "모니터링 주기를 늘리고 각 컨슈머의 폴링 간격을 10초로 늦춘다."),
+            ("C", "Kinesis Data Firehose로 변경해 다중 실시간 앱이 직접 폴링하게 한다."),
+            ("D", "Partition Key를 모두 동일 값으로 통일한다."),
+        ],
+        ["A"],
+        "Kinesis Enhanced Fan-Out, RegisterStreamConsumer, HTTP/2 Push, 2MB/s",
+        "기본 공유 컨슈머 모델에서는 모든 컨슈머가 샤드당 총 2MB/sec 읽기 용량을 나눠 쓰며 200ms 간격으로 폴링합니다. **Enhanced Fan-Out**을 사용하면 컨슈머당 전용 2MB/sec 대역폭과 HTTP/2 기반 Push 전달(~70ms 지연)을 제공받아 다중 컨슈머 환경의 읽기 스로틀링을 해소할 수 있습니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        3, 38, 1, 1, 1,
+        "S3 Presigned URL과 Multipart Upload를 활용한 대용량 파일 직접 업로드",
+        "웹 애플리케이션 사용자가 최대 20GB 크기의 동영상 파일을 업로드해야 한다. API Gateway(10MB 페이로드 제한)와 Lambda 메모리/스토리지 한도를 거치지 않고 안전하게 인증된 사용자만 S3 버킷에 고속으로 직접 업로드하게 하려면 어떻게 구현해야 하는가?",
+        "",
+        [
+            ("A", "Lambda에서 20GB 파일을 Base64로 받아 `put_object`로 S3에 저장한다."),
+            ("B", "백엔드 Lambda가 S3 Multipart Upload를 시작하고 각 Part별 **S3 Presigned URL**을 발급해 클라이언트가 S3로 직접 병렬 업로드(`UploadPart`)한 뒤 `CompleteMultipartUpload`를 호출한다."),
+            ("C", "S3 버킷 정책을 `Principal: *`, `s3:PutObject` 허용으로 열어 프론트엔드가 직접 업로드한다."),
+            ("D", "DynamoDB 테이블에 20GB 바이너리를 직접 저장한다."),
+        ],
+        ["B"],
+        "S3 Presigned URL, Multipart Upload, Direct-to-S3, API Gateway 10MB Limit",
+        "API Gateway 페이로드 최대 크기는 10MB이며 S3 단일 `PutObject` 최대 크기는 5GB입니다. 5GB 초과(최대 5TB) 대용량 파일은 반드시 Multipart Upload를 사용해야 하며, 백엔드가 각 파트 업로드용 임시 S3 Presigned URL을 생성해 주면 클라이언트가 서버 경유 없이 병렬·고속으로 S3에 직접 업로드할 수 있습니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        3, 39, 1, 1, 1,
+        "Amazon EventBridge 콘텐츠 기반 이벤트 필터링 및 SaaS/다중 타깃 라우팅",
+        "EC2 인스턴스 상태 변경 이벤트 및 외부 SaaS(Zendesk/Datadog) 웹훅 이벤트를 수신해, JSON 본문의 `detail.state`가 `\"terminated\"`이고 `detail.tags.env`가 `\"prod\"`인 경우에만 페이로드 형식을 변환(Input Transformer)해 Step Functions와 SNS로 동시에 전달하려 한다. 가장 적합한 서비스는?",
+        "",
+        [
+            ("A", "Amazon SQS Standard Queue"),
+            ("B", "Amazon EventBridge (Event Bus + Event Pattern Rule + Input Transformer)"),
+            ("C", "Amazon Kinesis Data Firehose"),
+            ("D", "AWS CodeStar Notifications"),
+        ],
+        ["B"],
+        "Amazon EventBridge, Event Pattern, Input Transformer, SaaS Integration",
+        "Amazon EventBridge는 AWS 서비스 이벤트, 커스텀 앱 이벤트, SaaS 파트너 이벤트를 통합 수신하며 JSON 본문 깊숙한 필드까지 Content-based Event Pattern 매칭을 수행하고 `Input Transformer`로 타깃에 맞게 페이로드를 재구성해 다양한 AWS 서비스로 라우팅할 수 있습니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        3, 40, 1, 1, 1,
+        "Lambda Execution Context(실행 환경) 재사용 및 DB 연결 최적화",
+        "Python으로 작성된 Lambda 함수가 호출될 때마다 `lambda_handler` 함수 내부에서 RDS PostgreSQL 커넥션을 새로 맺고 닫아 지연시간이 급증하고 DB `max_connections` 한도에 도달하고 있다. 서버리스 환경에서 가장 권장되는 개선 패턴 2단계는?",
+        "import os, psycopg2\n# Handler 외부(전역 스코프)에서 초기화하여 Warm Start 시 재사용\nconn = psycopg2.connect(os.environ['DB_URL'])\n\ndef lambda_handler(event, context):\n    with conn.cursor() as cur:\n        ...",
+        [
+            ("A", "DB 연결 및 AWS SDK 클라이언트 초기화 코드를 `lambda_handler` 바깥(전역 스코프)으로 이동해 Execution Context를 재사용하고, 대규모 동시성 환경에서는 **Amazon RDS Proxy**를 앞단에 배치해 커넥션 풀링을 오프로드한다."),
+            ("B", "매 요청마다 `/tmp` 디렉터리에 DB 파일을 복사해 로컬에서 쿼리한다."),
+            ("C", "Lambda 메모리 설정을 최소치인 128MB로 낮춰 커넥션 수를 줄인다."),
+            ("D", "DynamoDB Accelerator(DAX)를 RDS 앞단에 연결한다."),
+        ],
+        ["A"],
+        "Lambda Execution Context, Warm Start, RDS Proxy, Connection Pooling",
+        "Lambda는 Warm Start 시 이전 호출의 Execution Context(전역 변수, `/tmp` 내용, 백그라운드 커넥션)를 재사용합니다. 따라서 SDK/DB 클라이언트를 핸들러 외부에서 초기화해야 합니다. 또한 다수의 동시 Lambda 실행이 RDS 연결 수를 초과하지 않도록 **Amazon RDS Proxy**를 사용하면 커넥션 풀링과 장애 조치 시간 단축을 동시에 달성할 수 있습니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        3, 41, 1, 1, 1,
+        "API Gateway WebSocket API 백엔드→클라이언트 메시지 푸시 구현",
+        "API Gateway WebSocket API를 사용해 실시간 채팅 서버를 구축 중이다. 클라이언트가 메시지를 보내면 `$default` 라우트 Lambda가 실행되는데, 이 Lambda가 현재 채팅방에 접속 중인 다른 모든 클라이언트들에게 메시지를 역방향 Push하려면 어떤 작업이 필요한가?",
+        "",
+        [
+            ("A", "Lambda가 `$default` 응답 본문(return)을 반환하면 연결된 모든 클라이언트에게 자동 브로드캐스트된다."),
+            ("B", "`$connect` 시 연결된 각 클라이언트의 `connectionId`를 DynamoDB에 저장해 두고, 브로드캐스트 시 `ApiGatewayManagementApi`의 `postToConnection(ConnectionId=..., Data=...)`를 호출한다."),
+            ("C", "클라이언트마다 S3 Presigned URL을 열어 두고 폴링한다."),
+            ("D", "`$disconnect` 라우트에서 모든 메시지를 일괄 전송한다."),
+        ],
+        ["B"],
+        "API Gateway WebSocket, connectionId, ApiGatewayManagementApi, postToConnection",
+        "WebSocket API에서 `$connect` 핸들러는 `event.requestContext.connectionId`를 DynamoDB 등에 저장하고 `$disconnect` 시 삭제해야 합니다. 서버에서 특정 클라이언트로 메시지를 푸시할 때는 API Gateway Management API 엔드포인트(`https://{api-id}.execute-api.{region}.amazonaws.com/{stage}`)로 `PostToConnection` API를 호출합니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        3, 42, 1, 1, 1,
+        "Step Functions Standard vs Express Workflows 선택 기준",
+        "IoT 센서로부터 초당 50,000건의 텔레메트리 데이터가 유입되며, 각 이벤트마다 평균 3초 이내에 종료되는 간단한 4단계 유효성 검사·변환·DynamoDB 적재 워크플로우를 실행해야 한다. 실행 횟수 기반 과금 비용을 대폭 절감하기 위해 선택해야 할 Step Functions 워크플로우 유형은?",
+        "",
+        [
+            ("A", "Standard Workflow (상태 전이 횟수당 과금, Exactly-once 실행)"),
+            ("B", "Express Workflow (초당 10만 건 이상 시작률, 최대 5분 실행, 실행 횟수+메모리 지속 시간 기준 저비용 과금)"),
+            ("C", "Standard Workflow + Wait State 1분 삽입"),
+            ("D", "Elastic Beanstalk Worker Tier로 대체"),
+        ],
+        ["B"],
+        "Step Functions, Express Workflow, Standard Workflow, High-volume Event Processing",
+        "**Express Workflows**는 최대 5분 이내에 완료되는 고빈도(초당 10만+ 시작)·대규모 이벤트 처리에 최적화되어 있으며, 상태 전이 횟수가 아니라 실행 수와 실행 시간/메모리 기준으로 과금되어 Standard 대비 훨씬 저렴합니다(At-least-once 실행, Synchronous Express로 API Gateway 동기 연동 가능).",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        3, 43, 1, 1, 1,
+        "DynamoDB Query + KeyConditionExpression vs Scan + FilterExpression 성능·비용 차이",
+        "1억 건의 주문 데이터가 저장된 DynamoDB 테이블에서 특정 고객(`customerId`)의 최근 1주일 주문을 조회하려 한다. 개발자가 `Scan` API에 `FilterExpression: 'customerId = :cid AND orderDate >= :dt'`를 적용했더니 조회 속도가 매우 느리고 엄청난 RCU가 소진되었다. 정확한 원인과 해결책은?",
+        "",
+        [
+            ("A", "`FilterExpression`은 테이블 전체 항목을 모두 스캔해 RCU를 소모한 뒤 결과를 반환하기 직전에 필터링한다. 따라서 `customerId`를 Partition Key, `orderDate`를 Sort Key로 하는 테이블/GSI에 `Query` API(`KeyConditionExpression`)를 사용해야 한다."),
+            ("B", "`ProjectionExpression`을 제거하면 Scan의 RCU 소모가 0이 된다."),
+            ("C", "`Scan`에 `ConsistentRead=False`를 넣으면 인덱스 없이도 해당 고객 데이터만 읽는다."),
+            ("D", "DynamoDB 테이블에 B-Tree 보조 인덱스를 SQL로 생성한다."),
+        ],
+        ["A"],
+        "DynamoDB Query, Scan, FilterExpression, KeyConditionExpression, RCU",
+        "DynamoDB에서 `FilterExpression`은 데이터를 디스크에서 읽어 RCU를 계산한 **이후** 네트워크 반환 전에 항목을 걸러낼 뿐이므로 읽기 비용과 스캔 시간을 줄여주지 못합니다. 반드시 Partition Key(`=`)와 Sort Key(범위 조건 `BETWEEN`, `>=` 등)를 지정한 `Query` API(`KeyConditionExpression`)를 사용해야 필요한 항목만 읽어 RCU를 절감합니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        3, 44, 2, 1, 1,
+        "API Gateway 요청 서명 (Signature Version 4) 동작 원리",
+        "EC2 인스턴스나 외부 CLI 클라이언트가 `AWS_IAM` 인증이 설정된 API Gateway REST API 또는 AWS 서비스 REST API를 직접 HTTP 요청(curl 등)으로 호출할 때, 요청 변조를 방지하고 호출자 신원을 증명하기 위한 SigV4 서명 절차에 대한 설명으로 옳은 것은?",
+        "",
+        [
+            ("A", "IAM Secret Access Key 원본을 HTTP `Authorization` 헤더에 평문으로 직접 첨부한다."),
+            ("B", "HTTP 메서드·경로·쿼리·헤더·페이로드 SHA-256 해시를 Canonical Request로 정규화한 뒤, Secret Key·날짜·리전·서비스명으로 파생한 Signing Key로 HMAC-SHA256 서명을 생성해 `Authorization` 헤더(또는 Query String)에 포함한다."),
+            ("C", "Cognito Refresh Token을 Base64로 인코딩해 `X-Api-Key` 헤더에 넣는다."),
+            ("D", "HTTPS TLS 인증서만 사용하면 SigV4 서명 없이도 `AWS_IAM` 인증이 통과된다."),
+        ],
+        ["B"],
+        "SigV4, Signature Version 4, Canonical Request, HMAC-SHA256, Authorization Header",
+        "AWS Signature Version 4(SigV4)는 Secret Access Key를 네트워크로 전송하지 않고, 요청 정보의 해시(Canonical Request → String to Sign)와 날짜·리전·서비스 범위가 제한된 파생 서명 키(Signing Key)로 계산한 HMAC 서명값을 `Authorization` 헤더나 Presigned URL 쿼리 파라미터에 담아 인증과 메시지 무결성을 보장합니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        3, 45, 2, 2, 2,
+        "Amazon S3 서버 측 암호화(SSE-S3 vs SSE-KMS) 및 암호화 강제 버킷 정책",
+        "컴플라이언스 요구사항에 따라 S3 버킷에 업로드되는 모든 객체가 반드시 **AWS KMS 키(SSE-KMS)**로 암호화되어야 하며, CloudTrail을 통해 누가 언제 객체를 복호화했는지 감사 추적이 가능해야 한다. 이를 강제하기 위한 2가지 올바른 설정은?",
+        "",
+        [
+            ("A", "S3 버킷 정책에서 `s3:PutObject` 요청 시 `s3:x-amz-server-side-encryption` 헤더 값이 `aws:kms`가 아니면 명시적으로 `Deny` 한다."),
+            ("B", "S3 버킷 기본 암호화를 SSE-S3(AES256)로 설정하면 KMS CloudTrail 감사 로그가 자동 생성된다."),
+            ("C", "업로드·다운로드 수행 IAM 역할에 S3 권한뿐 아니라 해당 KMS CMK에 대한 `kms:GenerateDataKey` 및 `kms:Decrypt` 권한을 부여한다."),
+            ("D", "SSE-C(고객 제공 키)를 사용하면 AWS가 CloudTrail에 복호화 키 원문을 기록해 준다."),
+            ("E", "S3 버킷 ACL을 활성화하면 모든 객체가 자동 KMS 암호화된다."),
+        ],
+        ["A", "C"],
+        "S3 SSE-KMS, Bucket Policy, s3:x-amz-server-side-encryption, kms:GenerateDataKey, CloudTrail",
+        "SSE-KMS는 KMS 키 사용 이력(`GenerateDataKey`, `Decrypt`)이 CloudTrail에 기록되므로 감사 추적이 가능하며, 객체 접근 IAM 주체에게 S3 권한과 함께 해당 KMS 키 사용 권한이 필요합니다(C). 또한 클라이언트 헤더 미지정이나 잘못된 암호화 방식 업로드를 차단하려면 버킷 정책에서 `s3:x-amz-server-side-encryption != aws:kms` 조건을 명시적 Deny 해야 합니다(A).",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        3, 46, 2, 1, 1,
+        "Private VPC 내 Lambda의 Secrets Manager 및 DynamoDB 접근 아키텍처",
+        "보안 규정상 Private Subnet 내부에 배치된 AWS Lambda 함수가 외부 인터넷 접근(IGW/NAT Gateway 없음) 없이 **Amazon DynamoDB**와 **AWS Secrets Manager**에 안전하게 접근해야 한다. AWS 네트워크 내부 트래픽만 사용하도록 구성하는 최적의 방법은?",
+        "",
+        [
+            ("A", "DynamoDB용 **Gateway VPC Endpoint**와 Secrets Manager용 **Interface VPC Endpoint (AWS PrivateLink)**를 VPC에 생성하고 라우팅 테이블·보안 그룹을 연결한다."),
+            ("B", "두 서비스 모두 Gateway VPC Endpoint로만 연결 가능하다."),
+            ("C", "Lambda에 퍼블릭 IP를 직접 할당하고 Security Group 인바운드를 0.0.0.0/0으로 연다."),
+            ("D", "NAT Gateway를 Public Subnet에 추가해야만 AWS 서비스 API 호출이 가능하다."),
+        ],
+        ["A"],
+        "VPC Endpoint, Gateway Endpoint, Interface Endpoint, PrivateLink, Lambda in VPC",
+        "VPC 내 리소스가 인터넷 게이트웨이나 NAT Gateway를 거치지 않고 AWS 서비스에 접근하려면 VPC Endpoint를 사용합니다. **S3와 DynamoDB만 무료 Gateway Endpoint**를 지원하며, Secrets Manager, KMS, SQS, SNS, Lambda API 등 대부분의 다른 AWS 서비스는 **Interface Endpoint(AWS PrivateLink)**를 사용합니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        3, 47, 2, 1, 1,
+        "Amazon ECS Task Role vs Task Execution Role 구분",
+        "Amazon ECS Fargate에서 실행되는 백엔드 컨테이너 애플리케이션이 ① ECR에서 도커 이미지를 가져오고 Secrets Manager에서 DB 비밀번호를 컨테이너 환경변수로 주입받으며, ② 실행 중인 앱 코드가 AWS SDK를 통해 Amazon S3 버킷에 리포트 파일을 업로드해야 한다. 각각 어느 IAM Role에 권한을 부여해야 하는가?",
+        "",
+        [
+            ("A", "① Task Role / ② Task Execution Role"),
+            ("B", "① Task Execution Role / ② Task Role"),
+            ("C", "둘 다 EC2 Instance Profile에만 부여한다."),
+            ("D", "둘 다 Fargate 서비스 연결 역할(Service-Linked Role)에 자동 포함된다."),
+        ],
+        ["B"],
+        "ECS Fargate, Task Execution Role, Task Role, ECR, Secrets Manager",
+        "**Task Execution Role**은 ECS 컨테이너 에이전트/Fargate 인프라 자체가 ECR 이미지 Pull, CloudWatch Logs 드라이버 로그 전송, task definition의 `secrets` 주입을 수행할 때 사용합니다. 반면 **Task Role**은 컨테이너 내부에서 실행되는 애플리케이션 코드가 S3/DynamoDB 등 AWS API를 호출할 때 사용하는 역할입니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        3, 48, 2, 1, 1,
+        "API Gateway Lambda Authorizer 정책 캐싱(Policy Caching)과 와일드카드 ARN 함정",
+        "API Gateway REST API에 Token-based Lambda Authorizer를 적용하고 TTL 300초 캐싱을 켰다. 사용자가 `GET /orders`를 호출한 직후 동일한 유효 토큰으로 `POST /profile`을 호출했는데 간헐적으로 `403 User is not authorized to access this resource` 오류가 발생했다. 원인과 해결책은?",
+        "// 문제가 된 Authorizer 반환 Policy\n\"Resource\": event.methodArn  // 예: arn:aws:execute-api:...:prod/GET/orders",
+        [
+            ("A", "Lambda Authorizer가 반환하는 IAM Policy의 `Resource`에 `event.methodArn` 전체(특정 HTTP 메서드와 경로)를 넣으면, 해당 경로에 대한 Allow 정책이 토큰 기준으로 캐싱되어 다른 경로 호출 시 거부된다. 리소스 ARN의 메서드/경로 부분을 와일드카드(`arn:aws:execute-api:region:acct:api-id/stage/*/*`)로 반환한다."),
+            ("B", "Authorizer 캐시 TTL을 3600초로 늘린다."),
+            ("C", "API Gateway Resource Policy를 삭제한다."),
+            ("D", "Cognito User Pool의 Refresh Token을 비활성화한다."),
+        ],
+        ["A"],
+        "Lambda Authorizer, Policy Caching, methodArn, Wildcard ARN, 403",
+        "Lambda Authorizer 캐싱을 활성화하면 API Gateway는 Authorization 토큰(또는 Identity Source)을 캐시 키로 삼아 반환된 IAM 정책을 TTL 동안 재사용합니다. 이때 Authorizer가 단일 `event.methodArn`(특정 메서드·리소스)만 허용하는 정책을 반환하면, 같은 토큰으로 다른 엔드포인트 호출 시 캐시된 정책에 의해 403 거부가 발생하므로 허용 범위(`stage/*/*`)를 적절히 와일드카드 처리해야 합니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        3, 49, 2, 1, 1,
+        "Amazon Cognito Pre Token Generation Lambda Trigger 활용",
+        "SaaS 멀티테넌트 서비스가 Cognito User Pools로 로그인을 처리한다. 사용자가 로그인할 때마다 DynamoDB에서 해당 사용자의 최신 `tenantId`와 `role` 목록을 조회해 발급되는 JWT ID Token의 커스텀 클레임(Claims)으로 동적 삽입하고 싶다. 적절한 Cognito Trigger는?",
+        "",
+        [
+            ("A", "Pre Sign-up Trigger"),
+            ("B", "Post Confirmation Trigger"),
+            ("C", "Pre Token Generation Lambda Trigger"),
+            ("D", "Custom Message Trigger"),
+        ],
+        ["C"],
+        "Cognito Triggers, Pre Token Generation, JWT Claims, claimsToAddOrOverride",
+        "**Pre Token Generation Lambda Trigger**는 Cognito가 사용자 인증 후 JWT 토큰을 최종 발급하기 직전에 호출되어 `claimsToAddOrOverride` 또는 `claimsToSuppress`를 통해 ID/Access Token의 클레임을 동적으로 추가·수정·제거할 수 있게 해줍니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        3, 50, 3, 1, 1,
+        "AWS SAM CLI 개발 워크플로우 (`sam sync --watch` vs `sam deploy`)",
+        "개발자가 AWS SAM 프로젝트의 Lambda 핸들러 코드를 수정하며 실제 클라우드(Dev 환경)의 API Gateway·DynamoDB와 연동 테스트를 빠르게 반복하고 싶다. 매번 전체 CloudFormation 변경 집합(Change Set) 생성을 기다리지 않고 코드 변경 사항을 수초 내에 클라우드 함수에 즉시 반영하는 CLI 명령은?",
+        "",
+        [
+            ("A", "`sam local generate-event`"),
+            ("B", "`sam sync --watch` (개발 환경 전용 고속 동기화; 운영은 `sam build` + `sam deploy` 사용)"),
+            ("C", "`sam validate --lint`"),
+            ("D", "`aws cloudformation create-change-set`"),
+        ],
+        ["B"],
+        "AWS SAM CLI, sam sync --watch, sam build, sam deploy, SAM Accelerate",
+        "`sam sync --watch`(SAM Accelerate)는 로컬 코드 변경을 감지하면 CloudFormation 전체 스택 배포를 거치지 않고 Lambda UpdateFunctionCode API 등을 직접 호출해 수초 만에 개발 환경에 동기화합니다. 단, 프로덕션 환경에서는 변경 이력·드리프트 관리 및 안전 배포를 위해 반드시 `sam build` 후 `sam deploy`를 사용해야 합니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        3, 51, 3, 1, 1,
+        "AWS CodeDeploy `appspec.yml` 라이프사이클 훅 순서 (EC2 vs Lambda/ECS)",
+        "CodeDeploy를 이용해 Amazon ECS 또는 AWS Lambda 함수의 Blue/Green 트래픽 전환을 수행할 때, 새 버전(Green)으로 실제 프로덕션 트래픽을 라우팅하기 **직전**과 **직후**에 자동 검증 Lambda 함수를 실행하기 위해 `appspec.yml`의 `hooks` 섹션에 정의하는 훅 이름은?",
+        "version: 0.0\nResources:\n  - myLambdaFunction: ...\nHooks:\n  - BeforeAllowTraffic: \"PreTrafficValidationLambda\"\n  - AfterAllowTraffic: \"PostTrafficValidationLambda\"",
+        [
+            ("A", "`BeforeInstall` → `ApplicationStart`"),
+            ("B", "`BeforeAllowTraffic` → `AfterAllowTraffic` (ECS는 `AfterAllowTestTraffic` 포함)"),
+            ("C", "`PreBuild` → `PostBuild`"),
+            ("D", "`ValidateService` → `DownloadBundle`"),
+        ],
+        ["B"],
+        "CodeDeploy, appspec.yml, BeforeAllowTraffic, AfterAllowTraffic, Hooks",
+        "EC2/On-Premises 배포는 `BeforeInstall`, `AfterInstall`, `ApplicationStart`, `ValidateService` 순으로 실행되지만, **Lambda 및 ECS Blue/Green 배포**에서는 트래픽 전환 기준으로 `BeforeAllowTraffic`, `(ECS: AfterAllowTestTraffic)`, `AfterAllowTraffic` 훅을 사용해 검증 Lambda 함수가 `PutLifecycleEventHookExecutionStatus` API로 성공/실패를 보고하도록 구성합니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        3, 52, 3, 1, 1,
+        "CodePipeline 아티팩트 전달 및 수동 승인(Manual Approval) 게이트 구성",
+        "AWS CodePipeline에서 `Source(GitHub) → Build(CodeBuild) → Deploy-Staging → Manual Approval → Deploy-Prod` 파이프라인을 운영 중이다. 릴리스 매니저에게 이메일/Slack으로 승인 요청 알림을 보내고, 승인 완료 시 빌드된 산출물을 프로덕션에 배포하려면 어떻게 구성해야 하는가?",
+        "",
+        [
+            ("A", "Manual Approval 액션 설정에 Amazon SNS Topic ARN을 연결하고, 승인자가 콘솔/CLI(`put-approval-result`)에서 승인할 때까지 파이프라인 실행을 일시 대기시킨다."),
+            ("B", "CodeBuild의 `buildspec.yml` 내부에서 `read -p` 표준 입력을 받는다."),
+            ("C", "Staging과 Prod를 별도 리전에 두면 자동으로 수동 승인이 활성화된다."),
+            ("D", "S3 Artifact 버킷의 버저닝을 꺼야 승인 단계가 동작한다."),
+        ],
+        ["A"],
+        "AWS CodePipeline, Manual Approval, SNS Topic, Artifact Bucket, S3 Versioning",
+        "CodePipeline의 Approval 액션에 SNS Topic을 지정하면 파이프라인이 해당 스테이지에서 멈추고 승인 URL이 포함된 알림이 전송됩니다. 또한 CodePipeline의 S3 아티팩트 저장소는 스테이지 간 아티팩트 버전을 안전하게 주고받기 위해 버저닝과 KMS 암호화를 활용합니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        3, 53, 3, 1, 1,
+        "CloudFormation Intrinsic Functions (`!Ref`, `!GetAtt`, `!Sub`, `!FindInMap`) 활용",
+        "CloudFormation 템플릿에서 리소스 논리 ID `OrderQueue`(AWS::SQS::Queue)의 ARN을 IAM 정책 문구 안에 동적으로 조합해 넣으려 한다. `OrderQueue`에 `!Ref`를 사용하면 Queue URL만 반환될 때, Queue ARN을 추출해 문자열에 안전하게 삽입하는 올바른 YAML 표현식은?",
+        "",
+        [
+            ("A", "`!Sub \"arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:${OrderQueue}\"` 또는 `!GetAtt OrderQueue.Arn`"),
+            ("B", "`!Ref OrderQueue.Arn`"),
+            ("C", "`!FindInMap [OrderQueue, Arn, Value]`"),
+            ("D", "`!Base64 OrderQueue`"),
+        ],
+        ["A"],
+        "CloudFormation, !GetAtt, !Ref, !Sub, Pseudo Parameters",
+        "CloudFormation에서 `!Ref`는 리소스마다 반환값이 다릅니다(SQS Queue는 URL 반환, DynamoDB Table은 테이블 이름 반환). ARN이나 엔드포인트 같은 보조 속성을 얻으려면 반드시 `!GetAtt LogicalID.AttributeName`을 사용하거나, `!Sub` 내에서 `${OrderQueue.Arn}` / Pseudo Parameters(`${AWS::Region}`, `${AWS::AccountId}`)를 조합해야 합니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        3, 54, 3, 1, 1,
+        "CloudFormation `DeletionPolicy` 및 `CreationPolicy`(`cfn-signal`) 활용",
+        "CloudFormation 스택으로 프로덕션 Amazon RDS DB와 EC2 웹 서버를 함께 관리한다. ① 실수로 스택이 삭제(`delete-stack`)되더라도 RDS 데이터는 스냅샷으로 보존되어야 하며, ② EC2 부팅 UserData 소프트웨어 설치가 완료될 때까지 CloudFormation이 `CREATE_COMPLETE` 상태로 전환하지 않고 기다리게 하려면?",
+        "",
+        [
+            ("A", "① RDS 리소스에 `DeletionPolicy: Snapshot` 설정 / ② EC2 리소스에 `CreationPolicy` 지정 및 UserData 끝에서 `cfn-signal` 실행"),
+            ("B", "① `UpdateReplacePolicy: Delete` 설정 / ② `DependsOn`만 지정"),
+            ("C", "① `NoEcho: true` 파라미터 설정 / ② `cfn-hup` 데몬만 설치"),
+            ("D", "① `TerminationProtection` 비활성화 / ② `WaitCondition` 삭제"),
+        ],
+        ["A"],
+        "CloudFormation, DeletionPolicy, Snapshot, Retain, CreationPolicy, cfn-signal",
+        "`DeletionPolicy: Snapshot`(RDS/EBS/ElastiCache 등 지원) 또는 `Retain`을 설정하면 스택 삭제 시에도 데이터가 보존됩니다. 또한 EC2/ASG의 경우 `CreationPolicy`(`ResourceSignal`)를 설정하고 UserData 스크립트 마지막에 `/opt/aws/bin/cfn-signal -e $?`를 호출해야 앱 초기화가 성공적으로 끝난 시점에 스택 생성이 완료됩니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        3, 55, 3, 1, 1,
+        "Elastic Beanstalk 환경 커스터마이징 (`.ebextensions` vs `.platform/hooks`)",
+        "Amazon Linux 2 / Amazon Linux 2023 기반의 AWS Elastic Beanstalk 환경에서 Nginx 리버스 프록시의 `client_max_body_size` 설정을 확장하고 애플리케이션 배포 직후 커스텀 셸 스크립트를 실행하려 한다. AWS가 권장하는 최신 설정 파일 배치 경로는?",
+        "",
+        [
+            ("A", "`.platform/nginx/conf.d/`에 Nginx 설정 파일 배치 및 `.platform/hooks/postdeploy/`에 실행 권한(+x)이 있는 스크립트 배치"),
+            ("B", "`/etc/init.d/`에 수동 SSH 접속 후 직접 수정 (인스턴스 교체 시 유지됨)"),
+            ("C", "`appspec.yml`의 `BeforeAllowTraffic` 훅 작성"),
+            ("D", "`samconfig.toml`에 Nginx 설정 추가"),
+        ],
+        ["A"],
+        "Elastic Beanstalk, .platform/hooks, .platform/nginx, .ebextensions, AL2/AL2023",
+        "Amazon Linux 2/2023 기반 Beanstalk에서는 기존 `.ebextensions`의 `files`/`commands` 외에도 웹 서버(Nginx/Apache) 확장 설정을 `.platform/nginx/conf.d/`에, 라이프사이클 훅 스크립트를 `.platform/hooks/(prebuild|predeploy|postdeploy)/`에 배치하는 것이 표준이며 SSH 수동 변경은 Auto Scaling 시 사라집니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        3, 56, 3, 1, 1,
+        "Elastic Beanstalk Worker Environment (`sqsd`) 및 주기적 작업(`cron.yaml`)",
+        "Elastic Beanstalk 웹 환경에서 요청당 3분 이상 걸리는 PDF 대량 생성 작업을 동기 처리하다가 로드밸런서 타임아웃이 발생하고 있다. 이를 비동기로 분리하고 매일 자정 주기적 정리 작업도 실행하려 할 때, Beanstalk 플랫폼 기능을 최대한 활용하는 구성은?",
+        "",
+        [
+            ("A", "Elastic Beanstalk **Worker Environment**를 추가 배포한다. 내장된 `sqsd` 데몬이 SQS 메시지를 폴링해 앱의 로컬 HTTP POST 엔드포인트로 전달하며, 루트의 `cron.yaml`로 주기적 SQS 메시지 스케줄링을 자동 처리한다."),
+            ("B", "Web Server Environment의 ALB 타임아웃을 1시간으로 늘린다."),
+            ("C", "EC2 인스턴스 내부에 `crontab`을 수동 등록해 모든 인스턴스가 동시에 실행하게 한다."),
+            ("D", "Elastic Beanstalk의 Static Website Hosting 옵션을 켠다."),
+        ],
+        ["A"],
+        "Elastic Beanstalk, Worker Environment, sqsd, cron.yaml, SQS",
+        "Elastic Beanstalk Worker Environment는 각 인스턴스에 SQS 데몬(`sqsd`)이 함께 실행되어 SQS 큐에서 메시지를 꺼내 애플리케이션의 로컬 HTTP 경로(`POST /`)로 전달합니다. 또한 앱 번들에 `cron.yaml`을 포함하면 다중 인스턴스 환경에서도 중복 실행 없이 리더/SQS 기반으로 주기적 작업을 처리할 수 있습니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        3, 57, 4, 1, 1,
+        "CloudWatch Embedded Metric Format (EMF)을 활용한 서버리스 커스텀 지표 추출",
+        "초당 수천 번 호출되는 Lambda 함수에서 비즈니스 지표(`OrderAmount`, `CheckoutLatency`)를 CloudWatch Custom Metrics로 기록하려 한다. 함수 내에서 매번 `cloudwatch.put_metric_data()` 동기 API를 호출하니 실행 시간이 길어지고 비용이 증가했다. API 호출 오버헤드 없이 커스텀 지표를 비동기로 생성하는 방법은?",
+        '{\n  "_aws": {\n    "Timestamp": 1700000000000,\n    "CloudWatchMetrics": [{\n      "Namespace": "ShopApp",\n      "Dimensions": [["Service"]],\n      "Metrics": [{"Name": "OrderAmount", "Unit": "Count"}]\n    }]\n  },\n  "Service": "Checkout",\n  "OrderAmount": 1\n}',
+        [
+            ("A", "**CloudWatch Embedded Metric Format (EMF)** 규격에 맞춘 JSON 문자열을 표준 출력(`stdout`/CloudWatch Logs)으로 로깅한다."),
+            ("B", "DynamoDB Streams에 지표를 쓰고 Step Functions로 1초마다 집계한다."),
+            ("C", "X-Ray `put_metadata`에 기록하면 자동으로 CloudWatch Metrics 그래프로 변환된다."),
+            ("D", "EC2 CloudWatch Agent를 Lambda 레이어로 첨부한다."),
+        ],
+        ["A"],
+        "CloudWatch EMF, Embedded Metric Format, Custom Metrics, Lambda Optimization",
+        "CloudWatch Embedded Metric Format(EMF)을 사용하면 Lambda나 컨테이너가 별도의 네트워크 API(`PutMetricData`) 호출 없이 `_aws` 메타데이터가 포함된 JSON 로그를 `stdout`으로 출력하기만 하면 CloudWatch Logs가 백그라운드에서 이를 파싱해 실시간 Custom Metric으로 자동 추출합니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        3, 58, 4, 1, 1,
+        "CloudWatch High-Resolution Custom Metrics (1초 단위 정밀 모니터링)",
+        "결제 게이트웨이 마이크로서비스의 초당 스파이크를 놓치지 않기 위해 CloudWatch Custom Metric 데이터를 **1초 단위(1-second granularity)**로 수집하고 10초 주기의 고해상도 알람(High-Resolution Alarm)을 설정하려 한다. `PutMetricData` API 호출 시 추가로 지정해야 하는 파라미터는?",
+        "",
+        [
+            ("A", "`StorageResolution: 1` (기본값은 60초 표준 해상도)"),
+            ("B", "`Unit: 'Microseconds'`"),
+            ("C", "`Dimensions: [{'Name': 'Resolution', 'Value': 'High'}]`"),
+            ("D", "`MetricType: 'Realtime'`"),
+        ],
+        ["A"],
+        "CloudWatch, High-Resolution Metrics, StorageResolution, PutMetricData",
+        "CloudWatch Custom Metrics의 기본 `StorageResolution`은 60초(1분)이지만, `PutMetricData` 요청 시 `StorageResolution=1`을 지정하면 1초 단위 고해상도 지표로 저장되며 10초·30초 주기의 High-Resolution CloudWatch Alarm을 구성할 수 있습니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        3, 59, 4, 1, 1,
+        "Amazon ElastiCache (Redis vs Memcached) 캐시 엔진 선택 기준",
+        "게임 애플리케이션에서 ① 실시간 전 세계 랭킹 순위표(Leaderboard) 계산, ② 채팅방 Pub/Sub 메시징, ③ 장애 시 자동 Failover를 지원하는 Multi-AZ 복제 및 영속성(RDB 스냅샷)이 모두 필요하다. 적합한 ElastiCache 엔진은?",
+        "",
+        [
+            ("A", "Amazon ElastiCache for Memcached"),
+            ("B", "Amazon ElastiCache for Redis (Sorted Sets, Pub/Sub, Multi-AZ Auto-Failover 지원)"),
+            ("C", "Amazon DynamoDB DAX"),
+            ("D", "API Gateway Stage Cache"),
+        ],
+        ["B"],
+        "ElastiCache for Redis, Sorted Sets, Pub/Sub, Multi-AZ, Memcached",
+        "**ElastiCache for Redis**는 Sorted Sets(순위표), List/Hash/Set 자료구조, Pub/Sub, Lua 스크립팅, Multi-AZ 자동 장애조치, 백업/복원(AOF/RDB)을 지원합니다. 반면 **Memcached**는 멀티스레드 아키텍처를 통한 단순 Key-Value 캐시 수평 확장에 적합하지만 복제·영속성·복잡한 자료구조를 지원하지 않습니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        3, 60, 4, 1, 1,
+        "API Gateway 통합 시 자주 발생하는 HTTP 상태 코드 트러블슈팅 (502 vs 504 vs 403)",
+        "API Gateway REST API(Lambda Proxy Integration)를 호출할 때마다 클라이언트에게 **HTTP 502 Bad Gateway (`Internal server error`)**가 반환된다. Lambda CloudWatch 로그에는 함수가 오류 없이 `SUCCEEDED`로 종료된 것으로 찍혀 있다. 가장 유력한 원인은?",
+        "",
+        [
+            ("A", "Lambda 실행 시간이 29초를 초과해 API Gateway가 연결을 끊었다."),
+            ("B", "Lambda 함수가 반환한 JSON 객체가 API Gateway Proxy 통합 요구 스키마(`statusCode` 정수, 문자열 형태의 `body`, `headers` 객체)를 위반했다(예: `body`에 dict를 직렬화하지 않고 그대로 반환)."),
+            ("C", "API Key가 누락되었거나 잘못된 리소스 경로(`/wrong-path`)를 호출했다."),
+            ("D", "DynamoDB RCU가 부족해 400 Bad Request가 발생했다."),
+        ],
+        ["B"],
+        "API Gateway, 502 Bad Gateway, Lambda Proxy Integration, Output Format, 504",
+        "API Gateway Lambda Proxy Integration에서는 Lambda가 반드시 `{\"statusCode\": 200, \"headers\": {...}, \"body\": \"JSON_STRING\"}` 규격(`body`는 반드시 문자열!)을 반환해야 합니다. 형식이 어긋나면 Lambda 자체는 성공해도 API Gateway가 응답을 파싱하지 못해 **502 Bad Gateway**를 반환합니다(29초 타임아웃 초과는 **504**, 잘못된 경로/인증 누락은 **403**).",
+        SOURCE_EXAM_GUIDE,
+    ),
+
+    # =========================================================================
+    # Round 4: 실전 세트 3회 — 트러블슈팅·최적화 종합 (25문항, Q61 ~ Q85)
+    # D1=7, D2=5, D3=7, D4=6
+    # =========================================================================
+    make_q(
+        4, 61, 1, 1, 1,
+        "AWS Lambda SnapStart (Java / Python / .NET) Cold Start 최소화",
+        "Spring Boot(Java)로 개발된 Lambda 함수가 초기화(DI 컨테이너 로딩)에만 6초가 걸려 간헐적 Cold Start 지연이 심하다. Provisioned Concurrency의 상시 유지 비용을 들이지 않고 Cold Start 초기화 시간을 1초 미만으로 단축하기 위해 활성화할 수 있는 Lambda 기능과 주의사항은?",
+        "",
+        [
+            ("A", "Lambda SnapStart를 활성화하고 함수 **Published Version**(또는 Alias)으로 호출한다. 단, 초기화 중 생성된 고유 난수·임시 자격증명·DB 소켓은 복원 후 충돌할 수 있으므로 Runtime Hook(`afterRestore`)에서 재초기화한다."),
+            ("B", "`$LATEST` 버전으로만 호출해야 SnapStart 스냅샷이 적용된다."),
+            ("C", "Lambda 메모리 크기를 128MB로 줄이면 SnapStart가 자동 활성화된다."),
+            ("D", "SnapStart는 S3 Event Source Mapping에서만 동작하고 API Gateway에서는 동작하지 않는다."),
+        ],
+        ["A"],
+        "Lambda SnapStart, Cold Start, Published Version, afterRestore Hook, Java",
+        "**Lambda SnapStart**는 함수를 게시(Publish Version)할 때 초기화(`Init`) 단계를 사전 실행한 뒤 메모리·디스크 상태를 암호화 스냅샷으로 캐싱해 두고, 호출 시 이를 복원해 Cold Start를 최대 90% 단축합니다. `$LATEST`에서는 동작하지 않으며, 스냅샷 재사용 시 고유성(Random/UUID/Timestamp)과 네트워크 연결 갱신을 위해 Runtime Hook(`beforeCheckpoint`/`afterRestore`)을 활용해야 합니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        4, 62, 1, 1, 1,
+        "SQS Long Polling & Extended Client Library (256KB 초과 대용량 메시지)",
+        "마이크로서비스 간 SQS를 통해 메시지를 주고받는데 ① 빈 큐 폴링(`EmptyReceives`)으로 인한 불필요한 API 비용을 줄여야 하고, ② 가끔 5MB 크기의 JSON 분석 리포트 페이로드를 전송해야 한다. 올바른 구현 조합은?",
+        "",
+        [
+            ("A", "① `ReceiveMessageWaitTimeSeconds`를 최대 20초(Long Polling)로 설정 / ② Amazon SQS Extended Client Library를 사용해 대용량 페이로드를 S3에 저장하고 포인터만 SQS로 전송"),
+            ("B", "① Visibility Timeout을 20초로 설정 / ② SQS FIFO 큐의 최대 메시지 크기 옵션을 10MB로 상향"),
+            ("C", "① DelaySeconds를 20초로 설정 / ② 메시지를 Base64 인코딩해 압축 전송"),
+            ("D", "① Short Polling 유지 / ② SNS 토픽으로 우회하면 5MB 전송 가능"),
+        ],
+        ["A"],
+        "SQS Long Polling, ReceiveMessageWaitTimeSeconds, SQS Extended Client Library, S3, 256KB",
+        "SQS 기본 메시지 최대 크기는 256KB(SNS 역시 256KB)입니다. 256KB~2GB 페이로드는 **Amazon SQS Extended Client Library**를 통해 S3에 본문을 저장하고 S3 참조 메타데이터만 SQS로 전달합니다. 또한 폴링 비용과 거짓 빈 응답(False empty responses)을 없애려면 큐 또는 `ReceiveMessage` 호출 시 `WaitTimeSeconds=20`(Long Polling)을 설정해야 합니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        4, 63, 1, 1, 1,
+        "DynamoDB `TransactWriteItems` vs `BatchWriteItem` 차이",
+        "금융 계좌 이체 서비스에서 송금자 계좌의 잔액을 차감(`Update`)하고 수취인 계좌 잔액을 증가(`Update`)시키며 이체 이력(`Put`)을 기록해야 한다. 세 작업이 **모두 성공하거나 하나라도 조건 실패 시 전체 롤백(All-or-Nothing)** 되어야 할 때 사용해야 하는 DynamoDB API는?",
+        "",
+        [
+            ("A", "`BatchWriteItem` (여러 항목을 부분 성공/실패 처리하며 `UnprocessedItems` 반환)"),
+            ("B", "`TransactWriteItems` (ACID 원자성 보장, 최대 100개 작업 또는 4MB 지원, 기본 대비 2배 WCU 소모)"),
+            ("C", "DynamoDB Streams + Lambda 비동기 보정만 가능"),
+            ("D", "`UpdateItem` 3회 순차 호출"),
+        ],
+        ["B"],
+        "DynamoDB Transactions, TransactWriteItems, BatchWriteItem, ACID, All-or-Nothing",
+        "`BatchWriteItem`은 Put/Delete만 지원하고 Update를 지원하지 않으며 개별 항목이 독립적으로 성공/실패해 원자성을 보장하지 않습니다. 반면 **`TransactWriteItems`**는 단일 리전 내 여러 테이블에 걸쳐 Put/Update/Delete/ConditionCheck를 All-or-Nothing ACID 트랜잭션으로 처리합니다(트랜잭션당 최대 100개 항목/4MB, 비용은 일반 WCU의 2배).",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        4, 64, 1, 1, 1,
+        "API Gateway Request Validation을 통한 Lambda 불필요 호출 차단",
+        "클라이언트가 필수 쿼리 파라미터(`orderId`)를 누락하거나 잘못된 JSON 형식의 본문을 전송했을 때, 백엔드 Lambda 함수가 불필요하게 호출·과금되기 전에 API Gateway 단계에서 즉시 400 Bad Request로 거부하고 싶다. 필요한 구성은?",
+        "",
+        [
+            ("A", "API Gateway 메서드에 **Model(JSON Schema)** 및 **Request Validator**(`Validate body, query string parameters, and headers`)를 설정한다."),
+            ("B", "API Gateway Usage Plan에 Burst Limit을 0으로 설정한다."),
+            ("C", "Lambda 함수의 Memory를 줄인다."),
+            ("D", "API Gateway Stage Cache를 활성화한다."),
+        ],
+        ["A"],
+        "API Gateway, Request Validator, Model, JSON Schema, 400 Bad Request",
+        "API Gateway REST API의 **Request Validation** 기능을 활성화하고 Method Request에 필수 Query/Header 및 JSON Schema Model을 정의하면, 통합된 Lambda 백엔드를 호출하기 전 API Gateway 엣지/리전 계층에서 400 응답을 반환하므로 Lambda 실행 비용을 절감할 수 있습니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        4, 65, 1, 1, 1,
+        "Amazon EventBridge Scheduler 활용 (대규모 일회성 예약 작업 및 타임존 지원)",
+        "전자상거래 앱에서 사용자가 장바구니를 방치한 정확히 24시간 뒤, 혹은 사용자가 설정한 현지 타임존(America/New_York, 서머타임 자동 반영)의 오전 9시에 수백만 건의 개별 알림 이벤트를 발생시켜야 한다. 기존 EventBridge Rule(계정당 300개 제한) 대신 사용해야 하는 서비스는?",
+        "",
+        [
+            ("A", "Amazon EventBridge Scheduler (수백만 개 일회성/반복 스케줄, 타임존 및 DST 자동 지원, Flexible Time Window)"),
+            ("B", "CloudWatch Events Rule을 사용자마다 1개씩 생성"),
+            ("C", "SQS `DelaySeconds`를 86,400초(24시간)로 설정 (SQS 최대 지연은 15분)"),
+            ("D", "Lambda 함수에서 `time.sleep(86400)` 실행"),
+        ],
+        ["A"],
+        "EventBridge Scheduler, One-time Schedule, Timezone, SQS DelaySeconds Limit",
+        "SQS의 `DelaySeconds` 최대값은 15분(900초)에 불과하며, 일반 EventBridge Rule은 버스당 300개 개수 제한과 UTC 기준만 지원합니다. **Amazon EventBridge Scheduler**는 수백만 건의 일회성(`at()`) 및 반복(`cron()`/`rate()`) 스케줄을 타임존·서머타임(DST)과 유연한 실행 시간 창까지 지원하며 관리할 수 있습니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        4, 66, 1, 1, 1,
+        "SQS Dead-Letter Queue(DLQ) Redrive (`StartMessageMoveTask`) 복구 절차",
+        "결제 처리 Lambda 함수의 버그로 인해 약 2,000건의 주문 메시지가 `maxReceiveCount(3회)` 초과 후 SQS Dead-Letter Queue(DLQ)로 이동했다. 코드 버그를 수정해 재배포한 뒤, DLQ에 쌓인 메시지들을 안전하게 원래 소스 큐로 재처리(Redrive)하는 가장 간편한 AWS 기본 기능은?",
+        "",
+        [
+            ("A", "SQS 콘솔의 **Start DLQ redrive** 또는 `StartMessageMoveTask` API를 호출해 DLQ 메시지를 원래 소스 큐(또는 지정 큐)로 이동시킨다."),
+            ("B", "소스 큐의 `maxReceiveCount`를 0으로 바꾸면 DLQ 메시지가 자동 복귀한다."),
+            ("C", "DLQ를 삭제하고 다시 생성하면 메시지가 복구된다."),
+            ("D", "반드시 Kinesis Data Firehose로 내보낸 뒤 수동 업로드해야 한다."),
+        ],
+        ["A"],
+        "SQS DLQ, Redrive, StartMessageMoveTask, maxReceiveCount",
+        "Amazon SQS는 **DLQ Redrive**(`StartMessageMoveTask` API 및 콘솔 UI)를 기본 제공하여 별도 Lambda 스크립트를 작성하지 않고도 DLQ에 격리된 실패 메시지를 원래 소스 큐(또는 다른 대상 큐)로 속도 제한(MaxNumberOfMessagesPerSecond)을 조절하며 안전하게 재전송할 수 있습니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        4, 67, 1, 1, 1,
+        "Step Functions Distributed Map을 이용한 S3 대규모 병렬 배치 처리",
+        "S3 버킷에 저장된 수백만 개의 대용량 CSV/JSON 로그 파일을 읽어 각각 변환·집계하는 배치 파이프라인을 서버리스로 구축하려 한다. 기존 Inline Map 상태의 40개 동시 실행 및 25,000개 실행 이력 제한을 넘어 최대 10,000개 동시 실행으로 확장할 수 있는 Step Functions 상태는?",
+        "",
+        [
+            ("A", "Inline Map State"),
+            ("B", "**Distributed Map State** (S3 객체 목록/CSV/JSON을 직접 ItemReader로 읽어 Child Workflow로 최대 10,000 병렬 처리)"),
+            ("C", "Choice State 루프"),
+            ("D", "Pass State"),
+        ],
+        ["B"],
+        "Step Functions, Distributed Map, ItemReader, S3 Batch Processing, 10000 Concurrency",
+        "**Step Functions Distributed Map**은 S3 버킷 객체나 대용량 CSV/JSON 매니페스트 파일을 직접 읽어 각 항목을 Child Workflow Execution으로 분리 실행하므로, Standard 워크플로우의 25KB 페이로드/25,000 이벤트 이력 제한 없이 최대 **10,000개**의 병렬 실행을 처리할 수 있습니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        4, 68, 2, 1, 1,
+        "IAM Permissions Boundary를 통한 개발자 Self-Service Role 생성 시 권한 상승 방지",
+        "플랫폼 팀이 애플리케이션 개발자들에게 직접 마이크로서비스용 IAM Role을 생성할 수 있는 자율성(`iam:CreateRole`)을 주되, 개발자가 자신의 역할이나 새로 만든 역할에 `AdministratorAccess` 또는 IAM 변경 권한을 붙여 권한 상승(Privilege Escalation)하는 것을 원천 차단하려 한다. 가장 효과적인 제어 메커니즘은?",
+        '{\n  "Effect": "Allow",\n  "Action": "iam:CreateRole",\n  "Resource": "*",\n  "Condition": {\n    "StringEquals": {\n      "iam:PermissionsBoundary": "arn:aws:iam::ACCT:policy/DevMaxBoundary"\n    }\n  }\n}',
+        [
+            ("A", "개발자 IAM 정책에 `iam:CreateRole`을 허용하되 Condition으로 `iam:PermissionsBoundary` 부착을 강제하여, 생성되는 Role이 가질 수 있는 최대 유효 권한의 상한선을 제한한다."),
+            ("B", "IAM Group에 개발자를 넣으면 Role 생성 권한이 자동으로 제한된다."),
+            ("C", "CloudTrail 로그를 일주일에 한 번 수동 점검한다."),
+            ("D", "모든 Role에 `sts:ExternalId`를 설정한다."),
+        ],
+        ["A"],
+        "IAM Permissions Boundary, Privilege Escalation, Delegate Role Creation",
+        "**IAM Permissions Boundary**는 IAM 사용자나 역할이 가질 수 있는 최대 권한의 경계(상한선)를 정의합니다. 개발자가 `iam:CreateRole` 시 특정 Permissions Boundary 정책을 반드시 부착하도록 조건을 걸면, 개발자가 새 역할에 `AdministratorAccess`를 연결하더라도 Boundary에 허용된 범위 밖의 권한은 절대 행사할 수 없습니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        4, 69, 2, 1, 1,
+        "AWS KMS 키 회전(Key Rotation) 메커니즘 및 기존 암호문 복호화",
+        "컴플라이언스 정책상 데이터 암호화에 사용 중인 AWS KMS 고객 관리형 대칭 키(CMK)에 대해 **자동 키 회전(Automatic Key Rotation)**을 활성화했다. 1년(365일) 후 키가 회전되었을 때, 회전 이전에 암호화되어 DB/S3에 저장되어 있던 기존 데이터는 어떻게 되는가?",
+        "",
+        [
+            ("A", "이전 키 자료가 즉시 파기되므로 회전 전 모든 데이터를 재암호화하지 않으면 복호화가 불가능하다."),
+            ("B", "KMS가 이전 키 버전을 내부에 계속 보관하며 암호문의 메타데이터(Key ID)를 보고 해당 키 버전으로 투명하게 자동 복호화하고, 신규 암호화 요청만 최신 키 버전을 사용한다."),
+            ("C", "키 회전 시 KMS Key ARN이 완전히 새로 바뀌므로 애플리케이션 설정을 모두 수정해야 한다."),
+            ("D", "고객이 직접 KMS 콘솔에 가져온 키 자료(Imported Key Material)도 1년마다 자동 회전된다."),
+        ],
+        ["B"],
+        "AWS KMS, Automatic Key Rotation, Key Backing Material, Decrypt",
+        "KMS 고객 관리형 대칭 키의 자동 키 회전을 켜면 동일한 Key ID/ARN을 유지한 채 내부 키 자료(Backing Key)만 교체됩니다. 이전 키 자료들은 파기되지 않고 유지되므로 과거 암호문도 코드 변경 없이 투명하게 복호화됩니다. 참고로 비대칭 키, 사용자 정의 키 스토어, 외부에서 가져온 키(Imported Key Material)는 자동 회전을 지원하지 않습니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        4, 70, 2, 1, 1,
+        "S3 및 API Gateway CORS(Cross-Origin Resource Sharing) Preflight 실패 해결",
+        "React SPA(`https://app.myshop.com`)에서 다른 도메인의 API Gateway 엔드포인트(`https://api.myshop.com/orders`)로 `Authorization` 커스텀 헤더가 포함된 `POST` 요청을 보내자 브라우저 콘솔에서 CORS preflight(`OPTIONS`) 오류가 발생하며 요청이 차단되었다. 올바른 해결 방법은?",
+        "",
+        [
+            ("A", "API Gateway에서 `OPTIONS` 메서드를 활성화(Mock Integration 등)하고 응답 헤더에 `Access-Control-Allow-Origin`, `Access-Control-Allow-Methods`, `Access-Control-Allow-Headers`(`Authorization` 포함)를 반환하도록 구성한다. (Lambda Proxy의 `POST` 응답에도 `Access-Control-Allow-Origin` 헤더 포함)"),
+            ("B", "S3 정적 웹호스팅 버킷에 `CORS` 설정을 추가하면 API Gateway의 CORS 오류도 함께 해결된다."),
+            ("C", "API Gateway Resource Policy에서 `aws:Referer`만 허용한다."),
+            ("D", "HTTP POST 대신 GET 요청으로 모든 JSON 본문을 쿼리스트링에 넣는다."),
+        ],
+        ["A"],
+        "CORS, Preflight OPTIONS, Access-Control-Allow-Headers, API Gateway, Lambda Proxy",
+        "`Authorization` 같은 커스텀 헤더나 `application/json` Content-Type의 `POST`/`PUT` 요청은 브라우저가 먼저 `OPTIONS` Preflight 요청을 보냅니다. API Gateway REST API에서는 `OPTIONS` 메서드(보통 Mock 통합)가 적절한 `Access-Control-Allow-*` 헤더를 반환해야 하며, Lambda Proxy 통합을 쓸 때는 실제 `POST`/`GET` 응답에도 `Access-Control-Allow-Origin` 헤더를 직접 포함해야 합니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        4, 71, 2, 1, 1,
+        "Cognito Custom Authentication Flow (비밀번호 없는 OTP 인증 구현)",
+        "Amazon Cognito User Pools를 사용하면서 기존 비밀번호 로그인 대신 이메일/SMS 일회용 인증코드(OTP) 또는 FIDO 기반의 커스텀 인증 흐름(Custom Authentication Flow)을 구축하려 한다. 순서대로 동작해야 하는 Cognito Lambda 트리거 3종 세트는?",
+        "",
+        [
+            ("A", "Pre Sign-up → Post Confirmation → Post Authentication"),
+            ("B", "`DefineAuthChallenge` → `CreateAuthChallenge` → `VerifyAuthChallengeResponse`"),
+            ("C", "Pre Token Generation → Custom Message → User Migration"),
+            ("D", "Pre Authentication → Cognito Sync → KMS Grant"),
+        ],
+        ["B"],
+        "Cognito Custom Auth Flow, DefineAuthChallenge, CreateAuthChallenge, VerifyAuthChallengeResponse",
+        "Cognito User Pools에서 `CUSTOM_AUTH` 흐름은 상태 머신 역할을 하는 **`DefineAuthChallenge`**(다음 챌린지 결정/토큰 발급 승인), 챌린지 생성 및 OTP 발송을 담당하는 **`CreateAuthChallenge`**, 사용자 응답을 검증하는 **`VerifyAuthChallengeResponse`** 3개 Lambda 트리거의 조합으로 구현합니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        4, 72, 2, 1, 1,
+        "DynamoDB 세밀한 접근 제어 (Fine-Grained Access Control — `dynamodb:LeadingKeys`)",
+        "여러 사용자가 공유하는 단일 DynamoDB 테이블(Partition Key: `userId`)에 대해, Cognito Identity Pool로 인증한 각 모바일 앱 사용자가 **오직 자신의 `userId`와 일치하는 항목만** 읽고 쓸 수 있도록 IAM 정책 수준에서 강제하려 한다. 사용해야 하는 IAM 정책 조건 키는?",
+        '{\n  "Condition": {\n    "ForAllValues:StringEquals": {\n      "dynamodb:LeadingKeys": ["${cognito-identity.amazonaws.com:sub}"]\n    }\n  }\n}',
+        [
+            ("A", "`dynamodb:LeadingKeys` (항목의 Partition Key 값이 지정된 사용자 ID와 일치하는 경우에만 접근 허용)"),
+            ("B", "`dynamodb:Attributes`만 단독으로 사용하여 행(Row) 단위 필터링 수행"),
+            ("C", "`aws:SourceIp` 조건 사용"),
+            ("D", "`s3:prefix` 조건 사용"),
+        ],
+        ["A"],
+        "DynamoDB Fine-Grained Access Control, dynamodb:LeadingKeys, IAM Condition",
+        "DynamoDB에서 행(항목) 수준 접근 제어를 구현할 때는 IAM 정책의 `Condition`에 **`dynamodb:LeadingKeys`** 조건 키를 사용하여 Partition Key 값이 요청자 식별자(`${cognito-identity.amazonaws.com:sub}` 등)와 일치할 때만 `GetItem`/`PutItem`/`Query` 등을 허용합니다. 특정 컬럼(속성) 제한은 `dynamodb:Attributes`를 함께 사용합니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        4, 73, 3, 1, 1,
+        "CloudFormation StackSets vs Nested Stacks 적용 시나리오",
+        "보안팀이 AWS Organizations 내 40개 AWS 계정의 모든 활성 리전(10개 리전)에 동일한 IAM 감사 역할과 CloudWatch 알람 스택을 단일 템플릿으로 한 번에 배포·업데이트하려 한다. 적합한 CloudFormation 기능은?",
+        "",
+        [
+            ("A", "CloudFormation Nested Stacks (`AWS::CloudFormation::Stack`)"),
+            ("B", "**CloudFormation StackSets** (다중 계정 · 다중 리전 일괄 스택 배포 및 Organizations OU 자동 배포 지원)"),
+            ("C", "CloudFormation Drift Detection"),
+            ("D", "SAM Local Invoke"),
+        ],
+        ["B"],
+        "CloudFormation StackSets, Nested Stacks, Multi-Account, Multi-Region, AWS Organizations",
+        "**Nested Stacks**는 단일 계정·리전 내에서 반복되는 템플릿 조각(예: 공통 S3/ALB 모듈)을 재사용 분리할 때 사용하며, **StackSets**는 관리자 계정에서 단일 CloudFormation 템플릿으로 여러 AWS 계정(OU)과 다중 리전에 걸쳐 스택을 일괄 배포·업데이트·삭제할 때 사용합니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        4, 74, 3, 1, 1,
+        "CloudFormation Drift Detection & Stack Policy를 통한 운영 리소스 보호",
+        "CloudFormation으로 배포된 스택의 운영 RDS 인스턴스가 누군가에 의해 AWS 콘솔에서 수동으로 수정되었는지 확인하고, 향후 스택 업데이트(`update-stack`) 시 실수로 RDS 인스턴스가 교체(Replacement)되어 데이터가 유실되는 것을 방지하려면?",
+        "",
+        [
+            ("A", "확인: **Drift Detection** 실행 / 교체 방지: **Stack Policy**에서 해당 RDS 논리 리소스에 `Update:Replace`를 명시적 `Deny` 설정"),
+            ("B", "확인: `sam validate` / 교체 방지: `NoEcho: true`"),
+            ("C", "확인: `cfn-signal` / 교체 방지: `CreationPolicy`"),
+            ("D", "확인: CodeDeploy `ValidateService` / 교체 방지: `DependsOn`"),
+        ],
+        ["A"],
+        "CloudFormation, Drift Detection, Stack Policy, Update:Replace, Protection",
+        "**Drift Detection**은 실제 프로비저닝된 AWS 리소스 상태가 CloudFormation 템플릿 정의에서 벗어났는지 탐지합니다. 또한 **Stack Policy**는 스택 업데이트 중에 특정 중요 리소스(RDS, DynamoDB 등)가 `Update:Replace`나 `Update:Delete` 되는 것을 방지하는 JSON 보호 정책입니다(`DeletionPolicy`는 스택 전체 삭제 시 동작).",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        4, 75, 3, 1, 1,
+        "AWS CodeBuild 캐싱 전략 (Local Docker Layer Cache vs S3 Cache)",
+        "CodeBuild에서 대용량 멀티스테이지 Docker 이미지를 매시간 빌드해 ECR로 푸시하는데, 매번 베이스 이미지와 OS 패키지를 다시 받아 빌드 시간이 12분씩 소요된다. 빌드 호스트 내 Docker 레이어를 재사용해 빌드 시간을 단축하는 가장 간단한 CodeBuild 캐시 설정은?",
+        "",
+        [
+            ("A", "CodeBuild 프로젝트 캐시 유형을 **Local Cache (`LOCAL_DOCKER_LAYER_CACHE`)**로 활성화하고 `buildspec.yml`에서 `--cache-from` 또는 BuildKit 캐시를 활용한다. (컨테이너 권한 모드 `PrivilegedMode: true` 필요)"),
+            ("B", "CodeCommit 리포지토리에 `node_modules`와 Docker 레이어 바이너리를 모두 커밋한다."),
+            ("C", "API Gateway Caching을 켠다."),
+            ("D", "Elastic Beanstalk Saved Configuration에 캐시를 저장한다."),
+        ],
+        ["A"],
+        "CodeBuild, Local Cache, LOCAL_DOCKER_LAYER_CACHE, S3 Cache, PrivilegedMode",
+        "CodeBuild에서 Docker 이미지 빌드 시 **Local Cache**(`LOCAL_DOCKER_LAYER_CACHE`, `LOCAL_SOURCE_CACHE`, `LOCAL_CUSTOM_CACHE`)를 활성화하면 동일 빌드 호스트 풀에서 레이어를 빠르게 재사용해 빌드 속도를 크게 높일 수 있습니다. 또한 Docker 빌드를 위해서는 CodeBuild 환경에서 `PrivilegedMode: true` 설정이 필수입니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        4, 76, 3, 1, 1,
+        "CodePipeline Cross-Account 배포 시 KMS 키 및 IAM Role 주의사항",
+        "중앙 `Tools` 계정에 구축된 CodePipeline이 빌드한 아티팩트를 별도의 `Prod` 계정의 CloudFormation/CodeDeploy로 배포하려 한다. `Prod` 계정이 `Tools` 계정의 S3 아티팩트 버킷에서 파일을 읽어 복호화할 때 반드시 충족되어야 하는 암호화 조건은?",
+        "",
+        [
+            ("A", "S3 버킷에 AWS 관리형 기본 키(`aws/s3`) 대신 **고객 관리형 KMS 키(CMK)**를 설정하고, 해당 CMK의 Key Policy에서 `Prod` 계정의 Cross-Account 배포 역할에 `kms:Decrypt` 권한을 허용해야 한다."),
+            ("B", "S3 기본 키(`aws/s3`)는 교차 계정 공유가 가능하므로 별도 KMS 키가 필요 없다."),
+            ("C", "아티팩트 버킷을 Public Read로 설정해야 교차 계정 파이프라인이 동작한다."),
+            ("D", "Prod 계정의 루트 비밀번호를 CodePipeline 환경변수에 입력한다."),
+        ],
+        ["A"],
+        "CodePipeline, Cross-Account Deployment, KMS CMK, Artifact Bucket, AssumeRole",
+        "AWS 관리형 키(`aws/s3`)는 키 정책을 수정할 수 없어 다른 AWS 계정에 복호화 권한을 공유할 수 없습니다. 따라서 교차 계정(Cross-Account) CodePipeline을 구성할 때는 반드시 **고객 관리형 KMS 키(CMK)**로 아티팩트 버킷을 암호화하고 대상 계정의 IAM Role에 `kms:Decrypt`와 S3 읽기 권한을 부여한 뒤 `sts:AssumeRole`로 배포합니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        4, 77, 3, 1, 1,
+        "Elastic Beanstalk Blue-Green 배포 (`Clone Environment` + `Swap Environment URLs`)",
+        "Elastic Beanstalk에 운영 중인 웹 앱을 새 버전으로 전환할 때, 단 1초의 다운타임이나 롤백 리스크 없이 완전히 분리된 새 환경(Green)을 사전에 검증한 뒤 DNS 수준에서 즉시 전환하고, 이상 발생 시 다시 되돌릴 수 있게 하려는 표준 전략은?",
+        "",
+        [
+            ("A", "`All at once` 배포 정책 실행"),
+            ("B", "현재 환경을 복제(**Clone Environment**)해 새 버전(Green)을 배포·테스트한 뒤 **Swap Environment URLs(CNAME 스왑)**을 실행한다."),
+            ("C", "`Rolling` 배포 후 실패 시 수동으로 이전 ZIP을 다시 업로드"),
+            ("D", "Worker Environment로 전환"),
+        ],
+        ["B"],
+        "Elastic Beanstalk, Blue-Green, Clone Environment, Swap Environment URLs, CNAME",
+        "Elastic Beanstalk에서 완전히 독립된 Blue/Green 배포를 수행하려면 기존 환경(Blue)을 복제해 새 버전(Green) 환경을 구축하고 충분히 검증한 뒤 **`Swap Environment URLs`** 기능을 실행해 두 환경의 CNAME(도메인)을 맞바꿉니다. 문제 시 재스왑만으로 즉시 원복 가능합니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        4, 78, 3, 1, 1,
+        "AWS AppConfig를 활용한 안전한 Feature Flag 및 동적 설정 점진 배포",
+        "서비스 재배포 없이 운영 중인 Lambda와 ECS 애플리케이션의 기능 플래그(Feature Flag) 및 rate-limit 설정을 실시간 변경하되, 잘못된 JSON 스키마 반영을 사전 검증(Validator)하고 CloudWatch Alarm 발생 시 점진적 롤아웃을 자동 롤백하려 한다. 가장 적합한 서비스는?",
+        "",
+        [
+            ("A", "S3 버킷에 `config.json` 업로드"),
+            ("B", "**AWS AppConfig** (Schema/Lambda Validator, Deployment Strategy 점진 배포, CloudWatch Alarm 자동 롤백 지원)"),
+            ("C", "AWS CloudFormation StackSets"),
+            ("D", "Amazon EventBridge Pipes"),
+        ],
+        ["B"],
+        "AWS AppConfig, Feature Flags, Deployment Strategy, Validators, Auto Rollback",
+        "**AWS AppConfig**(Systems Manager 하위 기능)는 애플리케이션 코드 재배포 없이 동적 설정과 Feature Flag를 안전하게 배포하기 위해 설계되었습니다. JSON Schema/Lambda 기반 **Validators**, Canary/Linear **Deployment Strategies**, CloudWatch Alarm 연동 **자동 롤백**을 모두 기본 제공합니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        4, 79, 3, 1, 1,
+        "AWS Amplify Hosting을 활용한 풀스택/프론트엔드 CI/CD 자동화",
+        "React/Next.js 프론트엔드와 서버리스 API로 구성된 웹 애플리케이션에서 Git 저장소의 `main`/`dev` 브랜치 푸시 시 자동 빌드·배포, Pull Request별 임시 미리보기(PR Preview) URL 생성, 글로벌 CDN 및 커스텀 도메인 HTTPS 인증서 관리를 최소한의 설정으로 구축하려 한다. 최적의 AWS 서비스는?",
+        "",
+        [
+            ("A", "EC2 Auto Scaling + CodeDeploy 직접 구성"),
+            ("B", "**AWS Amplify Hosting** (Git 기반 자동 CI/CD, 브랜치/PR Preview 환경, 관리형 CloudFront CDN & SSL)"),
+            ("C", "Elastic Beanstalk Worker Tier"),
+            ("D", "AWS Snowball Edge"),
+        ],
+        ["B"],
+        "AWS Amplify Hosting, Git CI/CD, PR Previews, SSR, Frontend Deployment",
+        "**AWS Amplify Hosting**은 Git 저장소(GitHub, CodeCommit, GitLab 등)와 연결만 하면 브랜치별 자동 빌드/배포, PR Preview, SSR(Next.js 등) 지원, CloudFront 기반 글로벌 배포와 무료 SSL 인증서 갱신을 완전 관리형으로 제공합니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        4, 80, 4, 1, 1,
+        "AWS X-Ray Sampling Rules 최적화 및 외부 API Subsegment 추적",
+        "트래픽이 초당 5,000건에 달하는 전자상거래 서비스에서 모든 요청을 100% X-Ray로 추적하니 비용이 과도하게 증가했다. 일반 헬스체크(`/health`)는 거의 제외하고, 중요 결제 경로(`/api/checkout`)는 초당 최소 10건 이상 + 20% 비율로 상세 추적하려면 어떻게 설정해야 하는가?",
+        "",
+        [
+            ("A", "**X-Ray Sampling Rules**에서 우선순위(Priority)를 높여 `/health` URL 패턴은 Reservoir=0, Fixed Rate=0%로 설정하고, `/api/checkout` 패턴에 별도 Reservoir 크기와 Fixed Rate(0.20)를 지정한다."),
+            ("B", "X-Ray Daemon을 중지하고 에러 발생 시에만 수동으로 켠다."),
+            ("C", "Lambda Memory를 10GB로 늘린다."),
+            ("D", "CloudWatch Logs Insights 쿼리로 Sampling 비율을 조정한다."),
+        ],
+        ["A"],
+        "AWS X-Ray, Sampling Rules, Reservoir, Fixed Rate, Priority, Cost Optimization",
+        "X-Ray의 기본 샘플링 규칙(매초 첫 1개 요청 Reservoir + 이후 5% Fixed Rate) 대신 콘솔/API 또는 로컬 JSON으로 **Custom Sampling Rules**를 정의할 수 있습니다. Priority 숫자가 작을수록 우선 적용되므로 URL 경로·HTTP 메서드·호스트 조건별로 세밀한 추적 비율을 제어할 수 있습니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        4, 81, 4, 2, 2,
+        "ElastiCache Write-Through vs Lazy Loading + TTL 조합 전략",
+        "Amazon ElastiCache for Redis 도입 시 캐시 전략별 특징과 트레이드오프에 대한 설명으로 올바른 2가지를 고르시오.",
+        "",
+        [
+            ("A", "**Lazy Loading**은 실제 요청된 데이터만 캐싱해 메모리 효율이 좋지만, Cache Miss 시 DB 조회 후 적재해야 하므로 초기 지연이 발생하고 DB가 직접 수정될 때 캐시가 오래된 값(Stale Data)이 될 수 있다."),
+            ("B", "**Write-Through**는 DB에 쓸 때마다 캐시도 함께 갱신해 Stale Data 문제를 줄여주지만, 한 번도 읽히지 않을 데이터까지 캐시에 적재되어 메모리 낭비가 발생할 수 있다."),
+            ("C", "Write-Through를 사용하면 캐시 노드가 재시작되어도 모든 데이터가 자동 복구되므로 TTL 설정이 불필요하다."),
+            ("D", "Lazy Loading과 Write-Through는 절대 함께 사용할 수 없으며, TTL을 설정하면 Write-Through가 비활성화된다."),
+            ("E", "Memcached는 Write-Through를 하드웨어 수준에서 DB와 자동 동기화해 준다."),
+        ],
+        ["A", "B"],
+        "ElastiCache, Lazy Loading, Write-Through, TTL, Stale Data, Cache Eviction",
+        "Lazy Loading은 필요한 키만 캐싱되지만 첫 요청 Cache Miss 페널티와 Stale Data 위험이 있고(A), Write-Through는 최신성 유지에 유리하지만 미사용 데이터 적재 및 쓰기 지연 증가 단점이 있습니다(B). 실무에서는 Write-Through로 최신성을 확보하면서 모든 키에 적절한 **TTL(Time To Live)**을 결합해 오래된/미사용 캐시가 자동 만료되도록 설계합니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        4, 82, 4, 1, 1,
+        "DynamoDB `ProvisionedThroughputExceededException` 트러블슈팅 및 SDK 재시도",
+        "일시적 트래픽 급증 시간대에 애플리케이션이 DynamoDB에 대량 쓰기를 시도하다 `ProvisionedThroughputExceededException` 오류가 간헐적으로 발생하며, 모든 클라이언트가 정확히 1초 뒤에 동시에 재시도해 장애가 악화되는 'Thundering Herd' 현상이 관찰되었다. 가장 올바른 코드 및 아키텍처 대응은?",
+        "",
+        [
+            ("A", "재시도 루프에 **Exponential Backoff with Jitter**(지수 백오프 + 무작위 지터)를 적용하고, 예측 불가능한 스파이크 워크로드라면 테이블 용량 모드를 **On-Demand**로 전환하거나 Auto Scaling 여유 목표치를 낮춘다."),
+            ("B", "재시도 간격을 0ms 고정 루프(`while True`)로 변경해 최대한 빨리 재전송한다."),
+            ("C", "DynamoDB 테이블에 LSI를 5개 추가하면 쓰기 스루풋이 5배 증가한다."),
+            ("D", "DAX 클러스터를 추가하면 DynamoDB 쓰기 WCU 제한이 사라진다."),
+        ],
+        ["A"],
+        "ProvisionedThroughputExceededException, Exponential Backoff, Jitter, DynamoDB On-Demand",
+        "네트워크·스로틀링 재시도 시 고정 간격이나 단순 지수 백오프만 쓰면 다수 클라이언트가 같은 시점에 다시 몰립니다. 따라서 무작위 지연을 섞는 **Exponential Backoff with Jitter**가 필수이며(AWS SDK에 기본 내장), 급격한 스파이크성 워크로드는 **DynamoDB On-Demand** 모드나 DAX(읽기 오프로드)를 검토해야 합니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        4, 83, 4, 1, 1,
+        "Lambda `Task timed out` 및 메모리/CPU 비례 할당 성능 최적화",
+        "대용량 이미지 리사이징 및 암호화 해시 연산(CPU-bound)을 수행하는 Lambda 함수가 메모리 128MB, 타임아웃 10초 설정에서 빈번하게 `Task timed out after 10.00 seconds` 에러로 실패한다. 메모리를 1,024MB로 늘려 테스트했더니 실행 시간이 1.2초로 단축되었고 오히려 건당 비용도 감소했다. 그 이유는?",
+        "",
+        [
+            ("A", "AWS Lambda는 할당된 **메모리 크기에 비례하여 vCPU 성능과 네트워크 대역폭을 함께 할당**하기 때문에(1,769MB에서 1 vCPU) CPU 집약적 작업 시간이 크게 줄어 총 GB-sec 비용이 감소할 수 있다."),
+            ("B", "메모리를 늘리면 10초 타임아웃 제한이 자동으로 15분으로 변경되기 때문이다."),
+            ("C", "1,024MB 이상부터는 Lambda CPU 과금이 무료이기 때문이다."),
+            ("D", "메모리를 늘리면 S3 버킷이 자동으로 SSD 캐싱으로 전환되기 때문이다."),
+        ],
+        ["A"],
+        "Lambda Memory, vCPU Scaling, Power Tuning, GB-seconds, Task timed out",
+        "AWS Lambda는 CPU를 직접 설정하는 대신 **Memory 설정(128MB ~ 10,240MB)**에 비례해 vCPU 코어와 네트워크 대역폭을 할당합니다(약 1,769MB = 1 vCPU). 따라서 CPU-bound 작업에서는 메모리를 높여 실행 시간을 대폭 줄이면 `메모리 × 시간(GB-sec)` 총 비용이 오히려 낮아질 수 있으며, **AWS Lambda Power Tuning** 오픈소스 도구를 통해 최적 비용·성능 균형점을 찾을 수 있습니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        4, 84, 4, 1, 1,
+        "API Gateway 403 Missing Authentication Token vs Invalid API Key 원인 진단",
+        "클라이언트가 API Gateway REST API(`https://xxx.execute-api.us-east-1.amazonaws.com/prod/items`)를 호출하려다 실수로 경로 끝에 `/item`(단수)으로 오타를 내어 `GET` 요청을 보냈는데, **HTTP 403 `{\"message\": \"Missing Authentication Token\"}`** 응답이 돌아왔다. 이 메시지가 발생하는 대표적인 원인은?",
+        "",
+        [
+            ("A", "API Key가 필수인데 `x-api-key` 헤더를 누락했다. (이 경우 `Forbidden` 반환)"),
+            ("B", "요청한 리소스 경로(`/item`) 또는 HTTP 메서드가 API Gateway Stage에 **정의·배포되어 있지 않은 경우**에도 보안상 404 대신 `403 Missing Authentication Token`을 반환한다."),
+            ("C", "KMS 키가 비활성화되었기 때문이다."),
+            ("D", "Lambda 함수 내부에서 `KeyError` 예외가 발생했기 때문이다."),
+        ],
+        ["B"],
+        "API Gateway, 403 Missing Authentication Token, Undefined Resource, Stage Deployment",
+        "API Gateway 트러블슈팅의 대표 함정 문제입니다! 존재하지 않는 API 경로를 호출하거나, 메서드를 수정한 뒤 **Deploy API(Stage 재배포)**를 하지 않았거나, 루트 URL만 호출해 매칭되는 리소스·메서드가 없을 때 API Gateway는 공격자에게 경로 존재 여부를 노출하지 않기 위해 `403 Missing Authentication Token`을 반환합니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+    make_q(
+        4, 85, 4, 1, 1,
+        "AWS Lambda Insights를 활용한 서버리스 시스템 리소스·콜드스타트 심층 진단",
+        "프로덕션 Lambda 함수들에서 간헐적인 메모리 스파이크(`Runtime.ExitError` OOM), 파일 디스크립터 누수, 네트워크 송수신 지연, 콜드 스타트 비율을 함수 코드 수정 없이 시스템 레벨(CPU, Memory, Network, Init Duration) 대시보드로 추적하고 싶다. 활성화해야 할 모니터링 기능은?",
+        "",
+        [
+            ("A", "**Amazon CloudWatch Lambda Insights** (Lambda Insights Extension Layer 추가 + 실행 역할에 `CloudWatchLambdaInsightsExecutionRolePolicy` 연결)"),
+            ("B", "VPC Flow Logs만 활성화"),
+            ("C", "AWS Trusted Advisor만 조회"),
+            ("D", "CloudFormation Drift Detection 실행"),
+        ],
+        ["A"],
+        "CloudWatch Lambda Insights, Extension Layer, Memory Spike, OOM, Monitoring",
+        "**CloudWatch Lambda Insights**는 Lambda Insights 확장 계층(Extension Layer)과 모니터링 권한을 활성화하면 각 함수 호출의 CPU 사용 시간, 실제 메모리 사용률(Max Memory Used vs Allocated), 네트워크 바이트, 콜드 스타트 지속 시간 등 시스템 수준 지표를 자동 수집해 CloudWatch 자동 대시보드로 시각화해 줍니다.",
+        SOURCE_EXAM_GUIDE,
+    ),
+]
+
+
+def build_database():
+    # 무결성 사전 검증
+    assert len(QUESTIONS_DATA) == 85, f"Expected 85 questions, got {len(QUESTIONS_DATA)}"
+
+    if os.path.exists(DB_PATH):
+        os.remove(DB_PATH)
+
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+
+    cur.executescript("""
+    PRAGMA foreign_keys = ON;
+
+    CREATE TABLE exam_rounds (
+        round_id INTEGER PRIMARY KEY,
+        round_title TEXT NOT NULL,
+        source_type TEXT NOT NULL,
+        question_count INTEGER NOT NULL,
+        description TEXT NOT NULL
+    );
+
+    CREATE TABLE categories_domain (
+        domain_id INTEGER PRIMARY KEY,
+        domain_code TEXT NOT NULL UNIQUE,
+        domain_name TEXT NOT NULL,
+        weight_pct INTEGER NOT NULL,
+        description TEXT NOT NULL
+    );
+
+    CREATE TABLE categories_qtype (
+        qtype_id INTEGER PRIMARY KEY,
+        qtype_code TEXT NOT NULL UNIQUE,
+        qtype_name TEXT NOT NULL,
+        is_multi_select INTEGER NOT NULL,
+        description TEXT NOT NULL
+    );
+
+    CREATE TABLE questions (
+        question_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        round_id INTEGER NOT NULL REFERENCES exam_rounds(round_id),
+        question_no INTEGER NOT NULL,
+        domain_id INTEGER NOT NULL REFERENCES categories_domain(domain_id),
+        qtype_id INTEGER NOT NULL REFERENCES categories_qtype(qtype_id),
+        select_count INTEGER NOT NULL,
+        title TEXT NOT NULL,
+        question_text TEXT NOT NULL,
+        code_or_log TEXT DEFAULT '',
+        options_json TEXT NOT NULL,
+        correct_keys_json TEXT NOT NULL,
+        answer_text TEXT NOT NULL,
+        core_keywords TEXT NOT NULL,
+        explanation TEXT NOT NULL,
+        source TEXT NOT NULL
+    );
+
+    CREATE TABLE domain_analytics (
+        domain_id INTEGER PRIMARY KEY REFERENCES categories_domain(domain_id),
+        domain_name TEXT NOT NULL,
+        weight_pct INTEGER NOT NULL,
+        total_questions INTEGER NOT NULL,
+        share_pct REAL NOT NULL,
+        single_count INTEGER NOT NULL,
+        multi_count INTEGER NOT NULL,
+        official_pdf_count INTEGER NOT NULL,
+        guide_core_count INTEGER NOT NULL
+    );
+
+    CREATE VIEW v_mode_exam AS
+    SELECT q.question_id, q.round_id, r.round_title, q.question_no,
+           q.domain_id, d.domain_code, d.domain_name, d.weight_pct,
+           q.qtype_id, t.qtype_name, t.is_multi_select, q.select_count,
+           q.title, q.question_text, q.code_or_log, q.options_json, q.source
+    FROM questions q
+    JOIN exam_rounds r ON q.round_id = r.round_id
+    JOIN categories_domain d ON q.domain_id = d.domain_id
+    JOIN categories_qtype t ON q.qtype_id = t.qtype_id;
+
+    CREATE VIEW v_mode_compare AS
+    SELECT q.question_id, q.round_id, r.round_title, q.question_no,
+           q.domain_id, d.domain_code, d.domain_name, d.weight_pct,
+           q.qtype_id, t.qtype_name, t.is_multi_select, q.select_count,
+           q.title, q.question_text, q.code_or_log, q.options_json,
+           q.correct_keys_json, q.answer_text, q.core_keywords, q.source
+    FROM questions q
+    JOIN exam_rounds r ON q.round_id = r.round_id
+    JOIN categories_domain d ON q.domain_id = d.domain_id
+    JOIN categories_qtype t ON q.qtype_id = t.qtype_id;
+
+    CREATE VIEW v_mode_explanation AS
+    SELECT q.question_id, q.round_id, r.round_title, q.question_no,
+           q.domain_id, d.domain_code, d.domain_name, d.weight_pct,
+           q.qtype_id, t.qtype_name, t.is_multi_select, q.select_count,
+           q.title, q.question_text, q.code_or_log, q.options_json,
+           q.correct_keys_json, q.answer_text, q.core_keywords,
+           q.explanation, q.source
+    FROM questions q
+    JOIN exam_rounds r ON q.round_id = r.round_id
+    JOIN categories_domain d ON q.domain_id = d.domain_id
+    JOIN categories_qtype t ON q.qtype_id = t.qtype_id;
+    """)
+
+    cur.executemany("INSERT INTO exam_rounds VALUES (?, ?, ?, ?, ?)", EXAM_ROUNDS)
+    cur.executemany("INSERT INTO categories_domain VALUES (?, ?, ?, ?, ?)", CATEGORIES_DOMAIN)
+    cur.executemany("INSERT INTO categories_qtype VALUES (?, ?, ?, ?, ?)", CATEGORIES_QTYPE)
+
+    q_rows = [
+        (
+            q["round_id"], q["question_no"], q["domain_id"], q["qtype_id"], q["select_count"],
+            q["title"], q["question_text"], q["code_or_log"],
+            json.dumps(q["options"], ensure_ascii=False),
+            json.dumps(q["correct_keys"], ensure_ascii=False),
+            q["answer_text"], q["core_keywords"], q["explanation"], q["source"]
+        )
+        for q in QUESTIONS_DATA
+    ]
+    cur.executemany("""
+        INSERT INTO questions (
+            round_id, question_no, domain_id, qtype_id, select_count,
+            title, question_text, code_or_log, options_json, correct_keys_json,
+            answer_text, core_keywords, explanation, source
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, q_rows)
+
+    total_q = len(QUESTIONS_DATA)
+    analytics_rows = []
+    for dom_id, _, dom_name, weight_pct, _ in CATEGORIES_DOMAIN:
+        dom_qs = [q for q in QUESTIONS_DATA if q["domain_id"] == dom_id]
+        cnt = len(dom_qs)
+        share = round((cnt / total_q) * 100, 1) if total_q else 0.0
+        single_c = sum(1 for q in dom_qs if q["qtype_id"] == 1)
+        multi_c = sum(1 for q in dom_qs if q["qtype_id"] == 2)
+        pdf_c = sum(1 for q in dom_qs if q["source"] == SOURCE_OFFICIAL_PDF)
+        guide_c = sum(1 for q in dom_qs if q["source"] == SOURCE_EXAM_GUIDE)
+        analytics_rows.append((
+            dom_id, dom_name, weight_pct, cnt, share, single_c, multi_c, pdf_c, guide_c
+        ))
+
+    cur.executemany("INSERT INTO domain_analytics VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", analytics_rows)
+    conn.commit()
+
+    # 무결성 검사
+    integrity = cur.execute("PRAGMA integrity_check").fetchone()[0]
+    assert integrity == "ok", f"SQLite integrity check failed: {integrity}"
+
+    # SQL 덤프
+    with open(SQL_DUMP_PATH, 'w', encoding='utf-8') as f:
+        for line in conn.iterdump():
+            f.write(f"{line}\n")
+
+    # JSON 내보내기
+    export_data = {
+        "meta": {
+            "cert_id": "aws-dva-c02",
+            "exam_code": "DVA-C02",
+            "level": "Associate",
+            "cert_group": "AWS 클라우드 자격",
+            "exam_stage": "필기",
+            "title": "AWS Certified Developer - Associate (DVA-C02) 전용 RDB & 실전 모의 학습 플랫폼",
+            "subtitle": "AWS 공식 Sample PDF 10문항 + DVA-C02 Exam Guide 4대 도메인 핵심문제 75문항 (총 85문항)",
+            "rounds_count": len(EXAM_ROUNDS),
+            "questions_count": len(QUESTIONS_DATA),
+            "official_pdf_count": sum(1 for q in QUESTIONS_DATA if q["source"] == SOURCE_OFFICIAL_PDF),
+            "exam_guide_count": sum(1 for q in QUESTIONS_DATA if q["source"] == SOURCE_EXAM_GUIDE),
+            "exam_format": "객관식 단일선택 & 복수선택 (실제 시험 65문항 / 130분 / 합격 720점)",
+            "sources": [SOURCE_OFFICIAL_PDF, SOURCE_EXAM_GUIDE],
+            "updated_at": "2026-11-26"
+        },
+        "rounds": [
+            {
+                "round_id": r[0],
+                "round_title": r[1],
+                "source_type": r[2],
+                "question_count": r[3],
+                "description": r[4]
+            } for r in EXAM_ROUNDS
+        ],
+        "domains": [
+            {
+                "domain_id": d[0],
+                "domain_code": d[1],
+                "domain_name": d[2],
+                "weight_pct": d[3],
+                "description": d[4]
+            } for d in CATEGORIES_DOMAIN
+        ],
+        "qtypes": [
+            {
+                "qtype_id": t[0],
+                "qtype_code": t[1],
+                "qtype_name": t[2],
+                "is_multi_select": bool(t[3]),
+                "description": t[4]
+            } for t in CATEGORIES_QTYPE
+        ],
+        "analytics": [
+            {
+                "domain_id": a[0],
+                "domain_name": a[1],
+                "weight_pct": a[2],
+                "total_questions": a[3],
+                "share_pct": a[4],
+                "single_count": a[5],
+                "multi_count": a[6],
+                "official_pdf_count": a[7],
+                "guide_core_count": a[8]
+            } for a in analytics_rows
+        ],
+        "questions": []
+    }
+
+    for row in cur.execute("""
+        SELECT question_id, round_id, round_title, question_no,
+               domain_id, domain_code, domain_name, weight_pct,
+               qtype_id, qtype_name, is_multi_select, select_count,
+               title, question_text, code_or_log, options_json,
+               correct_keys_json, answer_text, core_keywords, explanation, source
+        FROM v_mode_explanation
+        ORDER BY question_id ASC
+    """):
+        export_data["questions"].append({
+            "question_id": row[0],
+            "round_id": row[1],
+            "round_title": row[2],
+            "question_no": row[3],
+            "domain_id": row[4],
+            "domain_code": row[5],
+            "domain_name": row[6],
+            "weight_pct": row[7],
+            "qtype_id": row[8],
+            "qtype_name": row[9],
+            "is_multi_select": bool(row[10]),
+            "select_count": row[11],
+            "title": row[12],
+            "question_text": row[13],
+            "code_or_log": row[14],
+            "options": json.loads(row[15]),
+            "correct_keys": json.loads(row[16]),
+            "answer_text": row[17],
+            "core_keywords": row[18],
+            "explanation": row[19],
+            "source": row[20]
+        })
+
+    with open(JSON_EXPORT_PATH, 'w', encoding='utf-8') as f:
+        json.dump(export_data, f, ensure_ascii=False, indent=2)
+
+    conn.close()
+    print(f"[OK] Built DVA-C02 RDB: {len(EXAM_ROUNDS)} rounds, {len(QUESTIONS_DATA)} questions.")
+    print(f"     SQLite integrity_check: {integrity}")
+    print(f"     DB:   {DB_PATH}")
+    print(f"     SQL:  {SQL_DUMP_PATH}")
+    print(f"     JSON: {JSON_EXPORT_PATH}")
+
+
+if __name__ == '__main__':
+    build_database()

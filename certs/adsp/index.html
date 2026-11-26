@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light" />
+  <script>
+    try {
+      const saved = localStorage.getItem('kcert_theme');
+      const scheme = saved === 'dark' ? 'dark' : 'light';
+      document.documentElement.dataset.theme = scheme;
+      const meta = document.querySelector('meta[name="color-scheme"]');
+      if (meta) meta.content = scheme;
+    } catch (e) {
+      document.documentElement.dataset.theme = 'light';
+    }
+  </script>
+  <title>ADsP(데이터분석 준전문가) 기출·핵심 RDB &amp; 실전 모의풀이 — K-Cert Hub</title>
+  <style>
+    :root {
+      color-scheme: light;
+      /* Calm Study Paper — Light Default */
+      --bg-main: #f6f5f0;
+      --bg-card: #ffffff;
+      --bg-elevated: #efece6;
+      --bg-input: #fcfbf8;
+      --bg-code: #1e2530;
+      --code-text: #e2e8f0;
+      --text-main: #1f2933;
+      --text-muted: #525c68;
+      --border: #d8d5cc;
+      --border-strong: #bdb8ac;
+      --accent: #1d4ed8;
+      --accent-soft: #eff6ff;
+      --teal: #0f766e;
+      --teal-soft: #f0fdfa;
+      --amber: #b45309;
+      --amber-soft: #fffbeb;
+      --rose: #be123c;
+      --rose-soft: #fff1f2;
+      --purple: #6d28d9;
+      --purple-soft: #f5f3ff;
+      --shadow-sm: 0 1px 3px rgba(31, 41, 51, 0.06);
+    }
+
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --bg-main: #141820;
+      --bg-card: #1c222d;
+      --bg-elevated: #242b38;
+      --bg-input: #171c26;
+      --bg-code: #0f131a;
+      --code-text: #e2e8f0;
+      --text-main: #eaeff5;
+      --text-muted: #9aa5b5;
+      --border: #323c4e;
+      --border-strong: #475569;
+      --accent: #60a5fa;
+      --accent-soft: rgba(59, 130, 246, 0.16);
+      --teal: #2dd4bf;
+      --teal-soft: rgba(20, 184, 166, 0.16);
+      --amber: #fcd34d;
+      --amber-soft: rgba(245, 158, 11, 0.15);
+      --rose: #fda4af;
+      --rose-soft: rgba(244, 63, 94, 0.15);
+      --purple: #c4b5fd;
+      --purple-soft: rgba(167, 139, 250, 0.15);
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Non-color theme toggle icon branching */
+    .theme-opt-light { display: none; }
+    .theme-opt-dark { display: inline-flex; align-items: center; gap: 4px; }
+    :root[data-theme="dark"] .theme-opt-light { display: inline-flex; align-items: center; gap: 4px; }
+    :root[data-theme="dark"] .theme-opt-dark { display: none; }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.65;
+      padding-bottom: 64px;
+      overflow-wrap: break-word;
+    }
+
+    /* Global Hub Nav */
+    .hub-topbar {
+      background: var(--bg-elevated);
+      border-bottom: 1px solid var(--border);
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+    .hub-topbar-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 7px 24px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .hub-links {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .hub-link {
+      color: var(--text-main);
+      text-decoration: none;
+      padding: 4px 10px;
+      border-radius: 7px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      font-weight: 600;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .hub-link:hover { border-color: var(--accent); color: var(--accent); }
+    .hub-link.is-current {
+      color: var(--accent);
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      font-weight: 700;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 24px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    }
+    .header-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .hub-back {
+      text-decoration: none;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+    .hub-back:hover { border-color: var(--accent); color: var(--accent); }
+    .brand-title {
+      font-size: 1.12rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .brand-badge {
+      font-size: 0.72rem;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      padding: 2px 9px;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+
+    .header-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+    .mode-group {
+      display: inline-flex;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 3px;
+      gap: 4px;
+    }
+    .mode-btn {
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      padding: 6px 11px;
+      border-radius: 7px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .mode-btn.active {
+      background: var(--accent);
+      color: #ffffff;
+    }
+    :root[data-theme="dark"] .mode-btn.active {
+      color: #0f172a;
+    }
+
+    .timer-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: 10px;
+      font-size: 0.82rem;
+    }
+    .timer-display {
+      font-family: Consolas, monospace;
+      font-weight: 800;
+      color: var(--teal);
+      min-width: 52px;
+      text-align: center;
+    }
+    .btn-sm {
+      background: var(--bg-elevated);
+      color: var(--text-main);
+      border: 1px solid var(--border);
+      padding: 5px 10px;
+      border-radius: 7px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-sm:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-primary {
+      background: var(--accent);
+      color: #ffffff;
+      border: 1px solid var(--accent);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    :root[data-theme="dark"] .btn-primary { color: #0f172a; }
+
+    .container {
+      max-width: 1400px;
+      margin: 20px auto 0;
+      padding: 0 24px;
+    }
+
+    /* Progress & KPI HUD */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      box-shadow: var(--shadow-sm);
+    }
+    .kpi-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+    .kpi-val {
+      font-size: 1.38rem;
+      font-weight: 800;
+      margin-top: 3px;
+      color: var(--text-main);
+    }
+    .kpi-sub {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .progress-bar-track {
+      height: 6px;
+      background: var(--bg-elevated);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 7px;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--teal);
+      width: 0%;
+      transition: width 0.25s ease;
+    }
+
+    /* Accessible Tabs */
+    .tab-bar {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+      padding-bottom: 2px;
+    }
+    .tab-btn {
+      position: relative;
+      flex: none;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      padding: 10px 16px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      border-radius: 8px 8px 0 0;
+    }
+    .tab-btn:hover { color: var(--text-main); }
+    .tab-btn[aria-selected="true"] {
+      color: var(--accent);
+    }
+    .tab-btn[aria-selected="true"]::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 -2px;
+      border-block-end: 3px solid var(--accent);
+    }
+
+    /* Filter Bar */
+    .filter-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+      gap: 10px;
+    }
+    .filter-field label {
+      display: block;
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    .filter-field select,
+    .filter-field input {
+      width: 100%;
+      background: var(--bg-input);
+      color: var(--text-main);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 0.83rem;
+      font-family: inherit;
+    }
+    .filter-footer {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    /* Question Cards */
+    .card-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .q-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 20px;
+      box-shadow: var(--shadow-sm);
+    }
+    .q-meta {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+    .pill {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+    }
+    .pill-round { background: var(--bg-elevated); color: var(--text-main); border-color: var(--border); }
+    .pill-subj1 { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+    .pill-subj2 { background: var(--purple-soft); color: var(--purple); border-color: var(--purple); }
+    .pill-subj3 { background: var(--teal-soft); color: var(--teal); border-color: var(--teal); }
+    .pill-mcq { background: var(--bg-elevated); color: var(--text-muted); border-color: var(--border); }
+    .pill-short { background: var(--amber-soft); color: var(--amber); border-color: var(--amber); }
+    .pill-src { background: var(--bg-input); color: var(--text-muted); border-color: var(--border); }
+
+    .card-actions {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .bookmark-btn {
+      background: var(--bg-elevated);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .bookmark-btn.saved {
+      background: var(--amber-soft);
+      color: var(--amber);
+      border-color: var(--amber);
+    }
+
+    .q-title {
+      font-size: 1.02rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+      color: var(--text-main);
+    }
+    .q-body {
+      font-size: 0.92rem;
+      white-space: pre-line;
+      margin-bottom: 12px;
+      color: var(--text-main);
+    }
+    .code-block {
+      background: var(--bg-code);
+      color: var(--code-text);
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      font-size: 0.81rem;
+      overflow-x: auto;
+      margin-bottom: 12px;
+      line-height: 1.5;
+      white-space: pre;
+    }
+
+    /* Interactive Choices */
+    .choice-list {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      margin-bottom: 12px;
+    }
+    .choice-btn {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      width: 100%;
+      text-align: left;
+      background: var(--bg-input);
+      color: var(--text-main);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 13px;
+      font-size: 0.87rem;
+      font-family: inherit;
+      cursor: pointer;
+      transition: border-color 0.12s, background-color 0.12s;
+    }
+    .choice-btn:hover { border-color: var(--accent); }
+    .choice-num {
+      font-weight: 800;
+      color: var(--accent);
+      flex: none;
+    }
+    .choice-btn.is-correct {
+      background: var(--teal-soft);
+      border-color: var(--teal);
+      font-weight: 700;
+    }
+    .choice-btn.is-wrong {
+      background: var(--rose-soft);
+      border-color: var(--rose);
+    }
+    .choice-btn.is-selected {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    /* Short answer interactive solve */
+    .short-solve-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .short-input {
+      flex: 1 1 240px;
+      background: var(--bg-input);
+      color: var(--text-main);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 0.86rem;
+      font-family: inherit;
+    }
+    .solve-feedback {
+      font-size: 0.84rem;
+      font-weight: 700;
+      padding: 8px 12px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+    .solve-feedback.ok { background: var(--teal-soft); color: var(--teal); border: 1px solid var(--teal); }
+    .solve-feedback.bad { background: var(--rose-soft); color: var(--rose); border: 1px solid var(--rose); }
+
+    /* Answer & Explanation Boxes */
+    .answer-box {
+      background: var(--teal-soft);
+      border: 1px solid var(--teal);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-top: 10px;
+    }
+    .answer-label {
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: var(--teal);
+      margin-bottom: 4px;
+    }
+    .answer-text {
+      font-size: 0.89rem;
+      font-weight: 700;
+      white-space: pre-line;
+    }
+    .kw-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 8px;
+    }
+    .kw-chip {
+      font-size: 0.72rem;
+      background: var(--bg-card);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      padding: 2px 7px;
+      border-radius: 6px;
+    }
+    .explain-box {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-top: 10px;
+      font-size: 0.86rem;
+    }
+    .explain-label {
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+
+    /* Analytics Table */
+    .table-wrap {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow-x: auto;
+      box-shadow: var(--shadow-sm);
+    }
+    .analytics-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    .analytics-table th,
+    .analytics-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+    .analytics-table thead th {
+      background: var(--bg-elevated);
+      font-weight: 800;
+      color: var(--text-muted);
+      font-size: 0.78rem;
+    }
+
+    /* Cheatsheet Grid */
+    .cheat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 16px;
+    }
+    .cheat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 18px;
+      box-shadow: var(--shadow-sm);
+    }
+    .cheat-card h3 {
+      font-size: 0.96rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+      color: var(--accent);
+    }
+    .cheat-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      font-size: 0.84rem;
+    }
+    .cheat-list code {
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      background: var(--bg-elevated);
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+    }
+
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <!-- K-Cert Hub Global Top Bar -->
+  <nav class="hub-topbar" aria-label="K-Cert Hub 채널 네비게이션">
+    <div class="hub-topbar-inner">
+      <div class="hub-links">
+        <a href="../../index.html" class="hub-link">🏠 K-Cert Hub 통합 포털</a>
+        <span>데이터·IT 자격증 RDB 학습 채널</span>
+      </div>
+      <div class="hub-links">
+        <a href="./index.html" class="hub-link is-current">📊 ADsP 데이터분석 준전문가</a>
+        <a href="../sqld/index.html" class="hub-link">🗄️ SQLD SQL개발자</a>
+        <a href="../bda/index.html" class="hub-link">📈 빅데이터분석기사</a>
+        <a href="../../index.html#section-community" class="hub-link">💬 정보공유 라운지</a>
+      </div>
+    </div>
+  </nav>
+
+  <header>
+    <div class="header-inner">
+      <div class="brand-wrap">
+        <a href="../../index.html" class="hub-back">← K-Cert Hub</a>
+        <div class="brand-title">
+          <span>📊 ADsP 필기 기출·핵심 RDB</span>
+          <span class="brand-badge" id="headerBadge">1~3과목 · 137문항</span>
+        </div>
+      </div>
+
+      <div class="header-controls">
+        <div class="mode-group" role="group" aria-label="학습 모드 선택">
+          <button type="button" class="mode-btn active" id="mode-solve">📝 실전 풀이</button>
+          <button type="button" class="mode-btn" id="mode-compare">⚡ 빠른 정답</button>
+          <button type="button" class="mode-btn" id="mode-explain">🔍 상세 해설</button>
+        </div>
+
+        <div class="timer-box">
+          <span>⏱️</span>
+          <span class="timer-display" id="timerDisplay">90:00</span>
+          <button type="button" class="btn-sm" id="timer90Btn">90분</button>
+          <button type="button" class="btn-sm" id="timer15Btn">15분</button>
+          <button type="button" class="btn-sm" id="timerToggleBtn">시작</button>
+          <button type="button" class="btn-sm" id="timerResetBtn">초기화</button>
+        </div>
+
+        <button type="button" class="btn-sm" id="themeToggleBtn" aria-label="색상 테마 전환">
+          <span class="theme-opt-light">☀️ 라이트</span>
+          <span class="theme-opt-dark">🌙 다크</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Progress & KPI HUD -->
+    <section class="kpi-grid" aria-label="ADsP 학습 현황 HUD">
+      <div class="kpi-card">
+        <div class="kpi-label">전체 수록 문항</div>
+        <div class="kpi-val" id="kpiTotal">-</div>
+        <div class="kpi-sub" id="kpiMetaSub">1과목·2과목·3과목 통합</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">실전 풀이 진도</div>
+        <div class="kpi-val" id="kpiSolved">0 / 0</div>
+        <div class="progress-bar-track"><div class="progress-bar-fill" id="progressBarFill"></div></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">정답률 (채점 기준)</div>
+        <div class="kpi-val" id="kpiAccuracy">-</div>
+        <div class="kpi-sub" id="kpiScoreSub">정답 0 · 오답 0</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">오답·북마크 노트</div>
+        <div class="kpi-val" id="kpiBookmarks">0문항</div>
+        <div class="kpi-sub">자동 오답 저장 + 수동 북마크</div>
+      </div>
+    </section>
+
+    <!-- Tabs -->
+    <div class="tab-bar" role="tablist" aria-label="ADsP 학습 탭">
+      <button type="button" class="tab-btn" role="tab" id="tab-questions" aria-selected="true">📚 기출·핵심 문제풀이</button>
+      <button type="button" class="tab-btn" role="tab" id="tab-analytics" aria-selected="false">📊 과목별 출제 비중·분석</button>
+      <button type="button" class="tab-btn" role="tab" id="tab-cheatsheet" aria-selected="false">📝 ADsP 핵심 요약·공식집</button>
+    </div>
+
+    <!-- Tab 1: Questions -->
+    <section id="panel-questions" role="tabpanel" aria-labelledby="tab-questions">
+      <div class="filter-card">
+        <div class="filter-grid">
+          <div class="filter-field">
+            <label for="filterRound">회차 / 모음</label>
+            <select id="filterRound"><option value="ALL">전체 회차</option></select>
+          </div>
+          <div class="filter-field">
+            <label for="filterDomain">과목 (Subject)</label>
+            <select id="filterDomain"><option value="ALL">전체 과목 (1~3과목)</option></select>
+          </div>
+          <div class="filter-field">
+            <label for="filterQtype">문항 유형</label>
+            <select id="filterQtype"><option value="ALL">전체 유형 (객관식+단답)</option></select>
+          </div>
+          <div class="filter-field">
+            <label for="filterSource">자료 출처</label>
+            <select id="filterSource"><option value="ALL">전체 출처</option></select>
+          </div>
+          <div class="filter-field">
+            <label for="filterStatus">학습 상태 / 북마크</label>
+            <select id="filterStatus">
+              <option value="ALL">전체 문항</option>
+              <option value="SAVED">★ 북마크/오답노트만</option>
+              <option value="UNSOLVED">미풀이 문항만</option>
+              <option value="WRONG">틀린 문항만</option>
+            </select>
+          </div>
+          <div class="filter-field">
+            <label for="searchInput">키워드 검색</label>
+            <input type="search" id="searchInput" placeholder="예: DIKW, CRISP-DM, VIF, ARIMA, Apriori" />
+          </div>
+        </div>
+        <div class="filter-footer">
+          <span id="resultCount">로딩 중...</span>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button type="button" class="btn-sm" id="resetFiltersBtn">필터 초기화</button>
+            <button type="button" class="btn-sm" id="resetProgressBtn">풀이 기록 초기화</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="questionList" class="card-list"></div>
+    </section>
+
+    <!-- Tab 2: Analytics -->
+    <section id="panel-analytics" role="tabpanel" aria-labelledby="tab-analytics" hidden>
+      <div class="table-wrap">
+        <table class="analytics-table">
+          <thead>
+            <tr>
+              <th>과목 (Subject)</th>
+              <th>수록 문항</th>
+              <th>비중 (%)</th>
+              <th>객관식</th>
+              <th>단답형</th>
+              <th>수록 회차 수</th>
+              <th>주요 유형</th>
+            </tr>
+          </thead>
+          <tbody id="analyticsBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Tab 3: Cheatsheet -->
+    <section id="panel-cheatsheet" role="tabpanel" aria-labelledby="tab-cheatsheet" hidden>
+      <div class="cheat-grid">
+        <article class="cheat-card">
+          <h3>1과목 · 데이터 이해 핵심 요약</h3>
+          <ul class="cheat-list">
+            <li><strong>DIKW 피라미드</strong>: Data(객관적 사실) → Information(가공·패턴/의미) → Knowledge(패턴 이해·예측) → Wisdom(근본 원리·창의적 아이디어)</li>
+            <li><strong>SECI 지식 전환</strong>: 공통화(암→암) → 표출화(암→형) → 연결화(형→형) → 내면화(형→암)</li>
+            <li><strong>DW 4대 특성</strong>: 주제지향성, 통합성, 시계열성, 비휘발성(비소멸성)</li>
+            <li><strong>빅데이터 본질 변화</strong>: 사전→사후처리, 표본→전수조사, 질→양, 인과→상관관계</li>
+            <li><strong>위기요인 통제</strong>: 사생활 침해(동의제→책임제) / 책임훼손(결과기반 강화) / 오용(알고리즘 접근·인증)</li>
+            <li><strong>비식별화</strong>: 가명처리(대체), 총계처리(합/평균), 삭제, 범주화(대푯값), 마스킹(* 기호 가림)</li>
+          </ul>
+        </article>
+
+        <article class="cheat-card">
+          <h3>2과목 · 데이터 분석 기획 핵심 요약</h3>
+          <ul class="cheat-list">
+            <li><strong>분석 주제 4유형</strong>: Optimization(대상○·방법○) / Solution(대상○·방법×) / Insight(대상×·방법○) / Discovery(대상×·방법×)</li>
+            <li><strong>KDD 5단계</strong>: 데이터셋 선택 → 전처리 → 변환 → 데이터 마이닝 → 결과 평가</li>
+            <li><strong>CRISP-DM 6단계</strong>: 업무 이해 → 데이터 이해 → 데이터 준비 → 모델링 → 평가 → 전개 (4레벨 계층)</li>
+            <li><strong>빅데이터 분석 방법론</strong>: 분석기획 → 데이터준비 → 데이터분석 → 시스템구현 → 평가및전개 (Phase-Task-Step)</li>
+            <li><strong>하향식 접근 4단계</strong>: 문제 탐색 → 문제 정의 → 해결방안 탐색 → 타당성 검토(경제·데이터·기술)</li>
+            <li><strong>우선순위 사분면</strong>: 시급성(전략적 중요도·목표가치) vs 난이도(비용·분석 수준)</li>
+          </ul>
+        </article>
+
+        <article class="cheat-card">
+          <h3>3과목 · R 기초 · 전처리 · 기초통계</h3>
+          <ul class="cheat-list">
+            <li><strong>R 벡터 형변환</strong>: <code>character &gt; numeric &gt; logical</code> (문자 포함 시 전체 문자형)</li>
+            <li><strong>R 데이터 마트</strong>: <code>reshape</code>(<code>melt</code>/<code>cast</code>), <code>plyr</code>(<code>ddply</code>), <code>sqldf</code>(SQL 질의)</li>
+            <li><strong>이상치 판별</strong>: ESD(<code>평균 ± 3σ</code>), IQR(<code>Q1 - 1.5*IQR</code> ~ <code>Q3 + 1.5*IQR</code> 밖)</li>
+            <li><strong>왜도와 대푯값</strong>: Positive Skewed(오른쪽 긴 꼬리) → <code>최빈값 &lt; 중앙값 &lt; 평균</code></li>
+            <li><strong>척도 4종</strong>: 명목(분류) &lt; 서열(순위, 스피어만) &lt; 등간(간격·절대0 없음) &lt; 비율(절대0 있음·사칙연산)</li>
+            <li><strong>가설검정 오류</strong>: 제1종 오류(H0 참인데 기각, 유의수준 α) / 제2종 오류(H0 거짓인데 채택, β)</li>
+          </ul>
+        </article>
+
+        <article class="cheat-card">
+          <h3>3과목 · 회귀 · 시계열 · 마이닝 공식</h3>
+          <ul class="cheat-list">
+            <li><strong>다중공선성</strong>: <code>VIF ≥ 10</code>이면 심각 (해결: 변수 제거, PCA, Ridge)</li>
+            <li><strong>회귀 규제화</strong>: Lasso(L1 페널티, 계수 0→변수선택) / Ridge(L2 페널티, 계수 축소)</li>
+            <li><strong>시계열 정상성</strong>: 일정한 평균·분산 + 시차에만 의존하는 공분산 (추세 제거 = <strong>차분</strong>)</li>
+            <li><strong>의사결정나무 불순도</strong>: CART(지니지수 <code>1-Σp²</code>), C4.5/C5.0(엔트로피), CHAID(카이제곱)</li>
+            <li><strong>오분류표 지표</strong>: <code>정밀도=TP/(TP+FP)</code>, <code>재현율(민감도)=TP/(TP+FN)</code>, <code>특이도=TN/(FP+TN)</code>, <code>F1=2PR/(P+R)</code></li>
+            <li><strong>연관분석 지표</strong>: <code>지지도=P(A∩B)</code>, <code>신뢰도=P(A∩B)/P(A)</code>, <code>향상도=신뢰도/P(B)</code></li>
+          </ul>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    let ADSP_DATA = null;
+    let QUESTION_MAP = new Map();
+    let STUDY_MODE = 'solve'; // solve | compare | explain
+    let BOOKMARKS = new Set();
+    let PROGRESS = {}; // { [qid]: { selectedChoice?: number, userInput?: string, isCorrect: boolean, revealed?: boolean } }
+
+    let timerSeconds = 90 * 60;
+    let timerPresetSeconds = 90 * 60;
+    let timerInterval = null;
+
+    const BOOKMARK_KEY = 'k_cert_hub_adsp_bookmarks_v1';
+    const PROGRESS_KEY = 'k_cert_hub_adsp_progress_v1';
+
+    function loadState() {
+      try {
+        const bm = localStorage.getItem(BOOKMARK_KEY);
+        if (bm) BOOKMARKS = new Set(JSON.parse(bm));
+      } catch (e) {}
+      try {
+        const pr = localStorage.getItem(PROGRESS_KEY);
+        if (pr) PROGRESS = JSON.parse(pr) || {};
+      } catch (e) {}
+    }
+
+    function saveBookmarks() {
+      try { localStorage.setItem(BOOKMARK_KEY, JSON.stringify([...BOOKMARKS])); } catch (e) {}
+      updateHUD();
+    }
+
+    function saveProgress() {
+      try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(PROGRESS)); } catch (e) {}
+      updateHUD();
+    }
+
+    function updateHUD() {
+      if (!ADSP_DATA) return;
+      const total = ADSP_DATA.questions.length;
+      const entries = Object.values(PROGRESS);
+      const solved = entries.length;
+      const correct = entries.filter(e => e.isCorrect === true).length;
+      const wrong = entries.filter(e => e.isCorrect === false).length;
+
+      document.getElementById('kpiTotal').textContent = `${total}문항`;
+      document.getElementById('kpiSolved').textContent = `${solved} / ${total}`;
+      const pct = total ? Math.round((solved / total) * 100) : 0;
+      document.getElementById('progressBarFill').style.width = `${pct}%`;
+
+      if (solved > 0) {
+        const acc = Math.round((correct / solved) * 100);
+        document.getElementById('kpiAccuracy').textContent = `${acc}%`;
+      } else {
+        document.getElementById('kpiAccuracy').textContent = '-';
+      }
+      document.getElementById('kpiScoreSub').textContent = `정답 ${correct} · 오답 ${wrong}`;
+      document.getElementById('kpiBookmarks').textContent = `${BOOKMARKS.size}문항`;
+    }
+
+    // Theme Toggle (Calm Study Paper light default + synced kcert_theme)
+    function applyTheme(scheme) {
+      document.documentElement.dataset.theme = scheme;
+      const meta = document.querySelector('meta[name="color-scheme"]');
+      if (meta) meta.content = scheme;
+    }
+
+    function toggleColorScheme() {
+      const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+      applyTheme(next);
+      try { localStorage.setItem('kcert_theme', next); } catch (e) {}
+    }
+
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'kcert_theme') {
+        applyTheme(e.newValue === 'dark' ? 'dark' : 'light');
+      }
+    });
+
+    function setStudyMode(mode) {
+      STUDY_MODE = mode;
+      ['solve', 'compare', 'explain'].forEach(m => {
+        document.getElementById(`mode-${m}`).classList.toggle('active', m === mode);
+      });
+      renderQuestions();
+    }
+
+    function switchTab(tabId) {
+      ['questions', 'analytics', 'cheatsheet'].forEach(t => {
+        const btn = document.getElementById(`tab-${t}`);
+        const panel = document.getElementById(`panel-${t}`);
+        const isActive = t === tabId;
+        btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        panel.hidden = !isActive;
+      });
+    }
+
+    // Timer
+    function renderTimer() {
+      const m = Math.floor(timerSeconds / 60);
+      const s = timerSeconds % 60;
+      document.getElementById('timerDisplay').textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    function stopTimer() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+      document.getElementById('timerToggleBtn').textContent = '시작';
+    }
+
+    function setTimerPreset(mins) {
+      stopTimer();
+      timerPresetSeconds = mins * 60;
+      timerSeconds = timerPresetSeconds;
+      renderTimer();
+    }
+
+    function toggleTimer() {
+      if (timerInterval) {
+        stopTimer();
+      } else {
+        document.getElementById('timerToggleBtn').textContent = '일시정지';
+        timerInterval = setInterval(() => {
+          if (timerSeconds > 0) {
+            timerSeconds--;
+            renderTimer();
+          } else {
+            stopTimer();
+            alert('설정한 ADsP 시험 시간이 종료되었습니다!');
+          }
+        }, 1000);
+      }
+    }
+
+    function resetTimer() {
+      stopTimer();
+      timerSeconds = timerPresetSeconds;
+      renderTimer();
+    }
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function subjPillClass(domainId) {
+      if (domainId === 1) return 'pill-subj1';
+      if (domainId === 2) return 'pill-subj2';
+      return 'pill-subj3';
+    }
+
+    function normalizeAnswer(str) {
+      return String(str || '')
+        .toLowerCase()
+        .replace(/\([^)]*\)/g, '')
+        .replace(/[\s,·.\-_/]/g, '')
+        .trim();
+    }
+
+    function checkShortAnswer(q, userVal) {
+      const normUser = normalizeAnswer(userVal);
+      if (!normUser) return false;
+      // Split answer_text variants (Korean + English in parentheses)
+      const candidates = [];
+      const rawAns = String(q.answer_text || '');
+      candidates.push(normalizeAnswer(rawAns));
+      const parenMatches = rawAns.match(/\(([^)]+)\)/g) || [];
+      parenMatches.forEach(pm => {
+        pm.slice(1, -1).split(',').forEach(part => candidates.push(normalizeAnswer(part)));
+      });
+      if (candidates.some(c => c && (c === normUser || (normUser.length >= 2 && (c.includes(normUser) || normUser.includes(c)))))) {
+        return true;
+      }
+      return false;
+    }
+
+    function toggleBookmark(qid) {
+      if (BOOKMARKS.has(qid)) BOOKMARKS.delete(qid);
+      else BOOKMARKS.add(qid);
+      saveBookmarks();
+      renderQuestions();
+    }
+
+    function handleChoiceClick(qid, choiceIdx) {
+      const q = QUESTION_MAP.get(qid);
+      if (!q) return;
+      const isCorrect = q.correct_choice === choiceIdx;
+      PROGRESS[qid] = {
+        selectedChoice: choiceIdx,
+        isCorrect: isCorrect,
+        revealed: true
+      };
+      if (!isCorrect) {
+        BOOKMARKS.add(qid);
+        saveBookmarks();
+      }
+      saveProgress();
+      renderQuestions();
+    }
+
+    function handleShortCheck(qid, inputEl) {
+      const q = QUESTION_MAP.get(qid);
+      if (!q) return;
+      const val = inputEl ? inputEl.value.trim() : '';
+      const isCorrect = val ? checkShortAnswer(q, val) : false;
+      PROGRESS[qid] = {
+        userInput: val,
+        isCorrect: isCorrect,
+        revealed: true
+      };
+      if (!isCorrect) {
+        BOOKMARKS.add(qid);
+        saveBookmarks();
+      }
+      saveProgress();
+      renderQuestions();
+    }
+
+    function handleRevealToggle(qid) {
+      const prev = PROGRESS[qid] || { isCorrect: null, revealed: false };
+      if (prev.revealed) {
+        if (prev.isCorrect === null) {
+          delete PROGRESS[qid];
+        } else {
+          PROGRESS[qid].revealed = false;
+        }
+      } else {
+        PROGRESS[qid] = { ...prev, revealed: true };
+      }
+      saveProgress();
+      renderQuestions();
+    }
+
+    function resetFilters() {
+      document.getElementById('filterRound').value = 'ALL';
+      document.getElementById('filterDomain').value = 'ALL';
+      document.getElementById('filterQtype').value = 'ALL';
+      document.getElementById('filterSource').value = 'ALL';
+      document.getElementById('filterStatus').value = 'ALL';
+      document.getElementById('searchInput').value = '';
+      renderQuestions();
+    }
+
+    function resetProgress() {
+      if (!confirm('실전 풀이 진도 및 채점 기록을 초기화할까요? (북마크는 유지됩니다)')) return;
+      PROGRESS = {};
+      saveProgress();
+      renderQuestions();
+    }
+
+    function renderQuestions() {
+      if (!ADSP_DATA) return;
+      const fRound = document.getElementById('filterRound').value;
+      const fDomain = document.getElementById('filterDomain').value;
+      const fQtype = document.getElementById('filterQtype').value;
+      const fSource = document.getElementById('filterSource').value;
+      const fStatus = document.getElementById('filterStatus').value;
+      const kw = document.getElementById('searchInput').value.trim().toLowerCase();
+
+      const filtered = ADSP_DATA.questions.filter(q => {
+        if (fRound !== 'ALL' && String(q.round_id) !== fRound) return false;
+        if (fDomain !== 'ALL' && String(q.domain_id) !== fDomain) return false;
+        if (fQtype !== 'ALL' && String(q.qtype_id) !== fQtype) return false;
+        if (fSource !== 'ALL' && q.source !== fSource) return false;
+
+        const prog = PROGRESS[q.question_id];
+        if (fStatus === 'SAVED' && !BOOKMARKS.has(q.question_id)) return false;
+        if (fStatus === 'UNSOLVED' && prog && prog.isCorrect !== null) return false;
+        if (fStatus === 'WRONG' && (!prog || prog.isCorrect !== false)) return false;
+
+        if (kw) {
+          const hay = [
+            q.round_title, q.domain_name, q.subtopic, q.title,
+            q.question_text, q.code_or_log, ...(q.choices || []),
+            q.answer_text, q.core_keywords, q.explanation, q.source
+          ].join(' ').toLowerCase();
+          if (!hay.includes(kw)) return false;
+        }
+        return true;
+      });
+
+      document.getElementById('resultCount').textContent =
+        `검색 결과: ${filtered.length}문항 / 전체 ${ADSP_DATA.questions.length}문항`;
+
+      const container = document.getElementById('questionList');
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="q-card" style="text-align:center;color:var(--text-muted);">조건에 일치하는 문항이 없습니다. 필터를 조정해 보세요.</div>`;
+        return;
+      }
+
+      const circleNums = ['①', '②', '③', '④'];
+      container.innerHTML = filtered.map(q => {
+        const qid = q.question_id;
+        const isSaved = BOOKMARKS.has(qid);
+        const prog = PROGRESS[qid];
+        const isAnswered = prog && prog.isCorrect !== null && prog.isCorrect !== undefined;
+        const showDetail = STUDY_MODE === 'explain' || (STUDY_MODE === 'solve' && prog && prog.revealed);
+        const showAnswerOnly = STUDY_MODE === 'compare';
+
+        const keywordsHtml = (q.core_keywords || '').split(',').map(k => k.trim()).filter(Boolean)
+          .map(k => `<span class="kw-chip">#${escapeHtml(k)}</span>`).join('');
+
+        let interactiveHtml = '';
+        if (q.qtype_id === 1 && Array.isArray(q.choices) && q.choices.length === 4) {
+          interactiveHtml = `<div class="choice-list">` + q.choices.map((ch, idx) => {
+            const num = idx + 1;
+            let cls = 'choice-btn';
+            if (STUDY_MODE === 'solve' && isAnswered) {
+              if (num === q.correct_choice) cls += ' is-correct';
+              else if (num === prog.selectedChoice && !prog.isCorrect) cls += ' is-wrong';
+            } else if ((STUDY_MODE === 'compare' || STUDY_MODE === 'explain') && num === q.correct_choice) {
+              cls += ' is-correct';
+            }
+            return `
+              <button type="button" class="${cls}" data-action="choose" data-qid="${qid}" data-choice="${num}">
+                <span class="choice-num">${circleNums[idx]}</span>
+                <span>${escapeHtml(ch)}</span>
+              </button>
+            `;
+          }).join('') + `</div>`;
+        } else if (STUDY_MODE === 'solve') {
+          const prevInput = prog && prog.userInput ? prog.userInput : '';
+          interactiveHtml = `
+            <div class="short-solve-row">
+              <input type="text" class="short-input" data-short-input="${qid}" value="${escapeHtml(prevInput)}" placeholder="핵심 용어 또는 수치를 입력 후 확인하세요..." />
+              <button type="button" class="btn-primary" data-action="check-short" data-qid="${qid}">채점 · 정답 확인</button>
+              <button type="button" class="btn-sm" data-action="toggle-reveal" data-qid="${qid}">정답 토글</button>
+            </div>
+          `;
+        }
+
+        let feedbackHtml = '';
+        if (STUDY_MODE === 'solve' && isAnswered) {
+          feedbackHtml = prog.isCorrect
+            ? `<div class="solve-feedback ok">✅ 정답입니다! (+2점)</div>`
+            : `<div class="solve-feedback bad">❌ 오답입니다. 자동으로 오답/북마크 노트에 저장되었습니다.</div>`;
+        }
+
+        const answerBox = `
+          <div class="answer-box">
+            <div class="answer-label">✅ 모범 정답</div>
+            <div class="answer-text">${escapeHtml(q.answer_text)}</div>
+            <div class="kw-row">${keywordsHtml}</div>
+          </div>
+        `;
+        const explainBox = `
+          <div class="explain-box">
+            <div class="explain-label">💡 핵심 해설</div>
+            <div>${escapeHtml(q.explanation)}</div>
+          </div>
+        `;
+
+        let bottomHtml = '';
+        if (showAnswerOnly) bottomHtml = answerBox;
+        else if (showDetail) bottomHtml = answerBox + explainBox;
+
+        return `
+          <article class="q-card">
+            <div class="q-meta">
+              <div class="badge-row">
+                <span class="pill pill-round">${escapeHtml(q.round_title)} #${q.question_no}</span>
+                <span class="pill ${subjPillClass(q.domain_id)}">${escapeHtml(q.domain_name)} · ${escapeHtml(q.subtopic)}</span>
+                <span class="pill ${q.qtype_id === 1 ? 'pill-mcq' : 'pill-short'}">${escapeHtml(q.qtype_name)}</span>
+                <span class="pill pill-src">${escapeHtml(q.source)}</span>
+              </div>
+              <div class="card-actions">
+                <button type="button" class="bookmark-btn ${isSaved ? 'saved' : ''}" data-action="bookmark" data-qid="${qid}">
+                  ${isSaved ? '★ 북마크됨' : '☆ 오답/북마크'}
+                </button>
+              </div>
+            </div>
+            <h2 class="q-title">Q. ${escapeHtml(q.title)}</h2>
+            <div class="q-body">${escapeHtml(q.question_text)}</div>
+            ${q.code_or_log ? `<pre class="code-block">${escapeHtml(q.code_or_log)}</pre>` : ''}
+            ${interactiveHtml}
+            ${feedbackHtml}
+            ${bottomHtml}
+          </article>
+        `;
+      }).join('');
+    }
+
+    function renderAnalytics() {
+      if (!ADSP_DATA) return;
+      const tbody = document.getElementById('analyticsBody');
+      tbody.innerHTML = ADSP_DATA.analytics.map(a => `
+        <tr>
+          <th scope="row">${escapeHtml(a.domain_name)}</th>
+          <td>${a.total_questions}문항</td>
+          <td><strong>${a.share_pct}%</strong></td>
+          <td>${a.mcq_count}문항</td>
+          <td>${a.short_count}문항</td>
+          <td>${a.round_appearances}개 모음</td>
+          <td>${escapeHtml(a.primary_qtype)}</td>
+        </tr>
+      `).join('');
+    }
+
+    function bindEvents() {
+      document.getElementById('mode-solve').addEventListener('click', () => setStudyMode('solve'));
+      document.getElementById('mode-compare').addEventListener('click', () => setStudyMode('compare'));
+      document.getElementById('mode-explain').addEventListener('click', () => setStudyMode('explain'));
+
+      document.getElementById('timer90Btn').addEventListener('click', () => setTimerPreset(90));
+      document.getElementById('timer15Btn').addEventListener('click', () => setTimerPreset(15));
+      document.getElementById('timerToggleBtn').addEventListener('click', toggleTimer);
+      document.getElementById('timerResetBtn').addEventListener('click', resetTimer);
+      document.getElementById('themeToggleBtn').addEventListener('click', toggleColorScheme);
+
+      document.getElementById('tab-questions').addEventListener('click', () => switchTab('questions'));
+      document.getElementById('tab-analytics').addEventListener('click', () => switchTab('analytics'));
+      document.getElementById('tab-cheatsheet').addEventListener('click', () => switchTab('cheatsheet'));
+
+      ['filterRound', 'filterDomain', 'filterQtype', 'filterSource', 'filterStatus'].forEach(id => {
+        document.getElementById(id).addEventListener('change', renderQuestions);
+      });
+      document.getElementById('searchInput').addEventListener('input', renderQuestions);
+      document.getElementById('resetFiltersBtn').addEventListener('click', resetFilters);
+      document.getElementById('resetProgressBtn').addEventListener('click', resetProgress);
+
+      // Event delegation on questionList — never embeds raw strings in onclick
+      const listEl = document.getElementById('questionList');
+      listEl.addEventListener('click', (e) => {
+        const btn = e.target.closest('button[data-action]');
+        if (!btn) return;
+        const action = btn.dataset.action;
+        const qid = Number(btn.dataset.qid);
+        if (action === 'bookmark') {
+          toggleBookmark(qid);
+        } else if (action === 'choose') {
+          handleChoiceClick(qid, Number(btn.dataset.choice));
+        } else if (action === 'check-short') {
+          const inputEl = listEl.querySelector(`input[data-short-input="${qid}"]`);
+          handleShortCheck(qid, inputEl);
+        } else if (action === 'toggle-reveal') {
+          handleRevealToggle(qid);
+        }
+      });
+
+      listEl.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && e.target.matches('input[data-short-input]')) {
+          const qid = Number(e.target.dataset.shortInput);
+          handleShortCheck(qid, e.target);
+        }
+      });
+    }
+
+    async function initApp() {
+      loadState();
+      bindEvents();
+      try {
+        const res = await fetch('./data/adsp_rdb_export.json');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        ADSP_DATA = await res.json();
+        QUESTION_MAP = new Map(ADSP_DATA.questions.map(q => [q.question_id, q]));
+
+        document.getElementById('headerBadge').textContent =
+          `1~3과목 · ${ADSP_DATA.meta.questions_count}문항`;
+        document.getElementById('kpiMetaSub').textContent = ADSP_DATA.meta.rounds_range;
+
+        const roundSel = document.getElementById('filterRound');
+        ADSP_DATA.rounds.forEach(r => {
+          const opt = document.createElement('option');
+          opt.value = r.round_id;
+          opt.textContent = r.round_title;
+          roundSel.appendChild(opt);
+        });
+
+        const domSel = document.getElementById('filterDomain');
+        ADSP_DATA.domains.forEach(d => {
+          const opt = document.createElement('option');
+          opt.value = d.domain_id;
+          opt.textContent = d.domain_name;
+          domSel.appendChild(opt);
+        });
+
+        const qtSel = document.getElementById('filterQtype');
+        ADSP_DATA.qtypes.forEach(t => {
+          const opt = document.createElement('option');
+          opt.value = t.qtype_id;
+          opt.textContent = t.qtype_name;
+          qtSel.appendChild(opt);
+        });
+
+        const srcSet = [...new Set(ADSP_DATA.questions.map(q => q.source))];
+        const srcSel = document.getElementById('filterSource');
+        srcSet.forEach(s => {
+          const opt = document.createElement('option');
+          opt.value = s;
+          opt.textContent = s;
+          srcSel.appendChild(opt);
+        });
+
+        updateHUD();
+        renderQuestions();
+        renderAnalytics();
+      } catch (err) {
+        document.getElementById('questionList').innerHTML =
+          `<div class="q-card" style="color:var(--rose);">데이터 로드 실패: 로컬 웹 서버(node server.js) 또는 GitHub Pages 환경에서 열어주세요. (${escapeHtml(err.message)})</div>`;
+      }
+    }
+
+    initApp();
+  </script>
+</body>
+</html>

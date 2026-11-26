@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light dark" />
+  <script>
+    try {
+      const saved = localStorage.getItem('kcert_theme');
+      const scheme = saved === 'dark' ? 'dark' : 'light';
+      document.documentElement.dataset.theme = scheme;
+      document.querySelector('meta[name="color-scheme"]').content = scheme;
+    } catch (e) {
+      document.documentElement.dataset.theme = 'light';
+    }
+  </script>
+  <title>AWS Certified Developer - Associate (DVA-C02) RDB &amp; 실전 문제은행 — K-Cert Hub</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg-main: #f6f5f0;
+      --bg-card: #ffffff;
+      --bg-elevated: #efece6;
+      --bg-input: #fcfbf8;
+      --bg-code: #1e2530;
+      --text-main: #1f2933;
+      --text-muted: #525c68;
+      --border: #d8d5cc;
+      --accent: #0f766e;
+      --accent-strong: #115e59;
+      --accent-soft: #f0fdfa;
+      --aws-amber: #b45309;
+      --aws-amber-soft: #fffbeb;
+      --blue: #1d4ed8;
+      --blue-soft: #eff6ff;
+      --rose: #be123c;
+      --rose-soft: #fff1f2;
+      --emerald: #047857;
+      --emerald-soft: #ecfdf5;
+      --purple: #6d28d9;
+      --purple-soft: #f5f3ff;
+    }
+
+    :root:has(> head > meta[name="color-scheme"][content="light"]),
+    :root[data-theme="light"] {
+      color-scheme: light;
+    }
+
+    :root:has(> head > meta[name="color-scheme"][content="dark"]),
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --bg-main: #141820;
+      --bg-card: #1c222d;
+      --bg-elevated: #242b38;
+      --bg-input: #171c26;
+      --bg-code: #0f131a;
+      --text-main: #eaeff5;
+      --text-muted: #9aa5b5;
+      --border: #323c4e;
+      --accent: #2dd4bf;
+      --accent-strong: #5eead4;
+      --accent-soft: rgba(20, 184, 166, 0.16);
+      --aws-amber: #fbbf24;
+      --aws-amber-soft: rgba(245, 158, 11, 0.15);
+      --blue: #60a5fa;
+      --blue-soft: rgba(59, 130, 246, 0.15);
+      --rose: #fda4af;
+      --rose-soft: rgba(244, 63, 94, 0.16);
+      --emerald: #34d399;
+      --emerald-soft: rgba(16, 185, 129, 0.16);
+      --purple: #c4b5fd;
+      --purple-soft: rgba(167, 139, 250, 0.15);
+    }
+
+    /* Non-color theme toggle branching */
+    .theme-opt-light { display: none; }
+    .theme-opt-dark { display: inline-flex; align-items: center; gap: 4px; }
+    :root[data-theme="dark"] .theme-opt-light { display: inline-flex; align-items: center; gap: 4px; }
+    :root[data-theme="dark"] .theme-opt-dark { display: none; }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.65;
+      padding-bottom: 64px;
+      accent-color: var(--accent);
+    }
+
+    a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    header.site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 20px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    }
+
+    .header-inner {
+      max-width: 1380px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .header-top {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .hub-back {
+      text-decoration: none;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      white-space: nowrap;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .hub-back:hover { border-color: var(--accent); color: var(--accent); }
+
+    .brand-title {
+      font-size: 1.12rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .brand-badge {
+      font-size: 0.72rem;
+      background: var(--aws-amber-soft);
+      color: var(--aws-amber);
+      border: 1px solid var(--aws-amber);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+
+    .aws-sibling-nav {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+      scrollbar-width: thin;
+    }
+
+    .aws-sibling-nav ul {
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: nowrap;
+    }
+
+    .aws-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      text-decoration: none;
+      font-size: 0.76rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      color: var(--text-muted);
+      white-space: nowrap;
+      position: relative;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .aws-pill:hover { border-color: var(--accent); color: var(--accent); }
+    .aws-pill[aria-current="page"] {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 2px solid var(--accent);
+      font-weight: 800;
+    }
+    .aws-pill[aria-current="page"]::before {
+      content: "●";
+      font-size: 0.65rem;
+    }
+
+    .header-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .mode-group {
+      display: inline-flex;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 3px;
+      gap: 4px;
+    }
+
+    .mode-btn {
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      padding: 6px 12px;
+      border-radius: 7px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .mode-btn.active {
+      background: var(--accent);
+      color: #ffffff;
+    }
+    :root[data-theme="dark"] .mode-btn.active {
+      color: #0f172a;
+    }
+
+    .timer-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .timer-display {
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      color: var(--aws-amber);
+      font-size: 0.9rem;
+      min-width: 56px;
+      text-align: center;
+    }
+
+    .btn-sm {
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      color: var(--text-main);
+      padding: 5px 9px;
+      border-radius: 6px;
+      font-size: 0.76rem;
+      cursor: pointer;
+      font-weight: 600;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .btn-sm:hover { border-color: var(--accent); color: var(--accent); }
+
+    .btn-primary {
+      border: 1px solid var(--accent);
+      background: var(--accent);
+      color: #ffffff;
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    :root[data-theme="dark"] .btn-primary {
+      color: #0f172a;
+    }
+    .btn-primary:hover { opacity: 0.9; }
+
+    .container {
+      max-width: 1380px;
+      margin: 20px auto 0;
+      padding: 0 20px;
+    }
+
+    /* Progress & Score HUD */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+
+    .kpi-label {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+
+    .kpi-val {
+      font-size: 1.42rem;
+      font-weight: 800;
+      margin-top: 3px;
+      color: var(--accent);
+    }
+
+    .kpi-sub {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .hud-progress-track {
+      margin-top: 8px;
+      height: 6px;
+      background: var(--bg-elevated);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .hud-progress-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--accent);
+      transition: width 0.25s ease;
+    }
+
+    /* Tabs */
+    .tab-bar {
+      display: flex;
+      gap: 4px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      flex: none;
+      position: relative;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 10px 16px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .tab-btn[aria-selected="true"] {
+      color: var(--accent);
+    }
+
+    .tab-btn[aria-selected="true"]::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0;
+      border-block-end: 3px solid var(--accent);
+    }
+
+    /* Filters */
+    .filter-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(195px, 1fr));
+      gap: 12px;
+      align-items: end;
+    }
+
+    .filter-group label {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+
+    .filter-group select,
+    .filter-group input {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-size: 0.84rem;
+    }
+
+    .status-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+      font-size: 0.84rem;
+      color: var(--text-muted);
+    }
+
+    .question-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .q-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+    }
+
+    .q-meta {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .pill {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+    }
+
+    .pill-round { background: var(--blue-soft); color: var(--blue); border-color: var(--blue); }
+    .pill-domain { background: var(--purple-soft); color: var(--purple); border-color: var(--purple); }
+    .pill-single { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+    .pill-multi { background: var(--aws-amber-soft); color: var(--aws-amber); border-color: var(--aws-amber); }
+    .pill-source-pdf { background: var(--emerald-soft); color: var(--emerald); border-color: var(--emerald); }
+    .pill-source-guide { background: var(--bg-elevated); color: var(--text-muted); border-color: var(--border); }
+
+    .bookmark-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      border-radius: 8px;
+      padding: 4px 10px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .bookmark-btn.saved {
+      border-color: var(--rose);
+      color: var(--rose);
+      background: var(--rose-soft);
+    }
+
+    .q-title {
+      font-size: 1.04rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+      color: var(--text-main);
+    }
+
+    .q-body {
+      font-size: 0.93rem;
+      white-space: pre-line;
+      margin-bottom: 12px;
+      color: var(--text-main);
+    }
+
+    .code-block {
+      background: var(--bg-code);
+      color: #e2e8f0;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      font-size: 0.81rem;
+      line-height: 1.55;
+      overflow-x: auto;
+      white-space: pre;
+      margin-bottom: 12px;
+    }
+
+    /* Options List */
+    .options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .opt-label {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.89rem;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .opt-label:hover {
+      border-color: var(--accent);
+    }
+    .opt-label input {
+      margin-top: 4px;
+      flex-shrink: 0;
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+    .opt-key {
+      font-weight: 800;
+      color: var(--accent);
+      min-width: 20px;
+      flex-shrink: 0;
+    }
+    .opt-text {
+      white-space: pre-line;
+      flex: 1;
+    }
+
+    .opt-label.opt-correct {
+      background: var(--emerald-soft);
+      border: 2px solid var(--emerald);
+    }
+    .opt-label.opt-wrong {
+      background: var(--rose-soft);
+      border: 2px solid var(--rose);
+    }
+    .opt-label.opt-missed {
+      border: 2px dashed var(--emerald);
+    }
+
+    .solve-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .result-badge {
+      font-size: 0.82rem;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 8px;
+    }
+    .result-badge.correct {
+      background: var(--emerald-soft);
+      color: var(--emerald);
+      border: 1px solid var(--emerald);
+    }
+    .result-badge.wrong {
+      background: var(--rose-soft);
+      color: var(--rose);
+      border: 1px solid var(--rose);
+    }
+
+    .answer-box {
+      background: var(--emerald-soft);
+      border-left: 4px solid var(--emerald);
+      border-radius: 0 10px 10px 0;
+      padding: 12px 14px;
+      margin-top: 12px;
+    }
+    .answer-label {
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: var(--emerald);
+      margin-bottom: 4px;
+    }
+    .answer-text {
+      font-size: 0.89rem;
+      font-weight: 700;
+      white-space: pre-line;
+    }
+
+    .explain-box {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-top: 10px;
+      font-size: 0.88rem;
+      white-space: pre-line;
+    }
+    .explain-label {
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: var(--aws-amber);
+      margin-bottom: 4px;
+    }
+
+    .kw-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .kw-chip {
+      font-size: 0.72rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+
+    /* Responsive Analytics Table */
+    .table-wrapper {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      overflow: auto;
+      max-inline-size: 100%;
+      container-type: inline-size;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 0.86rem;
+    }
+
+    thead th {
+      position: sticky;
+      inset-block-start: 0;
+      background: var(--bg-elevated);
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      font-weight: 800;
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 2px solid var(--border);
+      z-index: 1;
+    }
+
+    tbody th, tbody td {
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    tbody th {
+      position: sticky;
+      inset-inline-start: 0;
+      background: var(--bg-card);
+      font-weight: 700;
+    }
+
+    @container (width < 640px) {
+      table, thead, tbody, tr, th, td { display: block; }
+      thead { display: none; }
+      tbody tr {
+        margin-block-end: 12px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 8px;
+      }
+      tbody th {
+        position: static;
+        background: var(--bg-elevated);
+        border-radius: 6px;
+        margin-bottom: 6px;
+      }
+      tbody td {
+        border-bottom: 1px dashed var(--border);
+        padding: 6px 8px;
+      }
+      tbody td:last-child { border-bottom: none; }
+      tbody td::before {
+        content: attr(data-label) ": ";
+        font-weight: 700;
+        color: var(--text-muted);
+      }
+    }
+
+    /* Cheat Sheet */
+    .cheat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+      gap: 16px;
+    }
+
+    .cheat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+    }
+
+    .cheat-card h3 {
+      font-size: 0.98rem;
+      font-weight: 800;
+      color: var(--accent);
+      margin-bottom: 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .cheat-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 0.84rem;
+    }
+    .cheat-list li strong { color: var(--aws-amber); }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-top">
+        <div class="brand-wrap">
+          <a class="hub-back" href="../../../index.html">← K-Cert Hub 포털</a>
+          <a class="hub-back" href="../index.html">☁️ AWS 자격 허브</a>
+          <h1 class="brand-title">
+            AWS DVA-C02 개발자 RDB
+            <span class="brand-badge">Associate · 필기 85문항</span>
+          </h1>
+        </div>
+
+        <div class="header-controls">
+          <div class="mode-group" role="group" aria-label="학습 모드 전환">
+            <button type="button" class="mode-btn active" id="mode-solve" onclick="setStudyMode('solve')">✍️ 실전 풀이</button>
+            <button type="button" class="mode-btn" id="mode-study" onclick="setStudyMode('study')">📖 학습/해설</button>
+          </div>
+
+          <div class="timer-box" aria-label="모의고사 타이머">
+            <span>⏱️</span>
+            <span id="timerDisplay" class="timer-display">130:00</span>
+            <button type="button" class="btn-sm" id="timerToggleBtn" onclick="toggleTimer()">시작</button>
+            <button type="button" class="btn-sm" onclick="setTimerPreset(130)">130분</button>
+            <button type="button" class="btn-sm" onclick="setTimerPreset(30)">30분</button>
+            <button type="button" class="btn-sm" onclick="resetTimer()">초기화</button>
+          </div>
+
+          <button type="button" class="btn-sm" id="themeToggleBtn" onclick="toggleColorScheme()" aria-label="라이트/다크 테마 전환">
+            <span class="theme-opt-dark">🌙 다크</span>
+            <span class="theme-opt-light">☀️ 라이트</span>
+          </button>
+        </div>
+      </div>
+
+      <nav class="aws-sibling-nav" aria-label="AWS 자격증 바로가기">
+        <ul>
+          <li><a class="aws-pill" href="../clf-c02/index.html">CLF-C02 (Cloud Practitioner)</a></li>
+          <li><a class="aws-pill" href="../saa-c03/index.html">SAA-C03 (Solutions Architect)</a></li>
+          <li><a class="aws-pill" href="./index.html" aria-current="page">DVA-C02 (Developer Associate)</a></li>
+          <li><a class="aws-pill" href="../soa-c02/index.html">SOA-C02 (SysOps Admin)</a></li>
+          <li><a class="aws-pill" href="../sap-c02/index.html">SAP-C02 (SA Professional)</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- HUD KPI Cards -->
+    <section class="kpi-grid" aria-label="학습 현황 요약">
+      <div class="kpi-card">
+        <div class="kpi-label">전체 문항 &amp; 출처 구성</div>
+        <div class="kpi-val" id="kpiTotal">85문항</div>
+        <div class="kpi-sub" id="kpiSources">공식 Sample PDF 10 + Exam Guide 75</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">풀이 진행률</div>
+        <div class="kpi-val" id="kpiProgress">0 / 85</div>
+        <div class="hud-progress-track"><div class="hud-progress-fill" id="progressBar"></div></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">실전 채점 정답률 &amp; 환산 점수</div>
+        <div class="kpi-val" id="kpiScore">- %</div>
+        <div class="kpi-sub" id="kpiScaled">합격 기준 720 / 1000점</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">오답노트 · 북마크</div>
+        <div class="kpi-val" id="kpiWrongCount">0문항</div>
+        <div class="kpi-sub">틀린 문제 자동/수동 저장 (브라우저 보관)</div>
+      </div>
+    </section>
+
+    <!-- Tab Navigation -->
+    <div class="tab-bar" role="tablist" aria-label="학습 메뉴 탭">
+      <button type="button" role="tab" class="tab-btn" id="tab-questions" aria-selected="true" onclick="switchTab('questions')">📚 문제은행 &amp; 실전 풀이</button>
+      <button type="button" role="tab" class="tab-btn" id="tab-analytics" aria-selected="false" onclick="switchTab('analytics')">📊 도메인 비중 &amp; 출제 분석</button>
+      <button type="button" role="tab" class="tab-btn" id="tab-cheatsheet" aria-selected="false" onclick="switchTab('cheatsheet')">⚡ DVA-C02 개발자 핵심 치트시트</button>
+    </div>
+
+    <!-- Panel 1: Questions -->
+    <section id="panel-questions" role="tabpanel" aria-labelledby="tab-questions">
+      <div class="filter-panel">
+        <div class="filter-group">
+          <label for="filterRound">학습 세트 / 회차</label>
+          <select id="filterRound" onchange="renderQuestions()">
+            <option value="ALL">전체 세트 (85문항)</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="filterDomain">공식 4대 도메인</label>
+          <select id="filterDomain" onchange="renderQuestions()">
+            <option value="ALL">전체 도메인 (100%)</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="filterSource">문항 출처 (Source)</label>
+          <select id="filterSource" onchange="renderQuestions()">
+            <option value="ALL">전체 출처</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="filterWrong">오답노트 / 풀이 상태</label>
+          <select id="filterWrong" onchange="renderQuestions()">
+            <option value="ALL">전체 문항</option>
+            <option value="BOOKMARKED">★ 오답노트/북마크만</option>
+            <option value="UNSOLVED">미풀이 문항만</option>
+            <option value="WRONG">채점 오답 문항만</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="searchInput">키워드 검색 (서비스·에러·YAML)</label>
+          <input type="search" id="searchInput" placeholder="예: Lambda, GSI, KMS, 502, SAM..." oninput="renderQuestions()" />
+        </div>
+      </div>
+
+      <div class="status-bar">
+        <div id="resultCount">데이터 로딩 중...</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button type="button" class="btn-sm" onclick="resetFilters()">필터 초기화</button>
+          <button type="button" class="btn-sm" onclick="resetAllAnswers()">풀이 기록 전체 초기화</button>
+        </div>
+      </div>
+
+      <div id="questionList" class="question-list"></div>
+    </section>
+
+    <!-- Panel 2: Analytics -->
+    <section id="panel-analytics" role="tabpanel" aria-labelledby="tab-analytics" class="hidden">
+      <div tabindex="0" role="region" aria-labelledby="analyticsCaption" class="table-wrapper">
+        <table>
+          <caption id="analyticsCaption" style="text-align:left;font-weight:800;margin-bottom:10px;font-size:0.95rem;">
+            AWS DVA-C02 공식 Exam Guide 도메인별 배점 비중 vs 본 RDB 수록 분포
+          </caption>
+          <thead>
+            <tr>
+              <th>도메인 (Exam Guide)</th>
+              <th>공식 비중</th>
+              <th>수록 문항</th>
+              <th>수록 비율</th>
+              <th>단일 선택</th>
+              <th>복수 선택(2개)</th>
+              <th>공식 PDF</th>
+              <th>Exam Guide 핵심</th>
+            </tr>
+          </thead>
+          <tbody id="analyticsBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Panel 3: Cheat Sheet -->
+    <section id="panel-cheatsheet" role="tabpanel" aria-labelledby="tab-cheatsheet" class="hidden">
+      <div class="cheat-grid">
+        <article class="cheat-card">
+          <h3>⚡ Domain 1 — Lambda · DynamoDB · SQS</h3>
+          <ul class="cheat-list">
+            <li><strong>Lambda 동시성</strong>: Cold Start 제거 = <strong>Provisioned</strong> / 최대 상한 제한 = <strong>Reserved</strong></li>
+            <li><strong>Lambda 크기/시간</strong>: 타임아웃 최대 <strong>15분(900초)</strong>, `/tmp` 512MB~10GB, Layer 최대 5개(합 250MB), 컨테이너 최대 10GB</li>
+            <li><strong>DynamoDB RCU/WCU</strong>: RCU는 <strong>4KB</strong> 올림(Strongly=1 RCU, Eventually=0.5 RCU) / WCU는 <strong>1KB</strong> 올림</li>
+            <li><strong>LSI vs GSI</strong>: LSI(생성 시만, 동일 PK, 10GB 제한) / GSI(언제든 추가, 다른 PK, Eventually Consistent만)</li>
+            <li><strong>SQS 핵심 수치</strong>: 기본 메시지 256KB(대용량 Extended Client S3), Long Polling 최대 20초, DelaySeconds 최대 15분</li>
+          </ul>
+        </article>
+
+        <article class="cheat-card">
+          <h3>🔐 Domain 2 — IAM · KMS · Cognito · Secrets</h3>
+          <ul class="cheat-list">
+            <li><strong>IAM 평가 순서</strong>: Explicit Deny 무조건 우선 → SCP / Permissions Boundary → Allow</li>
+            <li><strong>STS &amp; PassRole</strong>: 서드파티 위임 시 <strong>sts:ExternalId</strong>(Confused Deputy 방지), 서비스에 Role 연결 시 <strong>iam:PassRole</strong></li>
+            <li><strong>KMS 봉투 암호화</strong>: 4KB 초과 데이터는 <strong>GenerateDataKey</strong> 후 암호화 데이터 + 암호화된 데이터 키 함께 저장</li>
+            <li><strong>Secrets Manager vs Parameter Store</strong>: 자동 로테이션(RDS 등) = <strong>Secrets Manager</strong> / 무료 단순·계층 설정 = <strong>Parameter Store</strong></li>
+            <li><strong>Cognito</strong>: 인증/JWT 토큰/Lambda 트리거 = <strong>User Pool</strong> / 임시 AWS IAM 자격증명 교환 = <strong>Identity Pool</strong></li>
+          </ul>
+        </article>
+
+        <article class="cheat-card">
+          <h3>🚀 Domain 3 — SAM · Code* · CFN · Beanstalk</h3>
+          <ul class="cheat-list">
+            <li><strong>SAM 카나리 배포</strong>: `AutoPublishAlias` + `DeploymentPreference` (`Canary10Percent5Minutes`, `PreTraffic`/`PostTraffic`)</li>
+            <li><strong>CodeBuild/CodeDeploy</strong>: `buildspec.yml`(`env.parameter-store`/`secrets-manager`), `appspec.yml`(Lambda/ECS: `BeforeAllowTraffic`/`AfterAllowTraffic`)</li>
+            <li><strong>ECS Role 구분</strong>: 이미지 Pull·로그·Secrets 주입 = <strong>Task Execution Role</strong> / 앱 코드 SDK 호출 = <strong>Task Role</strong></li>
+            <li><strong>Elastic Beanstalk</strong>: 가장 안전한 무중단/즉시 원복 = <strong>Immutable</strong> 또는 <strong>Clone + Swap URLs</strong>; `.platform/hooks/`</li>
+            <li><strong>CloudFormation</strong>: 스택 삭제 시 보존 = `DeletionPolicy: Retain/Snapshot` / 업데이트 교체 방지 = `Stack Policy`</li>
+          </ul>
+        </article>
+
+        <article class="cheat-card">
+          <h3>🔍 Domain 4 — X-Ray · CloudWatch · 캐시 · 에러</h3>
+          <ul class="cheat-list">
+            <li><strong>X-Ray 구분</strong>: 필터 검색 인덱싱 = <strong>Annotations</strong> / 비인덱싱 디버깅 JSON = <strong>Metadata</strong></li>
+            <li><strong>CloudWatch EMF</strong>: `PutMetricData` API 호출 없이 `stdout` JSON 로그로 커스텀 메트릭 추출 (1초 정밀도 `StorageResolution: 1`)</li>
+            <li><strong>DAX vs ElastiCache</strong>: DAX는 마이크로초 캐시이나 `ConsistentRead=True`는 우회; Redis는 Sorted Sets/PubSub/Multi-AZ 지원</li>
+            <li><strong>API Gateway 에러</strong>: <strong>502</strong>(Lambda Proxy JSON 스키마 오류, `body` 문자열 누락) / <strong>504</strong>(29초 타임아웃) / <strong>403</strong>(미배포/경로 오류 `Missing Authentication Token`)</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    let DVA_DATA = null;
+    let STUDY_MODE = 'solve'; // 'solve' | 'study'
+    let WRONG_NOTES = new Set();
+    let USER_ANSWERS = {}; // { [question_id]: { selected: string[], checked: boolean, isCorrect: boolean } }
+
+    let timerSeconds = 130 * 60;
+    let timerPresetSeconds = 130 * 60;
+    let timerInterval = null;
+
+    const WRONG_KEY = 'kcert_aws_dva_c02_wrong_v1';
+    const ANSWERS_KEY = 'kcert_aws_dva_c02_answers_v1';
+
+    function loadState() {
+      try {
+        const rawWrong = localStorage.getItem(WRONG_KEY);
+        if (rawWrong) WRONG_NOTES = new Set(JSON.parse(rawWrong));
+        const rawAns = localStorage.getItem(ANSWERS_KEY);
+        if (rawAns) USER_ANSWERS = JSON.parse(rawAns) || {};
+      } catch (e) {}
+    }
+
+    function saveWrongNotes() {
+      try {
+        localStorage.setItem(WRONG_KEY, JSON.stringify([...WRONG_NOTES]));
+      } catch (e) {}
+      updateHUD();
+    }
+
+    function saveUserAnswers() {
+      try {
+        localStorage.setItem(ANSWERS_KEY, JSON.stringify(USER_ANSWERS));
+      } catch (e) {}
+      updateHUD();
+    }
+
+    function updateHUD() {
+      if (!DVA_DATA) return;
+      const total = DVA_DATA.questions.length;
+      const checkedEntries = Object.values(USER_ANSWERS).filter(a => a && a.checked);
+      const solvedCount = checkedEntries.length;
+      const correctCount = checkedEntries.filter(a => a.isCorrect).length;
+      const pct = solvedCount > 0 ? Math.round((correctCount / solvedCount) * 100) : 0;
+      const scaledScore = solvedCount > 0 ? Math.round(100 + (correctCount / solvedCount) * 900) : null;
+
+      document.getElementById('kpiTotal').textContent = `${total}문항`;
+      document.getElementById('kpiSources').textContent =
+        `공식 PDF ${DVA_DATA.meta.official_pdf_count} + Exam Guide ${DVA_DATA.meta.exam_guide_count}`;
+      document.getElementById('kpiProgress').textContent = `${solvedCount} / ${total}`;
+      document.getElementById('progressBar').style.width = `${total ? Math.round((solvedCount / total) * 100) : 0}%`;
+      document.getElementById('kpiScore').textContent = solvedCount > 0 ? `${pct}% (${correctCount}/${solvedCount})` : '- %';
+      document.getElementById('kpiScaled').textContent =
+        scaledScore !== null
+          ? `예상 환산 ${scaledScore} / 1000 (${scaledScore >= 720 ? '합격권' : '보완 필요'})`
+          : '합격 기준 720 / 1000점';
+      document.getElementById('kpiWrongCount').textContent = `${WRONG_NOTES.size}문항`;
+    }
+
+    function toggleColorScheme() {
+      const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+      document.documentElement.dataset.theme = next;
+      const meta = document.querySelector('meta[name="color-scheme"]');
+      if (meta) meta.content = next;
+      try { localStorage.setItem('kcert_theme', next); } catch (e) {}
+    }
+
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'kcert_theme') {
+        const next = e.newValue === 'dark' ? 'dark' : 'light';
+        document.documentElement.dataset.theme = next;
+        const meta = document.querySelector('meta[name="color-scheme"]');
+        if (meta) meta.content = next;
+      }
+    });
+
+    function setStudyMode(mode) {
+      STUDY_MODE = mode;
+      ['solve', 'study'].forEach(m => {
+        document.getElementById(`mode-${m}`).classList.toggle('active', m === mode);
+      });
+      renderQuestions();
+    }
+
+    function switchTab(tab) {
+      ['questions', 'analytics', 'cheatsheet'].forEach(t => {
+        const btn = document.getElementById(`tab-${t}`);
+        const panel = document.getElementById(`panel-${t}`);
+        const active = t === tab;
+        btn.setAttribute('aria-selected', active ? 'true' : 'false');
+        panel.classList.toggle('hidden', !active);
+      });
+    }
+
+    function renderTimer() {
+      const m = Math.floor(timerSeconds / 60);
+      const s = timerSeconds % 60;
+      document.getElementById('timerDisplay').textContent =
+        `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    function setTimerPreset(mins) {
+      stopTimer();
+      timerPresetSeconds = mins * 60;
+      timerSeconds = timerPresetSeconds;
+      renderTimer();
+    }
+
+    function stopTimer() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+      document.getElementById('timerToggleBtn').textContent = '시작';
+    }
+
+    function toggleTimer() {
+      if (timerInterval) {
+        stopTimer();
+      } else {
+        document.getElementById('timerToggleBtn').textContent = '일시정지';
+        timerInterval = setInterval(() => {
+          if (timerSeconds > 0) {
+            timerSeconds--;
+            renderTimer();
+          } else {
+            stopTimer();
+            alert('설정한 모의고사 시간이 종료되었습니다!');
+          }
+        }, 1000);
+      }
+    }
+
+    function resetTimer() {
+      stopTimer();
+      timerSeconds = timerPresetSeconds;
+      renderTimer();
+    }
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function toggleWrongNote(qid) {
+      if (WRONG_NOTES.has(qid)) WRONG_NOTES.delete(qid);
+      else WRONG_NOTES.add(qid);
+      saveWrongNotes();
+      renderQuestions();
+    }
+
+    function onOptionChange(qid) {
+      if (!DVA_DATA) return;
+      const q = DVA_DATA.questions.find(item => item.question_id === qid);
+      if (!q) return;
+
+      const inputs = document.querySelectorAll(`input[name="q-opt-${qid}"]`);
+      const selected = [];
+      inputs.forEach(inp => {
+        if (inp.checked) selected.push(inp.value);
+      });
+
+      const prev = USER_ANSWERS[qid] || { selected: [], checked: false, isCorrect: false };
+      if (prev.checked) return; // 채점 완료 후에는 다시 풀기 버튼으로 초기화
+      USER_ANSWERS[qid] = { selected, checked: false, isCorrect: false };
+      saveUserAnswers();
+    }
+
+    function checkAnswer(qid) {
+      if (!DVA_DATA) return;
+      const q = DVA_DATA.questions.find(item => item.question_id === qid);
+      if (!q) return;
+
+      const inputs = document.querySelectorAll(`input[name="q-opt-${qid}"]`);
+      const selected = [];
+      inputs.forEach(inp => {
+        if (inp.checked) selected.push(inp.value);
+      });
+
+      if (selected.length === 0) {
+        alert('먼저 보기를 선택해 주세요.');
+        return;
+      }
+      if (q.is_multi_select && selected.length !== q.select_count) {
+        alert(`이 문항은 복수 선택 문항입니다. 정답 ${q.select_count}개를 선택해 주세요.`);
+        return;
+      }
+
+      const sortedSel = [...selected].sort().join(',');
+      const sortedKey = [...q.correct_keys].sort().join(',');
+      const isCorrect = sortedSel === sortedKey;
+
+      USER_ANSWERS[qid] = { selected, checked: true, isCorrect };
+      if (!isCorrect) {
+        WRONG_NOTES.add(qid);
+        saveWrongNotes();
+      }
+      saveUserAnswers();
+      renderQuestions();
+    }
+
+    function resetSingleQuestion(qid) {
+      delete USER_ANSWERS[qid];
+      saveUserAnswers();
+      renderQuestions();
+    }
+
+    function resetAllAnswers() {
+      if (!confirm('모든 실전 풀이 및 채점 기록을 초기화하시겠습니까? (오답노트 북마크는 유지됩니다)')) return;
+      USER_ANSWERS = {};
+      saveUserAnswers();
+      renderQuestions();
+    }
+
+    function resetFilters() {
+      document.getElementById('filterRound').value = 'ALL';
+      document.getElementById('filterDomain').value = 'ALL';
+      document.getElementById('filterSource').value = 'ALL';
+      document.getElementById('filterWrong').value = 'ALL';
+      document.getElementById('searchInput').value = '';
+      renderQuestions();
+    }
+
+    function renderQuestions() {
+      if (!DVA_DATA) return;
+      const fRound = document.getElementById('filterRound').value;
+      const fDomain = document.getElementById('filterDomain').value;
+      const fSource = document.getElementById('filterSource').value;
+      const fWrong = document.getElementById('filterWrong').value;
+      const kw = document.getElementById('searchInput').value.trim().toLowerCase();
+
+      const filtered = DVA_DATA.questions.filter(q => {
+        if (fRound !== 'ALL' && String(q.round_id) !== fRound) return false;
+        if (fDomain !== 'ALL' && String(q.domain_id) !== fDomain) return false;
+        if (fSource !== 'ALL' && q.source !== fSource) return false;
+
+        const ansState = USER_ANSWERS[q.question_id];
+        if (fWrong === 'BOOKMARKED' && !WRONG_NOTES.has(q.question_id)) return false;
+        if (fWrong === 'UNSOLVED' && ansState && ansState.checked) return false;
+        if (fWrong === 'WRONG' && !(ansState && ansState.checked && !ansState.isCorrect)) return false;
+
+        if (kw) {
+          const optsStr = q.options.map(o => `${o.key} ${o.text}`).join(' ');
+          const hay = `${q.round_title} ${q.domain_name} ${q.title} ${q.question_text} ${q.code_or_log} ${optsStr} ${q.core_keywords} ${q.explanation} ${q.source}`.toLowerCase();
+          if (!hay.includes(kw)) return false;
+        }
+        return true;
+      });
+
+      document.getElementById('resultCount').textContent =
+        `검색 결과: ${filtered.length}문항 / 전체 ${DVA_DATA.questions.length}문항`;
+
+      const container = document.getElementById('questionList');
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="q-card" style="text-align:center;color:var(--text-muted);">조건에 일치하는 문항이 없습니다. 필터를 조정해 보세요.</div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(q => {
+        const isSaved = WRONG_NOTES.has(q.question_id);
+        const ansState = USER_ANSWERS[q.question_id] || { selected: [], checked: false, isCorrect: false };
+        const showExplanation = STUDY_MODE === 'study' || ansState.checked;
+        const inputType = q.is_multi_select ? 'checkbox' : 'radio';
+        const isOfficialPdf = q.source === 'AWS Official Sample Questions PDF';
+
+        const keywordsHtml = (q.core_keywords || '').split(',').map(k => k.trim()).filter(Boolean)
+          .map(k => `<span class="kw-chip">#${escapeHtml(k)}</span>`).join('');
+
+        const optionsHtml = q.options.map(opt => {
+          const isSelected = ansState.selected.includes(opt.key);
+          const isKey = q.correct_keys.includes(opt.key);
+          let cls = 'opt-label';
+          if (showExplanation) {
+            if (isKey && (STUDY_MODE === 'study' || isSelected)) {
+              cls += ' opt-correct';
+            } else if (ansState.checked && isSelected && !isKey) {
+              cls += ' opt-wrong';
+            } else if (ansState.checked && isKey && !isSelected) {
+              cls += ' opt-missed';
+            }
+          }
+          const disabledAttr = (STUDY_MODE === 'study' || ansState.checked) ? 'disabled' : '';
+          const checkedAttr = (isSelected || (STUDY_MODE === 'study' && isKey)) ? 'checked' : '';
+          return `
+            <label class="${cls}">
+              <input type="${inputType}" name="q-opt-${q.question_id}" value="${escapeHtml(opt.key)}"
+                     ${checkedAttr} ${disabledAttr} onchange="onOptionChange(${q.question_id})" />
+              <span class="opt-key">${escapeHtml(opt.key)})</span>
+              <span class="opt-text">${escapeHtml(opt.text)}</span>
+            </label>
+          `;
+        }).join('');
+
+        const actionsHtml = STUDY_MODE === 'solve'
+          ? `<div class="solve-actions">
+               ${!ansState.checked
+                 ? `<button type="button" class="btn-primary" onclick="checkAnswer(${q.question_id})">정답 확인</button>`
+                 : `<span class="result-badge ${ansState.isCorrect ? 'correct' : 'wrong'}">
+                      ${ansState.isCorrect ? '✅ 정답입니다!' : `❌ 오답 (정답: ${q.correct_keys.join(', ')})`}
+                    </span>
+                    <button type="button" class="btn-sm" onclick="resetSingleQuestion(${q.question_id})">다시 풀기</button>`
+               }
+             </div>`
+          : '';
+
+        const answerAndExplainHtml = showExplanation
+          ? `<div class="answer-box">
+               <div class="answer-label">✅ 모범 정답 (${escapeHtml(q.correct_keys.join(', '))})</div>
+               <div class="answer-text">${escapeHtml(q.answer_text)}</div>
+               <div class="kw-row">${keywordsHtml}</div>
+             </div>
+             <div class="explain-box">
+               <div class="explain-label">💡 핵심 해설 (AWS DVA-C02 Developer 포인트)</div>
+               <div>${escapeHtml(q.explanation)}</div>
+             </div>`
+          : '';
+
+        return `
+          <article class="q-card" id="q-card-${q.question_id}">
+            <div class="q-meta">
+              <div class="badge-row">
+                <span class="pill pill-round">#${q.question_no} · ${escapeHtml(q.round_title.split('—')[0].trim())}</span>
+                <span class="pill pill-domain">${escapeHtml(q.domain_name)}</span>
+                <span class="pill ${q.is_multi_select ? 'pill-multi' : 'pill-single'}">
+                  ${q.is_multi_select ? `복수선택 (${q.select_count}개)` : '단일선택'}
+                </span>
+                <span class="pill ${isOfficialPdf ? 'pill-source-pdf' : 'pill-source-guide'}">
+                  ${escapeHtml(q.source)}
+                </span>
+              </div>
+              <button type="button" class="bookmark-btn ${isSaved ? 'saved' : ''}" onclick="toggleWrongNote(${q.question_id})">
+                ${isSaved ? '★ 오답노트됨' : '☆ 오답노트'}
+              </button>
+            </div>
+            <h2 class="q-title">Q${q.question_no}. ${escapeHtml(q.title)}</h2>
+            <div class="q-body">${escapeHtml(q.question_text)}</div>
+            ${q.code_or_log ? `<pre class="code-block">${escapeHtml(q.code_or_log)}</pre>` : ''}
+            <div class="options-list">${optionsHtml}</div>
+            ${actionsHtml}
+            ${answerAndExplainHtml}
+          </article>
+        `;
+      }).join('');
+    }
+
+    function renderAnalytics() {
+      if (!DVA_DATA) return;
+      const tbody = document.getElementById('analyticsBody');
+      tbody.innerHTML = DVA_DATA.analytics.map(a => `
+        <tr>
+          <th scope="row">${escapeHtml(a.domain_name)}</th>
+          <td data-label="공식 비중">${a.weight_pct}%</td>
+          <td data-label="수록 문항">${a.total_questions}문항</td>
+          <td data-label="수록 비율">${a.share_pct}%</td>
+          <td data-label="단일 선택">${a.single_count}문항</td>
+          <td data-label="복수 선택">${a.multi_count}문항</td>
+          <td data-label="공식 PDF">${a.official_pdf_count}문항</td>
+          <td data-label="Exam Guide 핵심">${a.guide_core_count}문항</td>
+        </tr>
+      `).join('');
+    }
+
+    async function initApp() {
+      loadState();
+      try {
+        const res = await fetch('./data/dva_c02_rdb_export.json');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        DVA_DATA = await res.json();
+
+        const roundSel = document.getElementById('filterRound');
+        DVA_DATA.rounds.forEach(r => {
+          const opt = document.createElement('option');
+          opt.value = r.round_id;
+          opt.textContent = r.round_title;
+          roundSel.appendChild(opt);
+        });
+
+        const domSel = document.getElementById('filterDomain');
+        DVA_DATA.domains.forEach(d => {
+          const opt = document.createElement('option');
+          opt.value = d.domain_id;
+          opt.textContent = d.domain_name;
+          domSel.appendChild(opt);
+        });
+
+        const srcSel = document.getElementById('filterSource');
+        DVA_DATA.meta.sources.forEach(s => {
+          const opt = document.createElement('option');
+          opt.value = s;
+          opt.textContent = s;
+          srcSel.appendChild(opt);
+        });
+
+        updateHUD();
+        renderQuestions();
+        renderAnalytics();
+      } catch (err) {
+        document.getElementById('questionList').innerHTML =
+          `<div class="q-card" style="color:var(--rose);">데이터 로드 실패: 로컬 서버(node server.js) 또는 GitHub Pages 환경에서 열어주세요. (${escapeHtml(err.message)})</div>`;
+      }
+    }
+
+    initApp();
+  </script>
+</body>
+</html>

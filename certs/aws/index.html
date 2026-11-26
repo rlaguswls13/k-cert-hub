@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light dark" />
+  <script>
+    try {
+      const saved = localStorage.getItem('kcert_theme');
+      const scheme = saved === 'dark' ? 'dark' : 'light';
+      document.documentElement.dataset.theme = scheme;
+      document.querySelector('meta[name="color-scheme"]').content = scheme;
+    } catch (e) {
+      document.documentElement.dataset.theme = 'light';
+    }
+  </script>
+  <title>AWS 클라우드 자격증 통합 허브 (1레벨 · 대표 5종) — K-Cert Hub</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg-main: #f6f5f0;
+      --bg-card: #ffffff;
+      --bg-elevated: #efece6;
+      --bg-input: #fcfbf8;
+      --text-main: #1f2933;
+      --text-secondary: #374151;
+      --text-muted: #525c68;
+      --border: #d8d5cc;
+      --border-strong: #bdb8ac;
+      --accent: #b45309;
+      --accent-hover: #92400e;
+      --accent-soft: #fffbeb;
+      --accent-border: #fde68a;
+      --blue: #1d4ed8;
+      --blue-soft: #eff6ff;
+      --blue-border: #bfdbfe;
+      --teal: #0f766e;
+      --teal-soft: #f0fdfa;
+      --teal-border: #99f6e4;
+      --purple: #6d28d9;
+      --purple-soft: #f5f3ff;
+      --purple-border: #ddd6fe;
+      --shadow-sm: 0 1px 3px rgba(31, 41, 51, 0.06);
+      --shadow-md: 0 8px 20px rgba(31, 41, 51, 0.08);
+    }
+
+    :root[data-theme="dark"],
+    :root:has(> head > meta[name="color-scheme"][content="dark"]) {
+      color-scheme: dark;
+      --bg-main: #141820;
+      --bg-card: #1c222d;
+      --bg-elevated: #242b38;
+      --bg-input: #171c26;
+      --text-main: #eaeff5;
+      --text-secondary: #cbd5e1;
+      --text-muted: #9aa5b5;
+      --border: #323c4e;
+      --border-strong: #475569;
+      --accent: #fbbf24;
+      --accent-hover: #fcd34d;
+      --accent-soft: rgba(245, 158, 11, 0.16);
+      --accent-border: rgba(251, 191, 36, 0.35);
+      --blue: #60a5fa;
+      --blue-soft: rgba(59, 130, 246, 0.16);
+      --blue-border: rgba(96, 165, 250, 0.35);
+      --teal: #5eead4;
+      --teal-soft: rgba(20, 184, 166, 0.16);
+      --teal-border: rgba(94, 234, 212, 0.35);
+      --purple: #c4b5fd;
+      --purple-soft: rgba(139, 92, 246, 0.16);
+      --purple-border: rgba(196, 181, 253, 0.35);
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.65;
+      padding-bottom: 64px;
+    }
+
+    :focus-visible {
+      outline: 2px solid var(--blue);
+      outline-offset: 2px;
+    }
+
+    .skip-link {
+      position: absolute;
+      inset-inline-start: -9999px;
+      background: var(--blue);
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-weight: 700;
+      z-index: 200;
+    }
+    .skip-link:focus { inset-inline-start: 16px; inset-block-start: 12px; }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      padding: 14px 20px;
+    }
+    .header-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .brand-group { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+    .back-link {
+      text-decoration: none;
+      background: var(--bg-elevated);
+      color: var(--text-main);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      transition: border-color 0.15s;
+    }
+    .back-link:hover { border-color: var(--accent); color: var(--accent); }
+    h1 { font-size: 1.15rem; font-weight: 800; letter-spacing: -0.02em; }
+    .sub-caption { font-size: 0.78rem; color: var(--text-muted); }
+
+    .nav-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+    .pill-btn {
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .pill-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .theme-opt-light { display: none; }
+    .theme-opt-dark { display: inline; }
+    :root[data-theme="dark"] .theme-opt-light { display: inline; }
+    :root[data-theme="dark"] .theme-opt-dark { display: none; }
+
+    main {
+      max-width: 1280px;
+      margin: 22px auto 0;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px;
+    }
+    .kpi-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .kpi-label { font-size: 0.76rem; font-weight: 700; color: var(--text-muted); }
+    .kpi-val { font-size: 1.5rem; font-weight: 800; color: var(--text-main); }
+    .kpi-sub { font-size: 0.75rem; color: var(--text-muted); }
+
+    .roadmap-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .roadmap-tier {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .tier-badge {
+      display: inline-block;
+      width: fit-content;
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+    .tier-foundational { background: var(--teal-soft); color: var(--teal); border: 1px solid var(--teal-border); }
+    .tier-associate { background: var(--blue-soft); color: var(--blue); border: 1px solid var(--blue-border); }
+    .tier-professional { background: var(--purple-soft); color: var(--purple); border: 1px solid var(--purple-border); }
+
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .filter-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+    .filter-pill {
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      color: var(--text-secondary);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .filter-pill[aria-pressed="true"] {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .cert-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 16px;
+    }
+    .cert-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 14px;
+      box-shadow: var(--shadow-sm);
+    }
+    .cert-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+    .cert-code { font-size: 0.85rem; font-weight: 800; color: var(--accent); }
+    .cert-title { font-size: 1.05rem; font-weight: 800; color: var(--text-main); margin-top: 2px; }
+    .cert-ko { font-size: 0.82rem; font-weight: 600; color: var(--text-muted); }
+    .cert-meta {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .cert-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag {
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+    }
+    .cert-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+    .launch-btn {
+      text-decoration: none;
+      background: var(--blue);
+      color: #ffffff;
+      border-radius: 9px;
+      padding: 8px 14px;
+      font-size: 0.8rem;
+      font-weight: 800;
+    }
+    .launch-btn:hover { opacity: 0.92; }
+
+    /* Search UI */
+    .search-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .search-input {
+      flex: 1;
+      min-width: 220px;
+      padding: 9px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      color: var(--text-main);
+      font-size: 0.85rem;
+    }
+    .search-select {
+      padding: 9px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      color: var(--text-main);
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+    .search-results {
+      margin-top: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .result-item {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .result-item pre {
+      white-space: pre-wrap;
+      font-family: inherit;
+      font-size: 0.82rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px;
+      color: var(--text-main);
+    }
+    details.ans-box {
+      background: var(--teal-soft);
+      border: 1px solid var(--teal-border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 0.8rem;
+    }
+    details.ans-box summary { cursor: pointer; font-weight: 700; color: var(--teal); }
+    .ans-body { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--teal-border); white-space: pre-wrap; }
+
+    /* Responsive table */
+    .table-wrapper {
+      overflow: auto;
+      max-inline-size: 100%;
+      container-type: inline-size;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-top: 10px;
+    }
+    table.cmp-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.8rem; }
+    .cmp-table thead { background: var(--bg-elevated); }
+    .cmp-table th, .cmp-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+    .cmp-table th { font-weight: 800; color: var(--text-muted); }
+    @container (width < 640px) {
+      .cmp-table, .cmp-table thead, .cmp-table tbody, .cmp-table tr, .cmp-table th, .cmp-table td { display: block; }
+      .cmp-table thead { display: none; }
+      .cmp-table tr { border-bottom: 2px solid var(--border); padding: 8px; }
+      .cmp-table td::before { font-weight: 700; color: var(--text-muted); margin-right: 6px; }
+      .cmp-table td:nth-of-type(1)::before { content: "레벨:"; }
+      .cmp-table td:nth-of-type(2)::before { content: "시간/문항:"; }
+      .cmp-table td:nth-of-type(3)::before { content: "합격기준:"; }
+      .cmp-table td:nth-of-type(4)::before { content: "수록문항:"; }
+      .cmp-table td:nth-of-type(5)::before { content: "핵심 영역:"; }
+    }
+  </style>
+</head>
+<body>
+  <a href="#main-heading" class="skip-link">본문으로 바로가기</a>
+
+  <header>
+    <div class="header-inner">
+      <div class="brand-group">
+        <a href="../../index.html" class="back-link">← K-Cert Hub</a>
+        <div>
+          <h1>☁️ AWS 클라우드 자격증 통합 허브 (1레벨 · 대표 5종)</h1>
+          <div class="sub-caption">Foundational(CLF-C02) · Associate(SAA-C03 · DVA-C02 · SOA-C02) · Professional(SAP-C02)</div>
+        </div>
+      </div>
+      <div class="nav-actions">
+        <button type="button" id="themeToggleBtn" class="pill-btn" aria-label="화면 테마 전환">
+          <span class="theme-opt-dark">🌙 다크 모드</span>
+          <span class="theme-opt-light">☀️ 밝은 학습 모드</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="kpi-grid" aria-label="AWS 자격증 현황">
+      <div class="kpi-box">
+        <span class="kpi-label">1레벨 하위 구성</span>
+        <span class="kpi-val">대표 5종</span>
+        <span class="kpi-sub">Foundational 1 · Associate 3 · Professional 1</span>
+      </div>
+      <div class="kpi-box">
+        <span class="kpi-label">총 수록 기출·실전 문항</span>
+        <span class="kpi-val" id="awsTotalCount">565문항</span>
+        <span class="kpi-sub" id="awsSourceSummary">공식 Sample PDF + MIT 오픈뱅크 + 시나리오</span>
+      </div>
+      <div class="kpi-box">
+        <span class="kpi-label">시험 방식</span>
+        <span class="kpi-val">Pearson VUE</span>
+        <span class="kpi-sub">상시 CBT 응시 (1000점 척도 평가)</span>
+      </div>
+      <div class="kpi-box">
+        <span class="kpi-label">학습 기능</span>
+        <span class="kpi-val">실전 CBT</span>
+        <span class="kpi-sub">단일·복수 선택(Select TWO) 즉시 채점 &amp; 오답노트</span>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="main-heading">
+      <h2 id="main-heading" tabindex="-1" style="font-size:1.02rem; font-weight:800;">🧭 AWS 자격증 3단계 취득 테크트리</h2>
+      <div class="roadmap-row">
+        <div class="roadmap-tier">
+          <span class="tier-badge tier-foundational">Step 1 · Foundational</span>
+          <strong>CLF-C02 (Cloud Practitioner)</strong>
+          <p class="sub-caption">클라우드 개념, 공동 책임 모델, 핵심 서비스, 과금/요금 구조(TCO) 입문. 합격 700점.</p>
+        </div>
+        <div class="roadmap-tier">
+          <span class="tier-badge tier-associate">Step 2 · Associate 3종</span>
+          <strong>SAA-C03 · DVA-C02 · SOA-C02</strong>
+          <p class="sub-caption">아키텍처 설계(SAA) ➔ 서버리스·CI/CD 개발(DVA) ➔ CloudWatch·SSM·네트워크 운영(SOA)으로 실무 역량 확장. 합격 720점.</p>
+        </div>
+        <div class="roadmap-tier">
+          <span class="tier-badge tier-professional">Step 3 · Professional</span>
+          <strong>SAP-C02 (Solutions Architect Pro)</strong>
+          <p class="sub-caption">Organizations·Control Tower·Direct Connect·DR RPO/RTO·대규모 마이그레이션 엔터프라이즈 설계 완성. 합격 750점.</p>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="certs-heading">
+      <div class="filter-bar">
+        <h2 id="certs-heading" style="font-size:1.05rem; font-weight:800;">📚 AWS 2레벨 개별 자격증 RDB 학습관 (5종)</h2>
+        <div class="filter-pills" role="group" aria-label="AWS 난이도 필터">
+          <button type="button" class="filter-pill" data-tier="ALL" aria-pressed="true">전체 (5종)</button>
+          <button type="button" class="filter-pill" data-tier="Foundational" aria-pressed="false">Foundational (1)</button>
+          <button type="button" class="filter-pill" data-tier="Associate" aria-pressed="false">Associate (3)</button>
+          <button type="button" class="filter-pill" data-tier="Professional" aria-pressed="false">Professional (1)</button>
+        </div>
+      </div>
+      <div id="awsCertGrid" class="cert-grid"></div>
+    </section>
+
+    <section class="card" aria-labelledby="search-heading">
+      <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px;">
+        <div>
+          <h2 id="search-heading" style="font-size:1.02rem; font-weight:800;">🔍 AWS 5종 통합 문항 검색</h2>
+          <p class="sub-caption">VPC, IAM, S3, Lambda, CloudFront, Direct Connect, Organizations 등 키워드로 5종 전체를 가로질러 검색하세요.</p>
+        </div>
+        <span id="awsSearchBadge" class="tag">로딩 중...</span>
+      </div>
+      <div class="search-controls">
+        <label for="awsSearchInput" class="skip-link">AWS 통합 검색</label>
+        <input type="search" id="awsSearchInput" class="search-input" placeholder="서비스 또는 시나리오 검색 (예: NAT Gateway, DynamoDB, KMS, Organizations, BGP...)" />
+        <select id="awsCodeFilter" class="search-select" aria-label="AWS 자격 코드 필터">
+          <option value="ALL">전체 5종 (CLF/SAA/DVA/SOA/SAP)</option>
+          <option value="CLF-C02">CLF-C02 (Cloud Practitioner)</option>
+          <option value="SAA-C03">SAA-C03 (Solutions Architect Assoc.)</option>
+          <option value="DVA-C02">DVA-C02 (Developer Assoc.)</option>
+          <option value="SOA-C02">SOA-C02 (SysOps Admin Assoc.)</option>
+          <option value="SAP-C02">SAP-C02 (Solutions Architect Pro)</option>
+        </select>
+        <select id="awsSourceFilter" class="search-select" aria-label="AWS 출처 필터">
+          <option value="ALL">모든 출처</option>
+          <option value="PDF">공식 Sample PDF만</option>
+          <option value="MIT">MIT 오픈 문제은행</option>
+          <option value="GUIDE">공식 Exam Guide 시나리오</option>
+        </select>
+      </div>
+      <div id="awsSearchResults" class="search-results"></div>
+    </section>
+
+    <section class="card" aria-labelledby="compare-heading">
+      <h2 id="compare-heading" style="font-size:1.02rem; font-weight:800;">📊 AWS 대표 5종 시험 스펙 비교표</h2>
+      <div class="table-wrapper" tabindex="0" role="region" aria-labelledby="compare-heading">
+        <table class="cmp-table">
+          <thead>
+            <tr>
+              <th>자격증 (코드)</th>
+              <th>레벨</th>
+              <th>문항 / 시간</th>
+              <th>합격 기준</th>
+              <th>수록 문항</th>
+              <th>핵심 출제 서비스</th>
+            </tr>
+          </thead>
+          <tbody id="awsCompareBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const AWS_CERTS = [
+      {
+        code: 'CLF-C02',
+        id: 'aws-clf-c02',
+        name: 'AWS Certified Cloud Practitioner',
+        koName: '클라우드 프랙티셔너',
+        level: 'Foundational',
+        duration: '65문항 · 90분',
+        pass: '700 / 1000점',
+        url: './clf-c02/index.html',
+        json: './clf-c02/data/clf_c02_rdb_export.json',
+        defaultCount: 140,
+        sourceSummary: '공식 Sample PDF 10 + CloudCertPrep(MIT) 130',
+        tags: ['AWS CAF', '공동 책임 모델', '요금 계산기', 'EC2/S3/IAM', 'Trusted Advisor'],
+        summary: 'AWS 클라우드의 전반적인 개념, 6대 이점, 보안·규정 준수, 핵심 서비스 및 결제·지원 플랜을 다루는 입문 자격.'
+      },
+      {
+        code: 'SAA-C03',
+        id: 'aws-saa-c03',
+        name: 'AWS Certified Solutions Architect - Associate',
+        koName: '솔루션스 아키텍트 어소시에이트',
+        level: 'Associate',
+        duration: '65문항 · 130분',
+        pass: '720 / 1000점',
+        url: './saa-c03/index.html',
+        json: './saa-c03/data/saa_c03_rdb_export.json',
+        defaultCount: 150,
+        sourceSummary: '공식 Sample PDF 10 + CloudCertPrep/Power-xc(MIT) 140',
+        tags: ['VPC/NAT/Transit GW', 'S3/EFS/FSx', 'RDS Multi-AZ', 'ALB/ASG', '비용 최적화'],
+        summary: '보안·복원력·고성능·비용 최적화된 AWS 아키텍처 설계 역량을 검증하는 AWS 대표 인기 자격.'
+      },
+      {
+        code: 'DVA-C02',
+        id: 'aws-dva-c02',
+        name: 'AWS Certified Developer - Associate',
+        koName: '디벨로퍼 어소시에이트',
+        level: 'Associate',
+        duration: '65문항 · 130분',
+        pass: '720 / 1000점',
+        url: './dva-c02/index.html',
+        json: './dva-c02/data/dva_c02_rdb_export.json',
+        defaultCount: 85,
+        sourceSummary: '공식 Sample PDF 10 + DVA Exam Guide 도메인 75',
+        tags: ['Lambda/SAM', 'API Gateway', 'DynamoDB GSI/RCU', 'CodeDeploy/CI·CD', 'Cognito/X-Ray'],
+        summary: '서버리스(Lambda, API GW, DynamoDB), CI/CD(CodePipeline/SAM), KMS·STS 보안 개발 및 X-Ray 디버깅 역량 검증.'
+      },
+      {
+        code: 'SOA-C02',
+        id: 'aws-soa-c02',
+        name: 'AWS Certified SysOps Administrator - Associate',
+        koName: '시스옵스 어드미니스트레이터 어소시에이트',
+        level: 'Associate',
+        duration: '65문항 · 130분',
+        pass: '720 / 1000점',
+        url: './soa-c02/index.html',
+        json: './soa-c02/data/soa_c02_rdb_export.json',
+        defaultCount: 100,
+        sourceSummary: '공식 Sample PDF 10 + MIT Open Bank 60 + Exam Guide 30',
+        tags: ['CloudWatch/OAM', 'Systems Manager', 'Route 53/Failover', 'VPC Flow Logs', 'Backup/Config'],
+        summary: '모니터링·로깅·자동 복구(EventBridge/SSM), 고가용성 운영, 네트워크 트러블슈팅 및 비용·성능 최적화 검증.'
+      },
+      {
+        code: 'SAP-C02',
+        id: 'aws-sap-c02',
+        name: 'AWS Certified Solutions Architect - Professional',
+        koName: '솔루션스 아키텍트 프로페셔널',
+        level: 'Professional',
+        duration: '75문항 · 180분',
+        pass: '750 / 1000점',
+        url: './sap-c02/index.html',
+        json: './sap-c02/data/sap_c02_rdb_export.json',
+        defaultCount: 90,
+        sourceSummary: '공식 Sample PDF 10 + SAP Exam Guide 시나리오 80',
+        tags: ['Organizations/SCP', 'Control Tower', 'Direct Connect+BGP', 'DR RPO/RTO', 'MGN/DMS 7Rs'],
+        summary: '멀티 어카운트 거버넌스, 하이브리드 네트워킹, 글로벌 DR, 레거시 대규모 마이그레이션을 다루는 최상위 아키텍트 자격.'
+      }
+    ];
+
+    let activeTier = 'ALL';
+    let loadedCounts = {};
+    let awsQuestionIndex = [];
+
+    function escapeHtml(str) {
+      return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function applyTheme(next) {
+      document.documentElement.dataset.theme = next;
+      const meta = document.querySelector('meta[name="color-scheme"]');
+      if (meta) meta.content = next;
+    }
+
+    document.getElementById('themeToggleBtn').addEventListener('click', () => {
+      const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+      applyTheme(next);
+      try { localStorage.setItem('kcert_theme', next); } catch (e) {}
+    });
+
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'kcert_theme') {
+        applyTheme(e.newValue === 'dark' ? 'dark' : 'light');
+      }
+    });
+
+    document.querySelectorAll('.filter-pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        activeTier = btn.dataset.tier;
+        document.querySelectorAll('.filter-pill').forEach(b => {
+          b.setAttribute('aria-pressed', String(b === btn));
+        });
+        renderCertCards();
+      });
+    });
+
+    function getTierClass(level) {
+      if (level === 'Foundational') return 'tier-foundational';
+      if (level === 'Professional') return 'tier-professional';
+      return 'tier-associate';
+    }
+
+    function renderCertCards() {
+      const grid = document.getElementById('awsCertGrid');
+      const items = AWS_CERTS.filter(c => activeTier === 'ALL' || c.level === activeTier);
+      grid.innerHTML = items.map(c => {
+        const cnt = loadedCounts[c.code] ?? c.defaultCount;
+        return `
+          <article class="cert-card">
+            <div>
+              <div class="cert-head">
+                <div>
+                  <div class="cert-code">${escapeHtml(c.code)}</div>
+                  <div class="cert-title">${escapeHtml(c.name)}</div>
+                  <div class="cert-ko">${escapeHtml(c.koName)}</div>
+                </div>
+                <span class="tier-badge ${getTierClass(c.level)}">${escapeHtml(c.level)}</span>
+              </div>
+              <p style="font-size:0.82rem; color:var(--text-secondary); margin-top:10px;">${escapeHtml(c.summary)}</p>
+            </div>
+            <div class="cert-meta">
+              <div><strong>시험 스펙:</strong> ${escapeHtml(c.duration)} · 합격 ${escapeHtml(c.pass)}</div>
+              <div><strong>수록 현황:</strong> ${cnt}문항 (${escapeHtml(c.sourceSummary)})</div>
+            </div>
+            <div class="cert-tags">
+              ${c.tags.map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join('')}
+            </div>
+            <div class="cert-actions">
+              <span class="sub-caption">2레벨 전용 RDB CBT</span>
+              <a href="${escapeHtml(c.url)}" class="launch-btn">${escapeHtml(c.code)} 학습관 열기 →</a>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    function renderCompareTable() {
+      const tbody = document.getElementById('awsCompareBody');
+      tbody.innerHTML = AWS_CERTS.map(c => {
+        const cnt = loadedCounts[c.code] ?? c.defaultCount;
+        return `
+          <tr>
+            <th><a href="${escapeHtml(c.url)}" style="color:var(--blue); text-decoration:none; font-weight:800;">${escapeHtml(c.code)}</a><br><span class="sub-caption">${escapeHtml(c.koName)}</span></th>
+            <td><span class="tier-badge ${getTierClass(c.level)}">${escapeHtml(c.level)}</span></td>
+            <td>${escapeHtml(c.duration)}</td>
+            <td>${escapeHtml(c.pass)}</td>
+            <td><strong>${cnt}문항</strong></td>
+            <td>${escapeHtml(c.tags.join(', '))}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderSearchResults() {
+      const q = (document.getElementById('awsSearchInput').value || '').trim().toLowerCase();
+      const codeScope = document.getElementById('awsCodeFilter').value;
+      const srcScope = document.getElementById('awsSourceFilter').value;
+      const container = document.getElementById('awsSearchResults');
+      const badge = document.getElementById('awsSearchBadge');
+
+      const matches = awsQuestionIndex.filter(item => {
+        if (codeScope !== 'ALL' && item.code !== codeScope) return false;
+        if (srcScope === 'PDF' && !item.source.includes('PDF')) return false;
+        if (srcScope === 'MIT' && !item.source.includes('MIT')) return false;
+        if (srcScope === 'GUIDE' && !item.source.includes('Exam Guide')) return false;
+        if (!q) return true;
+        return item.haystack.includes(q);
+      });
+
+      badge.textContent = `검색 ${matches.length}건 (총 ${awsQuestionIndex.length}문항 중 상위 30건 표시)`;
+      const sliced = matches.slice(0, 30);
+      if (!sliced.length) {
+        container.innerHTML = '<div class="result-item">일치하는 문항이 없습니다. 다른 서비스 키워드로 검색해 보세요.</div>';
+        return;
+      }
+
+      container.innerHTML = sliced.map(item => `
+        <article class="result-item">
+          <div style="display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px; align-items:center;">
+            <div style="display:flex; flex-wrap:wrap; gap:6px; align-items:center;">
+              <span class="tier-badge ${getTierClass(item.level)}">${escapeHtml(item.code)}</span>
+              <span class="tag">${escapeHtml(item.domain)}</span>
+              <span class="tag">${escapeHtml(item.source)}</span>
+            </div>
+            <a href="${escapeHtml(item.url)}" style="font-size:0.78rem; font-weight:800; color:var(--blue); text-decoration:none;">전용 RDB에서 풀기 →</a>
+          </div>
+          <h3 style="font-size:0.9rem; font-weight:800;">${escapeHtml(item.title)}</h3>
+          <pre>${escapeHtml(item.question.slice(0, 420))}${item.question.length > 420 ? '...' : ''}</pre>
+          <details class="ans-box">
+            <summary>✅ 정답 및 해설 확인</summary>
+            <div class="ans-body"><strong>[정답]</strong> ${escapeHtml(item.answer)}\n\n${escapeHtml(item.explanation)}</div>
+          </details>
+        </article>
+      `).join('');
+    }
+
+    async function initAwsHub() {
+      renderCertCards();
+      renderCompareTable();
+
+      const results = await Promise.all(
+        AWS_CERTS.map(c => fetch(c.json).then(r => r.ok ? r.json() : null).catch(() => null))
+      );
+
+      let total = 0;
+      awsQuestionIndex = [];
+      results.forEach((data, idx) => {
+        const c = AWS_CERTS[idx];
+        const qs = (data && Array.isArray(data.questions)) ? data.questions : [];
+        if (qs.length) {
+          loadedCounts[c.code] = qs.length;
+          total += qs.length;
+          qs.forEach(q => {
+            const title = q.title || '';
+            const question = [q.question_text, q.architecture_context, q.code_or_log].filter(Boolean).join('\n\n');
+            const answer = q.answer_text || '';
+            const explanation = q.explanation || '';
+            const domain = q.domain_name || '';
+            const source = q.source || '';
+            const keywords = q.core_keywords || q.keywords || '';
+            awsQuestionIndex.push({
+              code: c.code,
+              level: c.level,
+              domain,
+              source,
+              title,
+              question,
+              answer,
+              explanation,
+              url: c.url,
+              haystack: `${c.code} ${c.level} ${domain} ${source} ${title} ${question} ${answer} ${explanation} ${keywords}`.toLowerCase()
+            });
+          });
+        } else {
+          total += c.defaultCount;
+        }
+      });
+
+      document.getElementById('awsTotalCount').textContent = `${total}문항`;
+      renderCertCards();
+      renderCompareTable();
+      renderSearchResults();
+    }
+
+    document.getElementById('awsSearchInput').addEventListener('input', renderSearchResults);
+    document.getElementById('awsCodeFilter').addEventListener('change', renderSearchResults);
+    document.getElementById('awsSourceFilter').addEventListener('change', renderSearchResults);
+
+    initAwsHub();
+  </script>
+</body>
+</html>

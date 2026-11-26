@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="color-scheme" content="light" />
+  <meta name="color-scheme" content="light dark" />
   <script>
     try {
       const saved = localStorage.getItem('kcert_theme');
@@ -267,6 +267,12 @@
     .b-p234 { background: var(--purple-soft); color: var(--purple); }
     .b-domain { background: var(--accent-soft); color: var(--accent); }
     .b-format { background: var(--green-soft); color: var(--green); }
+    .b-source-curated { background: var(--accent-soft); color: var(--accent); border: 1px solid var(--accent); }
+    .b-source-pub { background: var(--bg-elevated); color: var(--text-muted); border: 1px solid var(--border); }
+    :where(a:any-link, button, select, input, textarea):focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
     .q-title {
       font-size: 1.08rem;
       font-weight: 800;
@@ -423,7 +429,7 @@
       </div>
       <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
         <a href="../eip/index.html" style="color:var(--text-main); text-decoration:none; padding:4px 9px; border-radius:7px; background:var(--bg-card); border:1px solid var(--border);">💻 정보처리기사 실기 (400)</a>
-        <a href="../itpe/index.html" style="color:var(--accent); font-weight:700; text-decoration:none; padding:4px 9px; border-radius:7px; background:var(--bg-card); border:1px solid var(--accent);">🏛️ 정보관리기술사 필기 (122)</a>
+        <a href="../itpe/index.html" style="color:var(--accent); font-weight:700; text-decoration:none; padding:4px 9px; border-radius:7px; background:var(--bg-card); border:1px solid var(--accent);">🏛️ 정보관리기술사 필기 (<span id="navItpeCount">670+20</span>)</a>
         <a href="../isec/index.html" style="color:var(--text-main); text-decoration:none; padding:4px 9px; border-radius:7px; background:var(--bg-card); border:1px solid var(--border);">🛡️ 정보보안기사 실기 (75)</a>
         <a href="../../index.html#section-community" style="color:var(--text-main); text-decoration:none; padding:4px 9px; border-radius:7px; background:var(--bg-card); border:1px solid var(--border);">💬 정보공유 라운지</a>
       </div>
@@ -465,6 +471,7 @@
 
     <div class="score-banner">
       <div class="score-stats">
+        <span>🔎 표시 중: <strong id="statFiltered" style="color:var(--accent)">0</strong> / <span id="statTotalBanner">0</span>문항</span>
         <span>✅ 서브노트 숙지 완료: <strong id="statMastered" style="color:var(--green)">0</strong>문항</span>
         <span>⚠️ 서브노트 보완 필요: <strong id="statReview" style="color:var(--rose)">0</strong>문항</span>
         <span>📝 내 목차 초안 작성: <strong id="statDrafted" style="color:var(--amber)">0</strong>문항</span>
@@ -479,23 +486,27 @@
     <section id="tab-bank">
       <div class="filter-grid">
         <div class="filter-item">
-          <label>시행 회차 (제120회~제140회)</label>
+          <label for="selRound">시행 회차 (제120회~제140회)</label>
           <select id="selRound" onchange="renderQuestions()"><option value="ALL">전체 회차 (2020~2026년)</option></select>
         </div>
         <div class="filter-item">
-          <label>교시 및 배점 구분 (카테고리2)</label>
+          <label for="selPeriod">교시 및 배점 구분 (카테고리2)</label>
           <select id="selPeriod" onchange="renderQuestions()"><option value="ALL">전체 교시 (1교시 10점 + 2~4교시 25점)</option></select>
         </div>
         <div class="filter-item">
-          <label>8대 핵심 기술 도메인 (카테고리1)</label>
+          <label for="selDomain">8대 핵심 기술 도메인 (카테고리1)</label>
           <select id="selDomain" onchange="renderQuestions()"><option value="ALL">전체 8대 기술 도메인</option></select>
         </div>
         <div class="filter-item">
-          <label>세부 출제 방식</label>
+          <label for="selFormat">세부 출제 방식</label>
           <select id="selFormat" onchange="renderQuestions()"><option value="ALL">전체 출제 방식</option></select>
         </div>
         <div class="filter-item">
-          <label>토픽·키워드·해설 통합 검색 (단축키 /)</label>
+          <label for="selSource">수록 출처 구분</label>
+          <select id="selSource" onchange="renderQuestions()"><option value="ALL">전체 출처 (정밀 서브노트 + 공개 기출)</option></select>
+        </div>
+        <div class="filter-item">
+          <label for="inpSearch">토픽·키워드·해설 통합 검색 (단축키 /)</label>
           <input type="text" id="inpSearch" placeholder="예: RAG, 비인간 신원, 투명성, WBS, 동형암호..." oninput="renderQuestions()" />
         </div>
       </div>
@@ -538,10 +549,10 @@
         </p>
         <table class="comp-table">
           <thead>
-            <tr><th>HTTP Method & Endpoint</th><th>연동 SQL View / 테이블</th><th>설명</th></tr>
+            <tr><th scope="col">HTTP Method &amp; Endpoint</th><th scope="col">연동 SQL View / 테이블</th><th scope="col">설명</th></tr>
           </thead>
           <tbody>
-            <tr><td><a href="./data/itpe_rdb_export.json" target="_blank" style="color:var(--accent)">GET ./data/itpe_rdb_export.json (또는 /api/init)</a></td><td>전체 RDB 초기 로드</td><td>21개 회차, 8대 도메인 통계, 기출 서브노트, 예상 20선 통합 JSON</td></tr>
+            <tr><td><a href="./data/itpe_rdb_export.json" target="_blank" style="color:var(--accent)">GET ./data/itpe_rdb_export.json (또는 /api/init)</a></td><td>전체 RDB 초기 로드</td><td>21개 전 회차(제120~140회), 8대 도메인 통계, 전체 기출 + 정밀 4단 서브노트, 예상 20선 통합 JSON</td></tr>
             <tr><td><a href="./data/schema_and_data.sql" download="schema_and_data.sql" style="color:var(--accent)">GET ./data/schema_and_data.sql</a></td><td>SQLite DDL &amp; INSERT</td><td>정규화 RDB 스키마, 3대 학습 모드 SQL View 및 전체 데이터 덤프</td></tr>
             <tr><td><a href="./data/itpe_exam.db" download="itpe_exam.db" style="color:var(--accent)">GET ./data/itpe_exam.db</a></td><td>SQLite3 Binary DB</td><td>로컬 SQLite 데이터베이스 원본 파일 다운로드</td></tr>
             <tr><td><code>GET /api/questions?mode=exam&amp;round=140</code></td><td><code>v_mode_exam</code></td><td>실전 구상 모드 (모범 목차 및 서브노트 해설 물리적 마스킹)</td></tr>
@@ -578,12 +589,18 @@
       }
       RDB = await res.json();
       document.getElementById('totalQCount').textContent = RDB.questions.length;
+      document.getElementById('statTotalBanner').textContent = RDB.questions.length;
+      const navCountEl = document.getElementById('navItpeCount');
+      if (navCountEl) {
+        navCountEl.textContent = `${RDB.questions.length}+${(RDB.predicted_topics || []).length}`;
+      }
 
       const selRound = document.getElementById('selRound');
       RDB.exam_rounds.forEach(r => {
         const opt = document.createElement('option');
         opt.value = r.round_id;
-        opt.textContent = `${r.round_title} — ${r.trend_summary.slice(0, 28)}...`;
+        const cntLabel = r.question_count ? ` (${r.question_count}문항)` : '';
+        opt.textContent = `${r.round_title}${cntLabel} — ${r.trend_summary.slice(0, 26)}...`;
         selRound.appendChild(opt);
       });
 
@@ -610,6 +627,16 @@
         opt.value = f;
         opt.textContent = f;
         selFormat.appendChild(opt);
+      });
+
+      const sources = [...new Set(RDB.questions.map(q => q.source).filter(Boolean))];
+      const selSource = document.getElementById('selSource');
+      sources.forEach(src => {
+        const cnt = RDB.questions.filter(q => q.source === src).length;
+        const opt = document.createElement('option');
+        opt.value = src;
+        opt.textContent = `${src} (${cnt}문항)`;
+        selSource.appendChild(opt);
       });
 
       renderQuestions();
@@ -682,11 +709,27 @@
 
     function renderComparisonTable(comp) {
       if (!comp || !comp.headers || !comp.headers.length) return '';
-      const ths = comp.headers.map(h => `<th>${escapeHtml(h)}</th>`).join('');
+      const ths = comp.headers.map(h => `<th scope="col">${escapeHtml(h)}</th>`).join('');
       const trs = (comp.rows || []).map(row =>
         `<tr>${row.map(cell => `<td>${escapeHtml(cell)}</td>`).join('')}</tr>`
       ).join('');
       return `<table class="comp-table"><thead><tr>${ths}</tr></thead><tbody>${trs}</tbody></table>`;
+    }
+
+    function saveQuestionDraft(qid, val) {
+      saveDraft(`q_${qid}`, val);
+    }
+
+    function markQuestionStatus(qid, status) {
+      markStatus(`q_${qid}`, status);
+    }
+
+    function toggleQuestionReveal(qid, level) {
+      toggleCardReveal(`q_${qid}`, level);
+    }
+
+    function togglePredReveal(pid, level) {
+      toggleCardReveal(`pred_${pid}`, level);
     }
 
     function renderQuestions() {
@@ -694,6 +737,7 @@
       const period = document.getElementById('selPeriod').value;
       const domain = document.getElementById('selDomain').value;
       const format = document.getElementById('selFormat').value;
+      const source = document.getElementById('selSource').value;
       const kw = document.getElementById('inpSearch').value.trim().toLowerCase();
 
       const filtered = RDB.questions.filter(q => {
@@ -701,14 +745,16 @@
         if (period !== 'ALL' && String(q.period_id) !== String(period)) return false;
         if (domain !== 'ALL' && String(q.domain_id) !== String(domain)) return false;
         if (format !== 'ALL' && q.question_format !== format) return false;
+        if (source !== 'ALL' && q.source !== source) return false;
         if (reviewOnly && progressMap[`q_${q.question_id}`] !== 'X') return false;
         if (kw) {
-          const hay = `${q.question_header} ${q.core_keywords} ${q.model_answer_text} ${(q.sub_prompts || []).join(' ')}`.toLowerCase();
+          const hay = `${q.question_header} ${q.core_keywords} ${q.model_answer_text} ${q.source || ''} ${(q.sub_prompts || []).join(' ')}`.toLowerCase();
           if (!hay.includes(kw)) return false;
         }
         return true;
       });
 
+      document.getElementById('statFiltered').textContent = filtered.length;
       const container = document.getElementById('questionContainer');
       if (!filtered.length) {
         container.innerHTML = `<div class="q-card">조건에 일치하는 기출 토픽이 없습니다. 필터를 초기화해 주세요.</div>`;
@@ -722,6 +768,8 @@
         const showExplain = localMode === 'explain';
         const status = progressMap[key];
         const draftVal = draftMap[key] || '';
+        const isCurated = q.source === 'ITPE 정밀 4단 서브노트';
+        const srcLabel = q.source || 'ITPE 정밀 4단 서브노트';
 
         const promptsHtml = (q.sub_prompts || []).map(p => `<div>• ${escapeHtml(p)}</div>`).join('');
         const outlineHtml = (q.standard_outline || []).map(o => `<div class="outline-step">${escapeHtml(o)}</div>`).join('');
@@ -735,10 +783,11 @@
                 <span class="badge ${q.period_id === 1 ? 'b-p1' : 'b-p234'}">${escapeHtml(q.period_name)}</span>
                 <span class="badge b-domain">${escapeHtml(q.domain_name)}</span>
                 <span class="badge b-format">${escapeHtml(q.question_format)}</span>
+                <span class="badge ${isCurated ? 'b-source-curated' : 'b-source-pub'}">${isCurated ? '✨ ' : '📄 '}${escapeHtml(srcLabel)}</span>
               </div>
               <div class="badge-row">
-                <button class="btn-sm" style="${status === 'O' ? 'border-color:var(--green);color:var(--green);' : ''}" onclick="markStatus('${key}', 'O')">✅ 숙지 완료(O)</button>
-                <button class="btn-sm" style="${status === 'X' ? 'border-color:var(--rose);color:var(--rose);' : ''}" onclick="markStatus('${key}', 'X')">⚠️ 보완 필요(X)</button>
+                <button class="btn-sm" style="${status === 'O' ? 'border-color:var(--green);color:var(--green);' : ''}" onclick="markQuestionStatus(${q.question_id}, 'O')">✅ 숙지 완료(O)</button>
+                <button class="btn-sm" style="${status === 'X' ? 'border-color:var(--rose);color:var(--rose);' : ''}" onclick="markQuestionStatus(${q.question_id}, 'X')">⚠️ 보완 필요(X)</button>
               </div>
             </div>
 
@@ -747,8 +796,8 @@
 
             ${studyMode === 'exam' ? `
               <div class="draft-box">
-                <label>✍️ 내 4단 목차 & 핵심 키워드 초안 구상 (1. 정의/리드문 → 2. 아키텍처/개념도 → 3. 비교/핵심기술 → 4. 시사점/제언)</label>
-                <textarea placeholder="여기에 1분 목차 초안과 떠오르는 핵심 키워드를 작성한 뒤 [목차·키워드 비교]를 눌러 대조해 보세요..." oninput="saveDraft('${key}', this.value)">${escapeHtml(draftVal)}</textarea>
+                <label for="draft_${q.question_id}">✍️ 내 4단 목차 & 핵심 키워드 초안 구상 (1. 정의/리드문 → 2. 아키텍처/개념도 → 3. 비교/핵심기술 → 4. 시사점/제언)</label>
+                <textarea id="draft_${q.question_id}" placeholder="여기에 1분 목차 초안과 떠오르는 핵심 키워드를 작성한 뒤 [목차·키워드 비교]를 눌러 대조해 보세요..." oninput="saveQuestionDraft(${q.question_id}, this.value)">${escapeHtml(draftVal)}</textarea>
               </div>
             ` : ''}
 
@@ -773,11 +822,11 @@
             <div class="card-actions">
               <div style="display:flex; gap:8px;">
                 ${studyMode === 'exam' ? `
-                  <button class="btn-sm" onclick="toggleCardReveal('${key}', 'compare')">${localMode === 'compare' ? '🙈 목차·키워드 닫기' : '🧭 목차·키워드만 힌트 보기'}</button>
-                  <button class="btn-sm" onclick="toggleCardReveal('${key}', 'explain')">${localMode === 'explain' ? '🙈 서브노트 해설 닫기' : '📘 서브노트 전체 해설 열기'}</button>
+                  <button class="btn-sm" onclick="toggleQuestionReveal(${q.question_id}, 'compare')">${localMode === 'compare' ? '🙈 목차·키워드 닫기' : '🧭 목차·키워드만 힌트 보기'}</button>
+                  <button class="btn-sm" onclick="toggleQuestionReveal(${q.question_id}, 'explain')">${localMode === 'explain' ? '🙈 서브노트 해설 닫기' : '📘 서브노트 전체 해설 열기'}</button>
                 ` : ''}
                 ${studyMode === 'compare' ? `
-                  <button class="btn-sm" onclick="toggleCardReveal('${key}', 'explain')">${localMode === 'explain' ? '🙈 상세 해설 닫기' : '📘 비교표 + 서브노트 상세 해설 열기'}</button>
+                  <button class="btn-sm" onclick="toggleQuestionReveal(${q.question_id}, 'explain')">${localMode === 'explain' ? '🙈 상세 해설 닫기' : '📘 비교표 + 서브노트 상세 해설 열기'}</button>
                 ` : ''}
               </div>
               <button class="btn-sm" onclick="startTimer(${q.recommended_minutes})">⏱️ 이 문제 실전 타이머 (${q.recommended_minutes}분) 시작</button>
@@ -793,19 +842,25 @@
       renderQuestions();
     }
 
+    function filterByRound(roundId) {
+      document.getElementById('selRound').value = String(roundId);
+      switchTab('bank');
+      renderQuestions();
+    }
+
     function renderAnalytics() {
       const tbl = document.getElementById('analyticsTable');
       tbl.innerHTML = `
         <thead>
           <tr>
-            <th>8대 핵심 기술 도메인 (클릭 시 이동)</th>
-            <th>수록 문항</th>
-            <th>비중</th>
-            <th>1교시(10점)</th>
-            <th>2~4교시(25점)</th>
-            <th>평균 출제주기</th>
-            <th>주요 출제방식</th>
-            <th>최근 급상승 핵심 키워드</th>
+            <th scope="col">8대 핵심 기술 도메인 (클릭 시 이동)</th>
+            <th scope="col">수록 문항</th>
+            <th scope="col">비중</th>
+            <th scope="col">1교시(10점)</th>
+            <th scope="col">2~4교시(25점)</th>
+            <th scope="col">평균 출제주기</th>
+            <th scope="col">주요 출제방식</th>
+            <th scope="col">최근 급상승 핵심 키워드</th>
           </tr>
         </thead>
         <tbody>
@@ -827,15 +882,16 @@
       const rTbl = document.getElementById('roundsTimelineTable');
       rTbl.innerHTML = `
         <thead>
-          <tr><th>회차명</th><th>시행일자</th><th>해당 회차 핵심 출제 키워드 및 트렌드 요약</th><th>원문 출처</th></tr>
+          <tr><th scope="col">회차명 (클릭 시 이동)</th><th scope="col">시행일자</th><th scope="col">수록 문항</th><th scope="col">해당 회차 핵심 출제 키워드 및 트렌드 요약</th><th scope="col">원문 출처</th></tr>
         </thead>
         <tbody>
           ${RDB.exam_rounds.map(r => `
-            <tr>
-              <td><strong>${escapeHtml(r.round_title)}</strong></td>
+            <tr style="cursor:pointer;" onclick="filterByRound(${r.round_id})">
+              <td><strong style="color:var(--accent)">${escapeHtml(r.round_title)}</strong></td>
               <td>${escapeHtml(r.exam_date)}</td>
+              <td>${r.question_count || '-'}문항</td>
               <td>${escapeHtml(r.trend_summary)}</td>
-              <td><a href="${escapeHtml(r.source_url)}" target="_blank" style="color:var(--accent)">큐넷 자료실 ↗</a></td>
+              <td><a href="${escapeHtml(r.source_url)}" target="_blank" onclick="event.stopPropagation()" style="color:var(--accent)">큐넷 자료실 ↗</a></td>
             </tr>
           `).join('')}
         </tbody>
@@ -887,8 +943,8 @@
             <div class="card-actions">
               <div style="display:flex; gap:8px;">
                 ${studyMode !== 'explain' ? `
-                  <button class="btn-sm" onclick="toggleCardReveal('${key}', 'compare')">${localMode === 'compare' ? '🙈 목차 닫기' : '🧭 4단 목차·키워드 보기'}</button>
-                  <button class="btn-sm" onclick="toggleCardReveal('${key}', 'explain')">${localMode === 'explain' ? '🙈 서브노트 닫기' : '📘 전체 서브노트 해설 열기'}</button>
+                  <button class="btn-sm" onclick="togglePredReveal(${p.pred_id}, 'compare')">${localMode === 'compare' ? '🙈 목차 닫기' : '🧭 4단 목차·키워드 보기'}</button>
+                  <button class="btn-sm" onclick="togglePredReveal(${p.pred_id}, 'explain')">${localMode === 'explain' ? '🙈 서브노트 닫기' : '📘 전체 서브노트 해설 열기'}</button>
                 ` : ''}
               </div>
             </div>

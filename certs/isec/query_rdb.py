@@ -65,6 +65,8 @@ def query_questions(round_id=None, qtype_id=None, domain=None, mode='exam', limi
         if 'explanation' in rec:
             print(f"[상세 해설]   {rec['explanation']}")
             print(f"[출제 계보]   {rec['escalation_note']}")
+        if rec.get('source'):
+            print(f"[출처 구분]   {rec['source']}")
     conn.close()
 
 
@@ -72,7 +74,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="정보보안기사 실기 기출 RDB 조회 CLI")
     parser.add_argument('--analytics', action='store_true', help='5대 도메인별 출제빈도·주기·임박도 분석 출력')
     parser.add_argument('--mode', choices=['exam', 'compare', 'explain'], default='exam', help='학습 모드 선택')
-    parser.add_argument('--round', type=int, help='회차 필터 (15~26)')
+    parser.add_argument('--round', type=int, help='회차 필터 (10~26)')
     parser.add_argument('--qtype', type=int, help='유형 필터 (1:단답, 2:서술, 3:실무)')
     parser.add_argument('--domain', type=str, help='도메인 검색어 (예: 시스템, 네트워크, 앱, 법규)')
     parser.add_argument('--limit', type=int, default=10, help='최대 출력 건수')

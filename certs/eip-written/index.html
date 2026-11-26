@@ -1,0 +1,1508 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light" />
+  <script>
+    try {
+      const saved = localStorage.getItem('kcert_theme');
+      const scheme = saved === 'dark' ? 'dark' : 'light';
+      document.documentElement.dataset.theme = scheme;
+      document.querySelector('meta[name="color-scheme"]').content = scheme;
+    } catch (e) {
+      document.documentElement.dataset.theme = 'light';
+    }
+  </script>
+  <title>정보처리기사 필기 CBT 기출 RDB · 5과목 과락방지 학습 플랫폼 — K-Cert Hub</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg-main: #f6f5f0;
+      --bg-card: #ffffff;
+      --bg-elevated: #efece6;
+      --bg-input: #fcfbf8;
+      --bg-code: #1e2530;
+      --text-main: #1f2933;
+      --text-muted: #525c68;
+      --border: #d8d5cc;
+      --accent: #0f766e;
+      --accent-soft: #f0fdfa;
+      --blue: #1d4ed8;
+      --blue-soft: #eff6ff;
+      --amber: #b45309;
+      --amber-soft: #fffbeb;
+      --rose: #be123c;
+      --rose-soft: #fff1f2;
+      --purple: #6d28d9;
+      --purple-soft: #f5f3ff;
+      --emerald: #047857;
+      --emerald-soft: #ecfdf5;
+    }
+
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --bg-main: #141820;
+      --bg-card: #1c222d;
+      --bg-elevated: #242b38;
+      --bg-input: #171c26;
+      --bg-code: #0f131a;
+      --text-main: #eaeff5;
+      --text-muted: #9aa5b5;
+      --border: #323c4e;
+      --accent: #2dd4bf;
+      --accent-soft: rgba(20, 184, 166, 0.16);
+      --blue: #60a5fa;
+      --blue-soft: rgba(59, 130, 246, 0.15);
+      --amber: #fcd34d;
+      --amber-soft: rgba(245, 158, 11, 0.15);
+      --rose: #fda4af;
+      --rose-soft: rgba(244, 63, 94, 0.15);
+      --purple: #c4b5fd;
+      --purple-soft: rgba(167, 139, 250, 0.15);
+      --emerald: #34d399;
+      --emerald-soft: rgba(16, 185, 129, 0.16);
+    }
+
+    html {
+      accent-color: var(--accent);
+    }
+
+    .visually-hidden:where(:not(:focus-within, :active)) {
+      position: absolute !important;
+      clip-path: inset(50%) !important;
+      overflow: hidden !important;
+      width: 1px !important;
+      height: 1px !important;
+      margin: -1px !important;
+      padding: 0 !important;
+      border: 0 !important;
+      white-space: nowrap !important;
+    }
+
+    .skip-link {
+      position: fixed;
+      top: 8px;
+      left: 8px;
+      z-index: 999;
+      padding: 8px 14px;
+      background: var(--accent);
+      color: #ffffff;
+      border-radius: 8px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .theme-opt-light { display: none; }
+    .theme-opt-dark { display: inline-flex; align-items: center; gap: 4px; }
+    :root[data-theme="dark"] .theme-opt-light { display: inline-flex; align-items: center; gap: 4px; }
+    :root[data-theme="dark"] .theme-opt-dark { display: none; }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.65;
+      padding-bottom: 64px;
+    }
+
+    :where(a, button, input, select, summary):focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    /* Global Top Bar */
+    .hub-topbar {
+      background: var(--bg-elevated);
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .hub-topbar-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 7px 24px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .hub-topbar-left, .hub-topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .hub-portal-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--accent);
+      font-weight: 700;
+      text-decoration: none;
+      padding: 4px 10px;
+      border-radius: 7px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+    }
+    .hub-nav-link {
+      color: var(--text-main);
+      text-decoration: none;
+      padding: 4px 9px;
+      border-radius: 7px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      font-weight: 600;
+    }
+    .hub-nav-link.active {
+      color: var(--accent);
+      font-weight: 700;
+      border-color: var(--accent);
+    }
+    .hub-nav-link:hover, .hub-portal-link:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    header.site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 24px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    }
+
+    .header-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .hub-back {
+      text-decoration: none;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      padding: 6px 11px;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      min-height: 32px;
+      display: inline-flex;
+      align-items: center;
+    }
+    .hub-back:hover { border-color: var(--accent); color: var(--accent); }
+
+    h1.brand-title {
+      font-size: 1.12rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .brand-badge {
+      font-size: 0.72rem;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+
+    .header-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .mode-group {
+      display: inline-flex;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 3px;
+      gap: 4px;
+    }
+
+    .mode-btn {
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      padding: 6px 12px;
+      border-radius: 7px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      min-height: 32px;
+      transition: background-color 0.15s, color 0.15s;
+    }
+    .mode-btn.active {
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    .timer-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .timer-display {
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      color: var(--amber);
+      font-size: 0.9rem;
+      min-width: 56px;
+      text-align: center;
+    }
+
+    .btn-sm {
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      color: var(--text-main);
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      font-weight: 600;
+      min-height: 30px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-sm:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-primary {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+    }
+    .btn-primary:hover {
+      opacity: 0.92;
+      color: #ffffff;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 20px auto;
+      padding: 0 24px;
+    }
+
+    /* KPI Grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+    .kpi-label { font-size: 0.78rem; color: var(--text-muted); font-weight: 600; }
+    .kpi-val { font-size: 1.35rem; font-weight: 800; margin-top: 4px; color: var(--accent); }
+    .kpi-sub { font-size: 0.76rem; color: var(--text-muted); margin-top: 3px; }
+
+    /* Tabs */
+    .tab-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+    }
+    .tab-btn {
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-muted);
+      padding: 8px 16px;
+      border-radius: 9px;
+      font-size: 0.86rem;
+      font-weight: 700;
+      cursor: pointer;
+      min-height: 36px;
+    }
+    .tab-btn.active {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Filter Bar */
+    .filter-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
+      gap: 10px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+    .filter-bar select, .filter-bar input {
+      width: 100%;
+      padding: 8px 11px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      color: var(--text-main);
+      font-size: 0.84rem;
+      min-height: 38px;
+    }
+    .filter-meta {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+      font-size: 0.84rem;
+      color: var(--text-muted);
+    }
+    .filter-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    /* Subject Quick Pills */
+    .subject-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+    .subj-pill-btn {
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      min-height: 32px;
+    }
+    .subj-pill-btn.active {
+      background: var(--blue-soft);
+      border-color: var(--blue);
+      color: var(--blue);
+    }
+
+    /* Question Cards */
+    .card-list { display: flex; flex-direction: column; gap: 16px; }
+    .q-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 20px;
+      transition: border-color 0.15s;
+    }
+    .q-card:hover { border-color: var(--accent); }
+    .q-card-deferred {
+      content-visibility: auto;
+      contain-intrinsic-size: auto none auto 340px;
+    }
+
+    .q-meta {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+    .pill {
+      font-size: 0.73rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+    }
+    .pill-round { background: var(--blue-soft); color: var(--blue); border-color: var(--blue); }
+    .pill-domain { background: var(--purple-soft); color: var(--purple); border-color: var(--purple); }
+    .pill-type { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+    .pill-correct { background: var(--emerald-soft); color: var(--emerald); border-color: var(--emerald); }
+    .pill-wrong { background: var(--rose-soft); color: var(--rose); border-color: var(--rose); }
+
+    .bookmark-btn {
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      color: var(--text-muted);
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      min-height: 30px;
+    }
+    .bookmark-btn.saved {
+      background: var(--amber-soft);
+      border-color: var(--amber);
+      color: var(--amber);
+    }
+
+    .q-title {
+      font-size: 1.02rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+      line-height: 1.5;
+    }
+    .q-body {
+      font-size: 0.92rem;
+      white-space: pre-line;
+      margin-bottom: 12px;
+      color: var(--text-main);
+    }
+    .code-block {
+      background: var(--bg-code);
+      color: #e2e8f0;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      font-size: 0.82rem;
+      overflow-x: auto;
+      white-space: pre;
+      margin-bottom: 12px;
+      line-height: 1.55;
+    }
+
+    /* 4-Choice CBT Fieldset (Modern Accessible Radio Group) */
+    .choice-fieldset {
+      border: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .choice-label {
+      position: relative;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      cursor: pointer;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      min-height: 40px;
+      transition: border-color 0.15s, background-color 0.15s;
+    }
+    .choice-label:hover {
+      border-color: var(--accent);
+      background: var(--bg-elevated);
+    }
+    .choice-label input[type="radio"] {
+      margin-top: 4px;
+      flex-shrink: 0;
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+    @supports not (accent-color: var(--accent)) {
+      .choice-label input[type="radio"] {
+        position: absolute !important;
+        clip-path: inset(50%) !important;
+        width: 1px !important;
+        height: 1px !important;
+        overflow: hidden !important;
+      }
+      .choice-label .choice-num::before {
+        content: "○ ";
+        color: var(--text-muted);
+      }
+      .choice-label input[type="radio"]:checked + .choice-num::before {
+        content: "● ";
+        color: var(--accent);
+      }
+      .choice-label input[type="radio"]:focus-visible + .choice-num {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+        border-radius: 4px;
+      }
+    }
+    .choice-num {
+      font-weight: 800;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+    .choice-text {
+      flex: 1;
+    }
+    .choice-status {
+      font-size: 0.78rem;
+      font-weight: 800;
+      flex-shrink: 0;
+      margin-left: 8px;
+    }
+
+    .choice-label.is-selected {
+      border-color: var(--blue);
+      background: var(--blue-soft);
+    }
+    .choice-label.is-correct {
+      border-color: var(--emerald);
+      background: var(--emerald-soft);
+    }
+    .choice-label.is-correct .choice-num,
+    .choice-label.is-correct .choice-status {
+      color: var(--emerald);
+    }
+    .choice-label.is-wrong {
+      border-color: var(--rose);
+      background: var(--rose-soft);
+    }
+    .choice-label.is-wrong .choice-num,
+    .choice-label.is-wrong .choice-status {
+      color: var(--rose);
+    }
+
+    .feedback-bar {
+      margin-top: 10px;
+      padding: 10px 14px;
+      border-radius: 9px;
+      font-size: 0.86rem;
+      font-weight: 700;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .feedback-bar.ok {
+      background: var(--emerald-soft);
+      border: 1px solid var(--emerald);
+      color: var(--emerald);
+    }
+    .feedback-bar.ng {
+      background: var(--rose-soft);
+      border: 1px solid var(--rose);
+      color: var(--rose);
+    }
+
+    .answer-box {
+      margin-top: 12px;
+      background: var(--bg-elevated);
+      border-left: 4px solid var(--accent);
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+    .answer-label {
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+    .answer-text {
+      font-size: 0.9rem;
+      white-space: pre-line;
+      font-weight: 600;
+    }
+
+    .kw-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+    .kw-chip {
+      font-size: 0.74rem;
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .explain-box {
+      margin-top: 10px;
+      background: var(--bg-elevated);
+      border-left: 4px solid var(--blue);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 0.88rem;
+    }
+    .explain-label {
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: var(--blue);
+      margin-bottom: 4px;
+    }
+    .explain-body {
+      white-space: pre-line;
+      line-height: 1.65;
+    }
+    .source-note {
+      margin-top: 8px;
+      font-size: 0.76rem;
+      color: var(--text-muted);
+    }
+
+    /* Responsive Analytics Table */
+    .table-wrapper {
+      overflow: auto;
+      max-inline-size: 100%;
+      max-block-size: min(560px, 75vh);
+      container-type: inline-size;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+    .analytics-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 0.86rem;
+      --label-2: "수록 문항";
+      --label-3: "비중";
+      --label-4: "내 풀이";
+      --label-5: "정답수";
+      --label-6: "정답률";
+      --label-7: "과락 진단";
+      --label-8: "핵심 출제 키워드";
+    }
+    .analytics-table caption {
+      text-align: left;
+      padding: 14px 16px;
+      font-weight: 800;
+      font-size: 0.96rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-card);
+    }
+    .analytics-table thead {
+      position: sticky;
+      inset-block-start: 0;
+      z-index: 2;
+      background: var(--bg-elevated);
+    }
+    .analytics-table th, .analytics-table td {
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      white-space: nowrap;
+    }
+    .analytics-table tbody th {
+      position: sticky;
+      inset-inline-start: 0;
+      z-index: 1;
+      background: var(--bg-card);
+      font-weight: 800;
+    }
+    @container (width < 640px) {
+      .analytics-table,
+      .analytics-table thead,
+      .analytics-table tbody,
+      .analytics-table tr,
+      .analytics-table th,
+      .analytics-table td {
+        display: block;
+      }
+      .analytics-table thead { display: none; }
+      .analytics-table tr {
+        margin: 12px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        overflow: hidden;
+      }
+      .analytics-table tbody th {
+        position: sticky;
+        inset-block-start: 0;
+        z-index: 2;
+        background: var(--bg-elevated);
+      }
+      .analytics-table td {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        white-space: normal;
+      }
+      .analytics-table td:nth-child(2)::before { content: var(--label-2) ": "; font-weight: 700; color: var(--text-muted); }
+      .analytics-table td:nth-child(3)::before { content: var(--label-3) ": "; font-weight: 700; color: var(--text-muted); }
+      .analytics-table td:nth-child(4)::before { content: var(--label-4) ": "; font-weight: 700; color: var(--text-muted); }
+      .analytics-table td:nth-child(5)::before { content: var(--label-5) ": "; font-weight: 700; color: var(--text-muted); }
+      .analytics-table td:nth-child(6)::before { content: var(--label-6) ": "; font-weight: 700; color: var(--text-muted); }
+      .analytics-table td:nth-child(7)::before { content: var(--label-7) ": "; font-weight: 700; color: var(--text-muted); }
+      .analytics-table td:nth-child(8)::before { content: var(--label-8) ": "; font-weight: 700; color: var(--text-muted); }
+    }
+
+    /* Study Notes Grid */
+    .notes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+      gap: 16px;
+    }
+    .note-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 18px;
+    }
+    .note-card h3 {
+      font-size: 0.96rem;
+      font-weight: 800;
+      margin: 6px 0 10px;
+      color: var(--accent);
+    }
+    .note-list {
+      padding-left: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.84rem;
+    }
+
+    .load-more-wrap {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link visually-hidden">본문으로 건너뛰기</a>
+
+  <!-- K-Cert Hub Global Top Bar -->
+  <nav class="hub-topbar" aria-label="K-Cert Hub 채널 이동">
+    <div class="hub-topbar-inner">
+      <div class="hub-topbar-left">
+        <a href="../../index.html" class="hub-portal-link">🏠 K-Cert Hub 통합 포털</a>
+        <span>필기·실기 구분 RDB 학습 채널</span>
+      </div>
+      <div class="hub-topbar-right">
+        <a href="../eip-written/index.html" class="hub-nav-link active" aria-current="page">📝 정보처리기사 필기 (313)</a>
+        <a href="../eip/index.html" class="hub-nav-link">💻 정보처리기사 실기 (460)</a>
+        <a href="../itpe/index.html" class="hub-nav-link">🏛️ 정보관리기술사 필기 (122)</a>
+        <a href="../isec/index.html" class="hub-nav-link">🛡️ 정보보안기사 실기 (75)</a>
+        <a href="../../index.html#section-community" class="hub-nav-link">💬 정보공유 라운지</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="brand-wrap">
+        <a href="../../index.html" class="hub-back">← K-Cert Hub</a>
+        <h1 class="brand-title">
+          <span>📝 정보처리기사 필기 CBT RDB</span>
+          <span class="brand-badge" id="brandBadge">2021~2022 · 4회차 · 313문항</span>
+        </h1>
+      </div>
+
+      <div class="header-controls">
+        <div class="mode-group" role="group" aria-label="학습 모드 선택">
+          <button type="button" class="mode-btn active" id="mode-solve" onclick="setStudyMode('solve')">📝 실전 CBT 풀이</button>
+          <button type="button" class="mode-btn" id="mode-compare" onclick="setStudyMode('compare')">⚡ 빠른 정답</button>
+          <button type="button" class="mode-btn" id="mode-explain" onclick="setStudyMode('explain')">🔍 상세 해설</button>
+        </div>
+
+        <div class="timer-box">
+          <span aria-hidden="true">⏱️</span>
+          <span class="timer-display" id="timerDisplay">150:00</span>
+          <button type="button" class="btn-sm" onclick="setTimerPreset(150)">150분</button>
+          <button type="button" class="btn-sm" onclick="setTimerPreset(30)">30분</button>
+          <button type="button" class="btn-sm" id="timerToggleBtn" onclick="toggleTimer()">시작</button>
+          <button type="button" class="btn-sm" onclick="resetTimer()">초기화</button>
+        </div>
+
+        <button type="button" class="btn-sm" id="themeToggleBtn" onclick="toggleColorScheme()" aria-label="색상 테마 전환">
+          <span class="theme-opt-light">☀️ 라이트</span>
+          <span class="theme-opt-dark">🌙 다크</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main-content" class="container" tabindex="-1">
+    <!-- KPI Summary & Score HUD -->
+    <section class="kpi-grid" aria-label="정보처리기사 필기 CBT 요약 및 성적 현황">
+      <div class="kpi-card">
+        <div class="kpi-label">수록 기출 회차</div>
+        <div class="kpi-val" id="kpiRounds">4개 회차</div>
+        <div class="kpi-sub" id="kpiRange">2021년 2회 ~ 2022년 2회 · Q-Net 기출</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">필기 4지선다 문항</div>
+        <div class="kpi-val" id="kpiTotal">313문항</div>
+        <div class="kpi-sub">5과목 전수 수록 · 이미지 의존 문항 제외 순수 텍스트</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">실전 CBT 채점 점수 / 정답률</div>
+        <div class="kpi-val" id="kpiScore">0 / 0 (0%)</div>
+        <div class="kpi-sub" id="kpiPassStatus">문항 보기를 선택하면 즉시 자동 채점됩니다</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">과락 경고 &amp; 오답노트</div>
+        <div class="kpi-val" id="kpiBookmarks">0문항</div>
+        <div class="kpi-sub" id="kpiFailWarning">과목당 40점 미만 과락 방지 · localStorage 저장</div>
+      </div>
+    </section>
+
+    <!-- Main Navigation Tabs -->
+    <nav class="tab-bar" aria-label="필기 CBT 학습 메뉴">
+      <button type="button" class="tab-btn active" id="tab-questions" onclick="switchTab('questions')">📚 필기 CBT 문제풀이 (313)</button>
+      <button type="button" class="tab-btn" id="tab-analytics" onclick="switchTab('analytics')">📊 5과목 출제·과락 진단표</button>
+      <button type="button" class="tab-btn" id="tab-notes" onclick="switchTab('notes')">📖 5과목 핵심 요약 노트</button>
+    </nav>
+
+    <!-- Panel 1: Questions -->
+    <section id="panel-questions">
+      <div class="subject-pills" id="subjectPills" role="group" aria-label="과목 빠른 선택"></div>
+
+      <div class="filter-bar">
+        <div>
+          <label for="filterRound" class="visually-hidden">회차 선택</label>
+          <select id="filterRound" onchange="onFilterChange()">
+            <option value="ALL">전체 회차 (4개 회차)</option>
+          </select>
+        </div>
+        <div>
+          <label for="filterDomain" class="visually-hidden">과목 선택</label>
+          <select id="filterDomain" onchange="onFilterChange()">
+            <option value="ALL">전체 5과목</option>
+          </select>
+        </div>
+        <div>
+          <label for="filterStatus" class="visually-hidden">풀이 상태 및 북마크 필터</label>
+          <select id="filterStatus" onchange="onFilterChange()">
+            <option value="ALL">전체 문항 보기</option>
+            <option value="UNSOLVED">⬜ 미풀이 문항만 보기</option>
+            <option value="WRONG">❌ 오답 문항만 보기</option>
+            <option value="SAVED">★ 북마크(오답노트)만 보기</option>
+          </select>
+        </div>
+        <div>
+          <label for="searchInput" class="visually-hidden">기출문제 키워드 검색</label>
+          <input type="search" id="searchInput" placeholder="키워드 검색 (예: UML, 정규화, IP, COCOMO...)" />
+        </div>
+      </div>
+
+      <div class="filter-meta">
+        <span id="resultCount" role="status" aria-live="polite">데이터 불러오는 중...</span>
+        <div class="filter-actions">
+          <button type="button" class="btn-sm" onclick="resetFilters()">필터 초기화</button>
+          <button type="button" class="btn-sm" onclick="resetProgress()">풀이 기록 초기화</button>
+          <button type="button" class="btn-sm" onclick="window.scrollTo({top:0, behavior:'smooth'})">↑ 맨 위로</button>
+        </div>
+      </div>
+
+      <div id="questionList" class="card-list"></div>
+      <div id="loadMoreWrap" class="load-more-wrap"></div>
+    </section>
+
+    <!-- Panel 2: 5-Subject Analytics & Fail-Risk Diagnostics -->
+    <section id="panel-analytics" class="hidden">
+      <div tabindex="0" role="region" aria-labelledby="analytics-table-caption" class="table-wrapper">
+        <table class="analytics-table">
+          <caption id="analytics-table-caption">정보처리기사 필기 5과목별 출제 비중 · 내 풀이 정답률 · 과락(40점 미만) 진단표</caption>
+          <thead>
+            <tr>
+              <th scope="col">과목 (도메인)</th>
+              <th scope="col">수록 문항</th>
+              <th scope="col">비중</th>
+              <th scope="col">내 풀이</th>
+              <th scope="col">정답수</th>
+              <th scope="col">정답률</th>
+              <th scope="col">과락 진단 (40% 기준)</th>
+              <th scope="col">핵심 출제 키워드</th>
+            </tr>
+          </thead>
+          <tbody id="analyticsBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Panel 3: 5-Subject Study Notes -->
+    <section id="panel-notes" class="hidden">
+      <div class="filter-meta">
+        <span>📘 시나공·수제비 정리 노트(.docx)에서 추출한 5과목 고빈출 핵심 개념 요약입니다.</span>
+        <div>
+          <label for="notesDomainFilter" class="visually-hidden">요약 노트 과목 선택</label>
+          <select id="notesDomainFilter" onchange="renderNotes()" style="padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg-card);color:var(--text-main);font-size:0.82rem;">
+            <option value="ALL">전체 5과목 요약 보기</option>
+          </select>
+        </div>
+      </div>
+      <div id="notesList" class="notes-grid"></div>
+    </section>
+  </main>
+
+  <script>
+    let WRITTEN_DATA = null;
+    let STUDY_MODE = 'solve'; // 'solve' | 'compare' | 'explain'
+    let BOOKMARKS = new Set();
+    let USER_ANSWERS = {}; // { [question_id]: chosen_index (0..3) }
+    let VISIBLE_LIMIT = 25;
+
+    let timerSeconds = 150 * 60;
+    let timerPresetSeconds = 150 * 60;
+    let timerInterval = null;
+
+    const BOOKMARK_KEY = 'k_cert_hub_eip_written_bookmarks_v1';
+    const ANSWERS_KEY = 'k_cert_hub_eip_written_answers_v1';
+    const CIRCLE_MARKS = ['①', '②', '③', '④'];
+
+    function loadPersistedState() {
+      try {
+        const bm = localStorage.getItem(BOOKMARK_KEY);
+        if (bm) BOOKMARKS = new Set(JSON.parse(bm));
+      } catch (e) {}
+      try {
+        const ans = localStorage.getItem(ANSWERS_KEY);
+        if (ans) USER_ANSWERS = JSON.parse(ans) || {};
+      } catch (e) {}
+    }
+
+    function saveBookmarks() {
+      try {
+        localStorage.setItem(BOOKMARK_KEY, JSON.stringify([...BOOKMARKS]));
+      } catch (e) {}
+      updateHUD();
+    }
+
+    function saveUserAnswers() {
+      try {
+        localStorage.setItem(ANSWERS_KEY, JSON.stringify(USER_ANSWERS));
+      } catch (e) {}
+      updateHUD();
+    }
+
+    function toggleColorScheme() {
+      const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+      document.documentElement.dataset.theme = next;
+      const meta = document.querySelector('meta[name="color-scheme"]');
+      if (meta) meta.content = next;
+      try { localStorage.setItem('kcert_theme', next); } catch (e) {}
+    }
+
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'kcert_theme') {
+        const next = e.newValue === 'dark' ? 'dark' : 'light';
+        document.documentElement.dataset.theme = next;
+        const meta = document.querySelector('meta[name="color-scheme"]');
+        if (meta) meta.content = next;
+      }
+    });
+
+    function setStudyMode(mode) {
+      STUDY_MODE = mode;
+      ['solve', 'compare', 'explain'].forEach(m => {
+        document.getElementById(`mode-${m}`).classList.toggle('active', m === mode);
+      });
+      renderQuestions();
+    }
+
+    function switchTab(tab) {
+      ['questions', 'analytics', 'notes'].forEach(t => {
+        document.getElementById(`tab-${t}`).classList.toggle('active', t === tab);
+        document.getElementById(`panel-${t}`).classList.toggle('hidden', t !== tab);
+      });
+      if (tab === 'analytics') renderAnalytics();
+      if (tab === 'notes') renderNotes();
+    }
+
+    // Timer
+    function renderTimer() {
+      const m = Math.floor(timerSeconds / 60);
+      const s = timerSeconds % 60;
+      document.getElementById('timerDisplay').textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    function setTimerPreset(mins) {
+      stopTimer();
+      timerPresetSeconds = mins * 60;
+      timerSeconds = timerPresetSeconds;
+      renderTimer();
+    }
+
+    function stopTimer() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+      document.getElementById('timerToggleBtn').textContent = '시작';
+    }
+
+    function toggleTimer() {
+      if (timerInterval) {
+        stopTimer();
+      } else {
+        document.getElementById('timerToggleBtn').textContent = '일시정지';
+        timerInterval = setInterval(() => {
+          if (timerSeconds > 0) {
+            timerSeconds--;
+            renderTimer();
+          } else {
+            stopTimer();
+            alert('설정한 CBT 시험 시간이 종료되었습니다!');
+          }
+        }, 1000);
+      }
+    }
+
+    function resetTimer() {
+      stopTimer();
+      timerSeconds = timerPresetSeconds;
+      renderTimer();
+    }
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function isChoiceCorrect(q, idx) {
+      const valid = Array.isArray(q.answer_indices) && q.answer_indices.length
+        ? q.answer_indices
+        : [q.answer_index];
+      return valid.includes(idx);
+    }
+
+    function updateHUD() {
+      if (!WRITTEN_DATA) return;
+      const qs = WRITTEN_DATA.questions;
+      const total = qs.length;
+      let solved = 0;
+      let correct = 0;
+      const domStats = {};
+      WRITTEN_DATA.domains.forEach(d => {
+        domStats[d.domain_id] = { solved: 0, correct: 0, name: d.short_name };
+      });
+
+      qs.forEach(q => {
+        const chosen = USER_ANSWERS[q.question_id];
+        if (chosen !== undefined && chosen !== null) {
+          solved++;
+          domStats[q.domain_id].solved++;
+          if (isChoiceCorrect(q, chosen)) {
+            correct++;
+            domStats[q.domain_id].correct++;
+          }
+        }
+      });
+
+      const pct = solved ? Math.round((correct / solved) * 100) : 0;
+      document.getElementById('kpiScore').textContent = `${correct} / ${solved} (${pct}%)`;
+
+      const passText = solved === 0
+        ? '문항 보기를 선택하면 즉시 자동 채점됩니다'
+        : (pct >= 60 ? '✅ 평균 60점 이상 합격권 유지 중' : '⚠️ 평균 60점 미만 — 취약 과목 집중 보완 필요');
+      document.getElementById('kpiPassStatus').textContent = `${passText} (전체 ${total}문항)`;
+
+      const failSubjects = Object.values(domStats)
+        .filter(s => s.solved >= 5 && (s.correct / s.solved) * 100 < 40)
+        .map(s => s.name);
+
+      document.getElementById('kpiBookmarks').textContent = `${BOOKMARKS.size}문항`;
+      document.getElementById('kpiFailWarning').textContent = failSubjects.length
+        ? `🚨 과락 위험(40% 미만): ${failSubjects.join(', ')}`
+        : '과목당 40점 미만 과락 없음 · localStorage 저장';
+    }
+
+    function selectDomainPill(domainId) {
+      document.getElementById('filterDomain').value = domainId === 0 ? 'ALL' : String(domainId);
+      onFilterChange();
+    }
+
+    function renderSubjectPills() {
+      if (!WRITTEN_DATA) return;
+      const cur = document.getElementById('filterDomain').value;
+      const wrap = document.getElementById('subjectPills');
+      let html = `<button type="button" class="subj-pill-btn ${cur === 'ALL' ? 'active' : ''}" onclick="selectDomainPill(0)">전체 (${WRITTEN_DATA.questions.length})</button>`;
+      WRITTEN_DATA.domains.forEach(d => {
+        const active = cur === String(d.domain_id);
+        html += `<button type="button" class="subj-pill-btn ${active ? 'active' : ''}" onclick="selectDomainPill(${d.domain_id})">${escapeHtml(d.domain_name)} (${d.question_count})</button>`;
+      });
+      wrap.innerHTML = html;
+    }
+
+    function onFilterChange() {
+      VISIBLE_LIMIT = 25;
+      renderSubjectPills();
+      renderQuestions();
+    }
+
+    function resetFilters() {
+      document.getElementById('filterRound').value = 'ALL';
+      document.getElementById('filterDomain').value = 'ALL';
+      document.getElementById('filterStatus').value = 'ALL';
+      document.getElementById('searchInput').value = '';
+      onFilterChange();
+    }
+
+    function resetProgress() {
+      USER_ANSWERS = {};
+      saveUserAnswers();
+      renderQuestions();
+      renderAnalytics();
+    }
+
+    function selectOption(qid, choiceIdx) {
+      USER_ANSWERS[qid] = choiceIdx;
+      saveUserAnswers();
+      renderQuestions();
+    }
+
+    function toggleBookmark(qid) {
+      if (BOOKMARKS.has(qid)) BOOKMARKS.delete(qid);
+      else BOOKMARKS.add(qid);
+      saveBookmarks();
+      renderQuestions();
+    }
+
+    function toggleSingleExplain(qid) {
+      const el = document.getElementById(`explain-q-${qid}`);
+      if (el) el.classList.toggle('hidden');
+    }
+
+    function getFilteredQuestions() {
+      if (!WRITTEN_DATA) return [];
+      const fRound = document.getElementById('filterRound').value;
+      const fDomain = document.getElementById('filterDomain').value;
+      const fStatus = document.getElementById('filterStatus').value;
+      const kw = document.getElementById('searchInput').value.trim().toLowerCase();
+
+      return WRITTEN_DATA.questions.filter(q => {
+        if (fRound !== 'ALL' && String(q.round_id) !== fRound) return false;
+        if (fDomain !== 'ALL' && String(q.domain_id) !== fDomain) return false;
+
+        const chosen = USER_ANSWERS[q.question_id];
+        const hasChosen = chosen !== undefined && chosen !== null;
+        if (fStatus === 'UNSOLVED' && hasChosen) return false;
+        if (fStatus === 'WRONG' && (!hasChosen || isChoiceCorrect(q, chosen))) return false;
+        if (fStatus === 'SAVED' && !BOOKMARKS.has(q.question_id)) return false;
+
+        if (kw) {
+          const hay = `${q.round_title} ${q.domain_name} ${q.title} ${q.question_text} ${q.code_or_log || ''} ${q.choices.join(' ')} ${q.explanation} ${(q.keywords || []).join(' ')}`.toLowerCase();
+          if (!hay.includes(kw)) return false;
+        }
+        return true;
+      });
+    }
+
+    function loadMoreQuestions() {
+      VISIBLE_LIMIT += 25;
+      renderQuestions();
+    }
+
+    function showAllFiltered() {
+      VISIBLE_LIMIT = 9999;
+      renderQuestions();
+    }
+
+    function renderQuestions() {
+      if (!WRITTEN_DATA) return;
+      const filtered = getFilteredQuestions();
+      const visible = filtered.slice(0, VISIBLE_LIMIT);
+
+      document.getElementById('resultCount').textContent =
+        `조회 결과: ${filtered.length}문항 / 전체 ${WRITTEN_DATA.questions.length}문항 (화면 표시: ${visible.length}문항)`;
+
+      const container = document.getElementById('questionList');
+      const loadMoreWrap = document.getElementById('loadMoreWrap');
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="q-card" style="text-align:center;color:var(--text-muted);">조건에 일치하는 기출문제가 없습니다. 필터를 조정해 보세요.</div>`;
+        loadMoreWrap.innerHTML = '';
+        return;
+      }
+
+      container.innerHTML = visible.map((q, idx) => {
+        const qid = q.question_id;
+        const isSaved = BOOKMARKS.has(qid);
+        const chosen = USER_ANSWERS[qid];
+        const hasChosen = chosen !== undefined && chosen !== null;
+        const correctNow = hasChosen && isChoiceCorrect(q, chosen);
+
+        const deferClass = idx >= 4 ? 'q-card-deferred' : '';
+
+        let statusPill = '';
+        if (hasChosen) {
+          statusPill = correctNow
+            ? `<span class="pill pill-correct">✓ 정답</span>`
+            : `<span class="pill pill-wrong">✕ 오답</span>`;
+        }
+
+        const showAnswer = STUDY_MODE !== 'solve' || hasChosen;
+        const showExplain = STUDY_MODE === 'explain';
+
+        const choicesHtml = q.choices.map((cText, cIdx) => {
+          const inputId = `q-${qid}-opt-${cIdx}`;
+          const isPicked = hasChosen && chosen === cIdx;
+          const isAns = isChoiceCorrect(q, cIdx);
+          let cls = 'choice-label';
+          let statusTag = '';
+
+          if (showAnswer) {
+            if (isAns) {
+              cls += ' is-correct';
+              statusTag = `<span class="choice-status">✓ 정답</span>`;
+            } else if (isPicked) {
+              cls += ' is-wrong';
+              statusTag = `<span class="choice-status">✕ 선택</span>`;
+            }
+          } else if (isPicked) {
+            cls += ' is-selected';
+          }
+
+          return `
+            <label for="${inputId}" class="${cls}">
+              <input type="radio" id="${inputId}" name="q-${qid}" value="${cIdx}" ${isPicked ? 'checked' : ''} onchange="selectOption(${qid}, ${cIdx})" />
+              <span class="choice-num">${CIRCLE_MARKS[cIdx]}</span>
+              <span class="choice-text">${escapeHtml(cText)}</span>
+              ${statusTag}
+            </label>
+          `;
+        }).join('');
+
+        const keywordsHtml = (q.keywords || []).map(k => `<span class="kw-chip">#${escapeHtml(k)}</span>`).join('');
+
+        const answerBoxHtml = `
+          <div class="answer-box">
+            <div class="answer-label">✅ 정답</div>
+            <div class="answer-text">${escapeHtml(q.answer_text)}</div>
+            <div class="kw-row">${keywordsHtml}</div>
+          </div>
+        `;
+
+        const explainBoxHtml = `
+          <div class="explain-box">
+            <div class="explain-label">💡 핵심 해설</div>
+            <div class="explain-body">${escapeHtml(q.explanation)}</div>
+            <div class="source-note">출처: ${escapeHtml(q.source)}</div>
+          </div>
+        `;
+
+        let modeFooterHtml = '';
+        if (STUDY_MODE === 'solve') {
+          if (hasChosen) {
+            const fbCls = correctNow ? 'ok' : 'ng';
+            const fbMsg = correctNow
+              ? `✅ 정답입니다! (${escapeHtml(q.answer_text)})`
+              : `❌ 오답입니다. 정답은 [${escapeHtml(q.answer_text)}] 입니다.`;
+            modeFooterHtml = `
+              <div class="feedback-bar ${fbCls}">
+                <span>${fbMsg}</span>
+                <button type="button" class="btn-sm" onclick="toggleSingleExplain(${qid})">💡 해설 보기/접기</button>
+              </div>
+              <div id="explain-q-${qid}" class="hidden">
+                ${answerBoxHtml}
+                ${explainBoxHtml}
+              </div>
+            `;
+          } else {
+            modeFooterHtml = `
+              <div style="margin-top:10px;display:flex;gap:8px;align-items:center;">
+                <button type="button" class="btn-sm" onclick="toggleSingleExplain(${qid})">👁️ 정답·해설 미리보기</button>
+              </div>
+              <div id="explain-q-${qid}" class="hidden">
+                ${answerBoxHtml}
+                ${explainBoxHtml}
+              </div>
+            `;
+          }
+        } else if (STUDY_MODE === 'compare') {
+          modeFooterHtml = `
+            ${answerBoxHtml}
+            <div style="margin-top:8px;">
+              <button type="button" class="btn-sm" onclick="toggleSingleExplain(${qid})">💡 해설 보기/접기</button>
+            </div>
+            <div id="explain-q-${qid}" class="hidden">${explainBoxHtml}</div>
+          `;
+        } else {
+          modeFooterHtml = answerBoxHtml + explainBoxHtml;
+        }
+
+        const showSeparateBody = q.question_text && q.question_text.trim() !== q.title.trim();
+
+        return `
+          <article class="q-card ${deferClass}">
+            <div class="q-meta">
+              <div class="badge-row">
+                <span class="pill pill-round">${escapeHtml(q.round_title)} #${q.question_no}</span>
+                <span class="pill pill-domain">${escapeHtml(q.domain_name)}</span>
+                <span class="pill pill-type">${escapeHtml(q.qtype)}</span>
+                ${statusPill}
+              </div>
+              <button type="button" class="bookmark-btn ${isSaved ? 'saved' : ''}" onclick="toggleBookmark(${qid})">
+                ${isSaved ? '★ 오답노트됨' : '☆ 오답노트'}
+              </button>
+            </div>
+            <h2 class="q-title">Q${q.question_no}. ${escapeHtml(q.title)}</h2>
+            ${showSeparateBody ? `<div class="q-body">${escapeHtml(q.question_text)}</div>` : ''}
+            ${q.code_or_log ? `<pre class="code-block">${escapeHtml(q.code_or_log)}</pre>` : ''}
+            <fieldset class="choice-fieldset">
+              <legend class="visually-hidden">${escapeHtml(q.round_title)} ${q.question_no}번 보기 선택</legend>
+              ${choicesHtml}
+            </fieldset>
+            ${modeFooterHtml}
+          </article>
+        `;
+      }).join('');
+
+      if (filtered.length > VISIBLE_LIMIT) {
+        loadMoreWrap.innerHTML = `
+          <button type="button" class="btn-sm btn-primary" onclick="loadMoreQuestions()">다음 25문항 더 보기 (${visible.length} / ${filtered.length})</button>
+          <button type="button" class="btn-sm" onclick="showAllFiltered()">전체 ${filtered.length}문항 펼치기</button>
+        `;
+      } else {
+        loadMoreWrap.innerHTML = '';
+      }
+    }
+
+    function renderAnalytics() {
+      if (!WRITTEN_DATA) return;
+      const tbody = document.getElementById('analyticsBody');
+      tbody.innerHTML = WRITTEN_DATA.analytics.map(a => {
+        const qs = WRITTEN_DATA.questions.filter(q => q.domain_id === a.domain_id);
+        let solved = 0;
+        let correct = 0;
+        qs.forEach(q => {
+          const ch = USER_ANSWERS[q.question_id];
+          if (ch !== undefined && ch !== null) {
+            solved++;
+            if (isChoiceCorrect(q, ch)) correct++;
+          }
+        });
+        const rate = solved ? Math.round((correct / solved) * 100) : null;
+        let diag = `<span style="color:var(--text-muted);">미응시</span>`;
+        if (rate !== null) {
+          if (rate < 40) diag = `<span style="color:var(--rose);font-weight:800;">🚨 과락 위험 (${rate}%)</span>`;
+          else if (rate < 60) diag = `<span style="color:var(--amber);font-weight:800;">⚠️ 보완 필요 (${rate}%)</span>`;
+          else diag = `<span style="color:var(--emerald);font-weight:800;">✅ 합격 안정권 (${rate}%)</span>`;
+        }
+        return `
+          <tr>
+            <th scope="row">${escapeHtml(a.domain_name)}</th>
+            <td>${a.total_questions}문항</td>
+            <td>${a.share_pct}%</td>
+            <td>${solved}문항</td>
+            <td>${correct}문항</td>
+            <td>${rate === null ? '-' : `${rate}%`}</td>
+            <td>${diag}</td>
+            <td style="white-space:normal;">${escapeHtml((a.top_keywords || []).join(', '))}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderNotes() {
+      if (!WRITTEN_DATA) return;
+      const fDom = document.getElementById('notesDomainFilter').value;
+      const notes = (WRITTEN_DATA.study_notes || []).filter(n => fDom === 'ALL' || String(n.domain_id) === fDom);
+      const wrap = document.getElementById('notesList');
+      wrap.innerHTML = notes.map(n => `
+        <article class="note-card">
+          <span class="pill pill-domain">${escapeHtml(n.domain_name)}</span>
+          <h3>${escapeHtml(n.topic_title)}</h3>
+          <ul class="note-list">
+            ${(n.summary_points || []).map(pt => `<li>${escapeHtml(pt)}</li>`).join('')}
+          </ul>
+        </article>
+      `).join('');
+    }
+
+    function bindSearchInput() {
+      const inp = document.getElementById('searchInput');
+      inp.addEventListener('input', () => {
+        VISIBLE_LIMIT = 25;
+        renderQuestions();
+      });
+      // IME-safe Enter handling for Korean search input
+      inp.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          if (e.isComposing || e.keyCode === 229) return;
+          e.preventDefault();
+          VISIBLE_LIMIT = 25;
+          renderQuestions();
+        }
+      });
+    }
+
+    async function initApp() {
+      loadPersistedState();
+      bindSearchInput();
+      try {
+        const res = await fetch('./data/eip_written_rdb_export.json');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        WRITTEN_DATA = await res.json();
+
+        const meta = WRITTEN_DATA.meta;
+        document.getElementById('brandBadge').textContent = `${meta.rounds_count}회차 · ${meta.questions_count}문항`;
+        document.getElementById('kpiRounds').textContent = `${meta.rounds_count}개 회차`;
+        document.getElementById('kpiRange').textContent = `${meta.rounds_range} · Q-Net 기출`;
+        document.getElementById('kpiTotal').textContent = `${meta.questions_count}문항`;
+        document.getElementById('tab-questions').textContent = `📚 필기 CBT 문제풀이 (${meta.questions_count})`;
+
+        const roundSel = document.getElementById('filterRound');
+        [...WRITTEN_DATA.rounds].reverse().forEach(r => {
+          const opt = document.createElement('option');
+          opt.value = r.round_id;
+          opt.textContent = `${r.round_title} (${r.total_questions}문항)`;
+          roundSel.appendChild(opt);
+        });
+
+        const domSel = document.getElementById('filterDomain');
+        const notesDomSel = document.getElementById('notesDomainFilter');
+        WRITTEN_DATA.domains.forEach(d => {
+          const opt1 = document.createElement('option');
+          opt1.value = d.domain_id;
+          opt1.textContent = `${d.domain_name} (${d.question_count})`;
+          domSel.appendChild(opt1);
+
+          const opt2 = document.createElement('option');
+          opt2.value = d.domain_id;
+          opt2.textContent = d.domain_name;
+          notesDomSel.appendChild(opt2);
+        });
+
+        updateHUD();
+        renderSubjectPills();
+        renderQuestions();
+      } catch (err) {
+        document.getElementById('questionList').innerHTML =
+          `<div class="q-card" style="color:var(--rose);">데이터 로드 실패: 로컬 서버 또는 GitHub Pages 환경에서 열어주세요. (${escapeHtml(err.message)})</div>`;
+      }
+    }
+
+    initApp();
+  </script>
+</body>
+</html>

@@ -310,6 +310,7 @@
     .pill-short { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
     .pill-essay { background: var(--amber-soft); color: var(--amber); border-color: var(--amber); }
     .pill-practical { background: var(--rose-soft); color: var(--rose); border-color: var(--rose); }
+    .pill-source { background: var(--bg-elevated); color: var(--text-muted); border-color: var(--border); font-weight: 600; }
 
     .bookmark-btn {
       border: 1px solid var(--border);
@@ -570,7 +571,8 @@
       <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
         <a href="../eip/index.html" style="color:var(--text-main); text-decoration:none; padding:4px 9px; border-radius:7px; background:var(--bg-card); border:1px solid var(--border);">💻 정보처리기사 실기 (400)</a>
         <a href="../itpe/index.html" style="color:var(--text-main); text-decoration:none; padding:4px 9px; border-radius:7px; background:var(--bg-card); border:1px solid var(--border);">🏛️ 정보관리기술사 필기 (122)</a>
-        <a href="../isec/index.html" style="color:var(--accent); font-weight:700; text-decoration:none; padding:4px 9px; border-radius:7px; background:var(--bg-card); border:1px solid var(--accent);">🛡️ 정보보안기사 실기 (75)</a>
+        <a href="../isec-written/index.html" style="color:var(--text-main); text-decoration:none; padding:4px 9px; border-radius:7px; background:var(--bg-card); border:1px solid var(--border);">📝 정보보안기사 필기 CBT</a>
+        <a href="../isec/index.html" id="topBarIsecLink" style="color:var(--accent); font-weight:700; text-decoration:none; padding:4px 9px; border-radius:7px; background:var(--bg-card); border:1px solid var(--accent);">🛡️ 정보보안기사 실기</a>
         <a href="../../index.html#section-community" style="color:var(--text-main); text-decoration:none; padding:4px 9px; border-radius:7px; background:var(--bg-card); border:1px solid var(--border);">💬 정보공유 라운지</a>
       </div>
     </div>
@@ -579,10 +581,10 @@
     <div class="header-inner">
       <div class="brand-wrap">
         <a href="../../index.html" class="hub-back">← K-Cert Hub</a>
-        <div class="brand-title">
+        <h1 class="brand-title">
           <span>🛡️ 정보보안기사 실기 RDB</span>
-          <span class="brand-badge">제15~26회 · 60+15문항</span>
-        </div>
+          <span class="brand-badge" id="brandBadge">제10~26회 · 실기 RDB</span>
+        </h1>
       </div>
 
       <div class="header-controls">
@@ -614,18 +616,18 @@
     <section class="kpi-grid" aria-label="정보보안기사 RDB 요약">
       <div class="kpi-card">
         <div class="kpi-label">수록 기출 회차</div>
-        <div class="kpi-val" id="kpiRounds">12회차</div>
-        <div class="kpi-sub">제15회(2020) ~ 제26회(2026) · KISA/KCA</div>
+        <div class="kpi-val" id="kpiRounds">-회차</div>
+        <div class="kpi-sub" id="kpiRoundsSub">회차 범위 로드 중 · KISA/KCA</div>
       </div>
       <div class="kpi-card">
         <div class="kpi-label">기출 + 예상 문항</div>
-        <div class="kpi-val" id="kpiTotal">60 + 15문항</div>
+        <div class="kpi-val" id="kpiTotal">- + -문항</div>
         <div class="kpi-sub">단답형(3점) · 서술형(12점) · 실무형(14점)</div>
       </div>
       <div class="kpi-card">
         <div class="kpi-label">5대 공식 도메인</div>
         <div class="kpi-val">시스템·NW·앱·암호·법규</div>
-        <div class="kpi-sub">Snort · iptables · Linux · ISMS-P 전수 반영</div>
+        <div class="kpi-sub">Snort · iptables · Linux/Win · ISMS-P 전수 반영</div>
       </div>
       <div class="kpi-card">
         <div class="kpi-label">내 북마크(오답노트)</div>
@@ -636,9 +638,9 @@
 
     <!-- Main Navigation Tabs -->
     <nav class="tab-bar" aria-label="정보보안기사 학습 메뉴">
-      <button type="button" class="tab-btn active" id="tab-questions" onclick="switchTab('questions')">📚 기출문제 RDB (60문항)</button>
+      <button type="button" class="tab-btn active" id="tab-questions" onclick="switchTab('questions')">📚 기출·실무 RDB</button>
       <button type="button" class="tab-btn" id="tab-analytics" onclick="switchTab('analytics')">📊 5대 도메인 출제 분석표</button>
-      <button type="button" class="tab-btn" id="tab-predicted" onclick="switchTab('predicted')">🎯 최신 예상문제 15선</button>
+      <button type="button" class="tab-btn" id="tab-predicted" onclick="switchTab('predicted')">🎯 최신 예상문제</button>
       <button type="button" class="tab-btn" id="tab-cheatsheet" onclick="switchTab('cheatsheet')">🛠️ 실무 치트시트 (Snort·iptables·Linux·법규)</button>
     </nav>
 
@@ -646,7 +648,7 @@
     <section id="panel-questions">
       <div class="filter-bar">
         <select id="filterRound" onchange="renderQuestions()" aria-label="회차 필터">
-          <option value="ALL">전체 회차 (제15회~제26회)</option>
+          <option value="ALL" id="optAllRounds">전체 회차</option>
         </select>
         <select id="filterDomain" onchange="renderQuestions()" aria-label="도메인 필터">
           <option value="ALL">전체 도메인 (5대 과목)</option>
@@ -654,15 +656,20 @@
         <select id="filterQtype" onchange="renderQuestions()" aria-label="출제 유형 필터">
           <option value="ALL">전체 유형 (단답·서술·실무)</option>
         </select>
+        <select id="filterSource" onchange="renderQuestions()" aria-label="출처 구분 필터">
+          <option value="ALL">전체 출처 (기출복원 + 학습은행)</option>
+          <option value="RESTORED">기출복원 문항만</option>
+          <option value="BANK">학습은행 · 보완 문항만</option>
+        </select>
         <select id="filterBookmark" onchange="renderQuestions()" aria-label="북마크 필터">
           <option value="ALL">전체 문항 보기</option>
           <option value="SAVED">★ 북마크(오답노트)만 보기</option>
         </select>
-        <input type="search" id="searchInput" oninput="renderQuestions()" placeholder="키워드 검색 (예: Snort, iptables, shadow, SSRF...)" aria-label="기출문제 검색" />
+        <input type="search" id="searchInput" oninput="renderQuestions()" placeholder="키워드 검색 (예: Snort, iptables, shadow, SSRF, XXE...)" aria-label="기출문제 검색" />
       </div>
 
       <div class="filter-meta">
-        <span id="resultCount">조회 중...</span>
+        <span id="resultCount" aria-live="polite">조회 중...</span>
         <button type="button" class="btn-sm" onclick="resetFilters()">필터 초기화</button>
       </div>
 
@@ -673,7 +680,7 @@
     <section id="panel-analytics" class="hidden">
       <div tabindex="0" role="region" aria-labelledby="analytics-table-caption" class="table-wrapper">
         <table class="analytics-table">
-          <caption id="analytics-table-caption">정보보안기사 실기 5대 도메인별 출제 빈도 · 유형 분포 · 출제 임박도 분석 (제15~26회)</caption>
+          <caption id="analytics-table-caption">정보보안기사 실기 5대 도메인별 출제 빈도 · 유형 분포 · 출제 임박도 분석</caption>
           <thead>
             <tr>
               <th scope="col">도메인 (과목)</th>
@@ -889,8 +896,13 @@ access-list 100 deny ip any any</pre>
       return 'pill-practical';
     }
 
-    function toggleSingleReveal(id) {
-      const el = document.getElementById(id);
+    function toggleQuestionReveal(qid) {
+      const el = document.getElementById(`reveal-q-${qid}`);
+      if (el) el.classList.toggle('hidden');
+    }
+
+    function togglePredictedReveal(pid) {
+      const el = document.getElementById(`reveal-p-${pid}`);
       if (el) el.classList.toggle('hidden');
     }
 
@@ -898,6 +910,7 @@ access-list 100 deny ip any any</pre>
       document.getElementById('filterRound').value = 'ALL';
       document.getElementById('filterDomain').value = 'ALL';
       document.getElementById('filterQtype').value = 'ALL';
+      document.getElementById('filterSource').value = 'ALL';
       document.getElementById('filterBookmark').value = 'ALL';
       document.getElementById('searchInput').value = '';
       renderQuestions();
@@ -908,6 +921,7 @@ access-list 100 deny ip any any</pre>
       const fRound = document.getElementById('filterRound').value;
       const fDomain = document.getElementById('filterDomain').value;
       const fQtype = document.getElementById('filterQtype').value;
+      const fSource = document.getElementById('filterSource').value;
       const fBm = document.getElementById('filterBookmark').value;
       const kw = document.getElementById('searchInput').value.trim().toLowerCase();
 
@@ -915,9 +929,11 @@ access-list 100 deny ip any any</pre>
         if (fRound !== 'ALL' && String(q.round_id) !== fRound) return false;
         if (fDomain !== 'ALL' && String(q.domain_id) !== fDomain) return false;
         if (fQtype !== 'ALL' && String(q.qtype_id) !== fQtype) return false;
+        if (fSource === 'RESTORED' && !(q.source || '').startsWith('기출복원')) return false;
+        if (fSource === 'BANK' && (q.source || '').startsWith('기출복원')) return false;
         if (fBm === 'SAVED' && !BOOKMARKS.has(q.question_id)) return false;
         if (kw) {
-          const hay = `${q.round_title} ${q.domain_name} ${q.title} ${q.question_text} ${q.code_or_log} ${q.answer_text} ${q.core_keywords} ${q.explanation}`.toLowerCase();
+          const hay = `${q.round_title} ${q.domain_name} ${q.title} ${q.question_text} ${q.code_or_log} ${q.answer_text} ${q.core_keywords} ${q.explanation} ${q.source || ''}`.toLowerCase();
           if (!hay.includes(kw)) return false;
         }
         return true;
@@ -957,9 +973,9 @@ access-list 100 deny ip any any</pre>
         if (STUDY_MODE === 'exam') {
           modeContent = `
             <div class="practice-box">
-              <textarea class="practice-input" placeholder="실전 답안을 직접 작성해 보세요 (핵심 용어·명령어·설정 구문 중심)..."></textarea>
+              <textarea class="practice-input" aria-label="실전 답안 연습란" placeholder="실전 답안을 직접 작성해 보세요 (핵심 용어·명령어·설정 구문 중심)..."></textarea>
               <div>
-                <button type="button" class="btn-sm" onclick="toggleSingleReveal('${revealId}')">👁️ 정답 및 해설 확인</button>
+                <button type="button" class="btn-sm" onclick="toggleQuestionReveal(${q.question_id})">👁️ 정답 및 해설 확인</button>
               </div>
               <div id="${revealId}" class="hidden">
                 ${answerBlock}
@@ -980,6 +996,7 @@ access-list 100 deny ip any any</pre>
                 <span class="pill pill-round">${escapeHtml(q.round_title)} #${q.question_no} (${escapeHtml(q.agency)})</span>
                 <span class="pill pill-domain">${escapeHtml(q.domain_name)}</span>
                 <span class="pill ${qtypePillClass(q.qtype_id)}">${escapeHtml(q.qtype_name)}</span>
+                ${q.source ? `<span class="pill pill-source">${escapeHtml(q.source)}</span>` : ''}
               </div>
               <button type="button" class="bookmark-btn ${isSaved ? 'saved' : ''}" onclick="toggleBookmark(${q.question_id})">
                 ${isSaved ? '★ 북마크됨' : '☆ 오답/북마크'}
@@ -1035,8 +1052,8 @@ access-list 100 deny ip any any</pre>
 
         const bodyContent = STUDY_MODE === 'exam'
           ? `<div class="practice-box">
-               <textarea class="practice-input" placeholder="예상문제 모범 답안을 작성해 보세요..."></textarea>
-               <div><button type="button" class="btn-sm" onclick="toggleSingleReveal('${revealId}')">👁️ 모범 답안 확인</button></div>
+               <textarea class="practice-input" aria-label="예상문제 모범 답안 연습란" placeholder="예상문제 모범 답안을 작성해 보세요..."></textarea>
+               <div><button type="button" class="btn-sm" onclick="togglePredictedReveal(${p.pred_id})">👁️ 모범 답안 확인</button></div>
                <div id="${revealId}" class="hidden">${answerBlock}</div>
              </div>`
           : answerBlock;
@@ -1048,6 +1065,7 @@ access-list 100 deny ip any any</pre>
                 <span class="pill pill-practical">예상 #${p.pred_id} · 출제확률 ${escapeHtml(p.probability)}</span>
                 <span class="pill pill-domain">${escapeHtml(p.domain_name)}</span>
                 <span class="pill ${qtypePillClass(p.qtype_id)}">${escapeHtml(p.qtype_name)}</span>
+                ${p.source ? `<span class="pill pill-source">${escapeHtml(p.source)}</span>` : ''}
               </div>
             </div>
             <h2 class="q-title">Q. ${escapeHtml(p.title)}</h2>
@@ -1065,8 +1083,24 @@ access-list 100 deny ip any any</pre>
         const res = await fetch('./data/isec_rdb_export.json');
         ISEC_DATA = await res.json();
 
-        document.getElementById('kpiRounds').textContent = `${ISEC_DATA.meta.rounds_count}회차`;
-        document.getElementById('kpiTotal').textContent = `${ISEC_DATA.meta.questions_count} + ${ISEC_DATA.meta.predicted_count}문항`;
+        const meta = ISEC_DATA.meta;
+        const roundIds = ISEC_DATA.rounds.map(r => r.round_id);
+        const minR = Math.min(...roundIds);
+        const maxR = Math.max(...roundIds);
+        const years = ISEC_DATA.rounds.map(r => r.exam_year);
+        const minY = Math.min(...years);
+        const maxY = Math.max(...years);
+        const totalCombined = meta.questions_count + meta.predicted_count;
+
+        document.getElementById('kpiRounds').textContent = `${meta.rounds_count}회차`;
+        document.getElementById('kpiRoundsSub').textContent = `제${minR}회(${minY}) ~ 제${maxR}회(${maxY}) · KISA/KCA`;
+        document.getElementById('kpiTotal').textContent = `${meta.questions_count} + ${meta.predicted_count}문항`;
+        document.getElementById('brandBadge').textContent = `제${minR}~${maxR}회 · ${meta.questions_count}+${meta.predicted_count}문항`;
+        document.getElementById('topBarIsecLink').textContent = `🛡️ 정보보안기사 실기 (${totalCombined})`;
+        document.getElementById('tab-questions').textContent = `📚 기출·실무 RDB (${meta.questions_count}문항)`;
+        document.getElementById('tab-predicted').textContent = `🎯 최신 예상문제 ${meta.predicted_count}선`;
+        document.getElementById('optAllRounds').textContent = `전체 회차 (제${minR}회~제${maxR}회)`;
+        document.getElementById('analytics-table-caption').textContent = `정보보안기사 실기 5대 도메인별 출제 빈도 · 유형 분포 · 출제 임박도 분석 (제${minR}~${maxR}회 · ${meta.questions_count}문항)`;
 
         const roundSel = document.getElementById('filterRound');
         [...ISEC_DATA.rounds].reverse().forEach(r => {

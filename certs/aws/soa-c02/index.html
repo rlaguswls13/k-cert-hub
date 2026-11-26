@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light" />
+  <script>
+    try {
+      const saved = localStorage.getItem('kcert_theme');
+      const scheme = saved === 'dark' ? 'dark' : 'light';
+      document.documentElement.dataset.theme = scheme;
+      const meta = document.querySelector('meta[name="color-scheme"]');
+      if (meta) meta.content = scheme;
+    } catch (e) {
+      document.documentElement.dataset.theme = 'light';
+    }
+  </script>
+  <title>AWS Certified SysOps Administrator - Associate (SOA-C02 / C03) RDB — K-Cert Hub</title>
+  <style>
+    :root {
+      color-scheme: light;
+      /* Calm Study Paper — Light Default */
+      --bg-main: #f6f5f0;
+      --bg-card: #ffffff;
+      --bg-elevated: #efece6;
+      --bg-input: #fcfbf8;
+      --bg-code: #1e2530;
+      --text-main: #1f2933;
+      --text-muted: #525c68;
+      --border: #d8d5cc;
+      --accent: #0f766e;
+      --accent-contrast: #ffffff;
+      --accent-soft: #f0fdfa;
+      --blue: #1d4ed8;
+      --blue-soft: #eff6ff;
+      --amber: #b45309;
+      --amber-soft: #fffbeb;
+      --rose: #be123c;
+      --rose-soft: #fff1f2;
+      --purple: #6d28d9;
+      --purple-soft: #f5f3ff;
+      --green: #15803d;
+      --green-soft: #f0fdf4;
+      --shadow-sm: 0 1px 3px rgba(31, 41, 51, 0.06);
+      --focus-ring: #0f766e;
+      accent-color: var(--accent);
+    }
+
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --bg-main: #141820;
+      --bg-card: #1c222d;
+      --bg-elevated: #242b38;
+      --bg-input: #171c26;
+      --bg-code: #0f131a;
+      --text-main: #eaeff5;
+      --text-muted: #9aa5b5;
+      --border: #323c4e;
+      --accent: #2dd4bf;
+      --accent-contrast: #0f172a;
+      --accent-soft: rgba(20, 184, 166, 0.16);
+      --blue: #60a5fa;
+      --blue-soft: rgba(59, 130, 246, 0.16);
+      --amber: #fcd34d;
+      --amber-soft: rgba(245, 158, 11, 0.16);
+      --rose: #fda4af;
+      --rose-soft: rgba(244, 63, 94, 0.16);
+      --purple: #c4b5fd;
+      --purple-soft: rgba(167, 139, 250, 0.16);
+      --green: #4ade80;
+      --green-soft: rgba(34, 197, 94, 0.15);
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
+      --focus-ring: #2dd4bf;
+      accent-color: var(--accent);
+    }
+
+    /* Theme toggle branching without JS-class dependency */
+    .theme-opt-light { display: none; }
+    .theme-opt-dark { display: inline-flex; align-items: center; gap: 4px; }
+    :root[data-theme="dark"] .theme-opt-light { display: inline-flex; align-items: center; gap: 4px; }
+    :root[data-theme="dark"] .theme-opt-dark { display: none; }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.65;
+      padding-bottom: 64px;
+      overflow-wrap: break-word;
+    }
+
+    :where(a, button, input, select, summary):focus-visible {
+      outline: 3px solid var(--focus-ring);
+      outline-offset: 2px;
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .skip-link {
+      position: absolute;
+      left: -9999px;
+      top: 8px;
+      z-index: 999;
+      background: var(--accent);
+      color: var(--accent-contrast);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .skip-link:focus { left: 12px; }
+
+    /* Global Top Navigation Bar */
+    .top-nav {
+      background: var(--bg-elevated);
+      border-bottom: 1px solid var(--border);
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+    .top-nav-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 8px 24px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .nav-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .nav-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      min-block-size: 30px;
+      padding: 4px 10px;
+      border-radius: 7px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      text-decoration: none;
+      font-weight: 600;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .nav-pill:hover { border-color: var(--accent); color: var(--accent); }
+    .nav-pill.hub-root { color: var(--accent); font-weight: 700; }
+    .nav-pill.active {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--accent);
+      font-weight: 800;
+    }
+
+    /* Sticky Header */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 24px;
+      box-shadow: var(--shadow-sm);
+    }
+    .header-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .brand-title {
+      font-size: 1.12rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .brand-badge {
+      font-size: 0.72rem;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+
+    .header-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+    .mode-group {
+      display: inline-flex;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 3px;
+      gap: 4px;
+    }
+    .mode-btn {
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      min-block-size: 32px;
+      padding: 5px 12px;
+      border-radius: 7px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .mode-btn.active {
+      background: var(--accent);
+      color: var(--accent-contrast);
+    }
+
+    .timer-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+    .timer-display {
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      color: var(--amber);
+      font-size: 0.92rem;
+      min-width: 56px;
+      text-align: center;
+    }
+    .btn-sm {
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      color: var(--text-main);
+      min-block-size: 30px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      font-weight: 600;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .btn-sm:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-primary {
+      border: 1px solid var(--accent);
+      background: var(--accent);
+      color: var(--accent-contrast);
+      min-block-size: 34px;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-primary:hover { opacity: 0.92; }
+
+    .container {
+      max-width: 1400px;
+      margin: 20px auto;
+      padding: 0 24px;
+    }
+
+    /* Progress & KPI HUD */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      box-shadow: var(--shadow-sm);
+    }
+    .kpi-label { font-size: 0.78rem; color: var(--text-muted); font-weight: 700; }
+    .kpi-val { font-size: 1.4rem; font-weight: 800; margin-top: 4px; color: var(--accent); }
+    .kpi-sub { font-size: 0.75rem; color: var(--text-muted); margin-top: 3px; }
+    .progress-track {
+      margin-top: 8px;
+      height: 7px;
+      border-radius: 999px;
+      background: var(--bg-elevated);
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--accent);
+      transition: width 0.25s ease;
+    }
+
+    /* Tabs */
+    .tab-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+    }
+    .tab-btn {
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-muted);
+      min-block-size: 38px;
+      padding: 8px 16px;
+      border-radius: 9px;
+      font-size: 0.86rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .tab-btn.active {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Filter Bar */
+    .filter-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow-sm);
+    }
+    .filter-bar select, .filter-bar input {
+      width: 100%;
+      min-block-size: 38px;
+      padding: 7px 11px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      color: var(--text-main);
+      font-size: 0.84rem;
+    }
+    .filter-meta {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+      font-size: 0.84rem;
+      color: var(--text-muted);
+    }
+
+    /* Question Cards */
+    .card-list { display: flex; flex-direction: column; gap: 16px; }
+    .q-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 20px;
+      box-shadow: var(--shadow-sm);
+      transition: border-color 0.15s;
+    }
+    .q-card:hover { border-color: var(--accent); }
+    .q-card.solved-correct { border-left: 5px solid var(--green); }
+    .q-card.solved-wrong { border-left: 5px solid var(--rose); }
+
+    .q-meta {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+    .pill {
+      font-size: 0.73rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+    }
+    .pill-round { background: var(--blue-soft); color: var(--blue); border-color: var(--blue); }
+    .pill-domain { background: var(--purple-soft); color: var(--purple); border-color: var(--purple); }
+    .pill-single { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+    .pill-multi { background: var(--amber-soft); color: var(--amber); border-color: var(--amber); }
+    .pill-source { background: var(--bg-elevated); color: var(--text-muted); border-color: var(--border); }
+    .pill-correct { background: var(--green-soft); color: var(--green); border-color: var(--green); }
+    .pill-wrong { background: var(--rose-soft); color: var(--rose); border-color: var(--rose); }
+
+    .bookmark-btn {
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      color: var(--text-muted);
+      min-block-size: 30px;
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .bookmark-btn.saved {
+      background: var(--amber-soft);
+      border-color: var(--amber);
+      color: var(--amber);
+    }
+
+    .q-title {
+      font-size: 1.04rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+    .q-body {
+      font-size: 0.93rem;
+      white-space: pre-line;
+      margin-bottom: 14px;
+    }
+
+    /* Options Fieldset */
+    .options-fieldset {
+      border: none;
+      margin-bottom: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .option-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      min-block-size: 44px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .option-row:hover { border-color: var(--accent); }
+    .option-row input {
+      margin-top: 4px;
+      inline-size: 18px;
+      block-size: 18px;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+    .option-letter {
+      font-weight: 800;
+      color: var(--accent);
+      min-width: 22px;
+    }
+    .option-text {
+      flex: 1;
+      font-size: 0.9rem;
+    }
+    .option-status {
+      font-size: 0.74rem;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .option-row.is-correct {
+      background: var(--green-soft);
+      border-color: var(--green);
+    }
+    .option-row.is-wrong-picked {
+      background: var(--rose-soft);
+      border-color: var(--rose);
+    }
+    .option-row.is-readonly {
+      cursor: default;
+    }
+
+    .action-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-top: 6px;
+    }
+    .select-hint {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .answer-box {
+      margin-top: 12px;
+      background: var(--bg-elevated);
+      border-left: 4px solid var(--accent);
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+    .answer-label {
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+    .answer-text {
+      font-size: 0.89rem;
+      white-space: pre-line;
+      font-weight: 600;
+    }
+    .kw-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+    .kw-chip {
+      font-size: 0.74rem;
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .explain-box {
+      margin-top: 10px;
+      background: var(--bg-elevated);
+      border-left: 4px solid var(--blue);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 0.88rem;
+      white-space: pre-line;
+    }
+    .explain-label {
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: var(--blue);
+      margin-bottom: 4px;
+    }
+    .escalation-note {
+      margin-top: 8px;
+      font-size: 0.8rem;
+      color: var(--amber);
+      font-weight: 700;
+    }
+
+    /* Responsive Analytics Table */
+    .table-wrapper {
+      overflow: auto;
+      max-inline-size: 100%;
+      max-block-size: min(560px, 75vh);
+      container-type: inline-size;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: var(--shadow-sm);
+    }
+    .analytics-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 0.85rem;
+      --label-2: "공식 비중";
+      --label-3: "수록 문항";
+      --label-4: "수록 비중";
+      --label-5: "단일선택";
+      --label-6: "복수선택";
+      --label-7: "등장 라운드";
+      --label-8: "핵심 출제 토픽";
+    }
+    .analytics-table caption {
+      text-align: left;
+      padding: 14px 16px;
+      font-weight: 800;
+      font-size: 0.96rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-card);
+    }
+    .analytics-table thead {
+      position: sticky;
+      inset-block-start: 0;
+      z-index: 2;
+      background: var(--bg-elevated);
+    }
+    .analytics-table th, .analytics-table td {
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+    .analytics-table tbody th {
+      position: sticky;
+      inset-inline-start: 0;
+      z-index: 1;
+      background: var(--bg-card);
+      font-weight: 800;
+    }
+    @container (width < 680px) {
+      .analytics-table, .analytics-table thead, .analytics-table tbody,
+      .analytics-table tr, .analytics-table th, .analytics-table td {
+        display: block;
+      }
+      .analytics-table thead { display: none; }
+      .analytics-table tr {
+        margin: 12px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        overflow: hidden;
+      }
+      .analytics-table tbody th {
+        position: static;
+        background: var(--bg-elevated);
+      }
+      .analytics-table td {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .analytics-table td:nth-child(2)::before { content: var(--label-2) ": "; font-weight: 700; color: var(--text-muted); }
+      .analytics-table td:nth-child(3)::before { content: var(--label-3) ": "; font-weight: 700; color: var(--text-muted); }
+      .analytics-table td:nth-child(4)::before { content: var(--label-4) ": "; font-weight: 700; color: var(--text-muted); }
+      .analytics-table td:nth-child(5)::before { content: var(--label-5) ": "; font-weight: 700; color: var(--text-muted); }
+      .analytics-table td:nth-child(6)::before { content: var(--label-6) ": "; font-weight: 700; color: var(--text-muted); }
+      .analytics-table td:nth-child(7)::before { content: var(--label-7) ": "; font-weight: 700; color: var(--text-muted); }
+      .analytics-table td:nth-child(8)::before { content: var(--label-8) ": "; font-weight: 700; color: var(--text-muted); }
+    }
+
+    /* Cheatsheet Grid */
+    .cheat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 16px;
+    }
+    .cheat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 18px;
+      box-shadow: var(--shadow-sm);
+    }
+    .cheat-card h2 {
+      font-size: 0.98rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+      color: var(--accent);
+    }
+    .cheat-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      font-size: 0.84rem;
+    }
+    .cheat-list code {
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      background: var(--bg-elevated);
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+    }
+    .code-block {
+      background: var(--bg-code);
+      color: #e2e8f0;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      font-size: 0.78rem;
+      overflow-x: auto;
+      white-space: pre;
+      margin-bottom: 10px;
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">본문으로 건너뛰기</a>
+  <div id="liveAnnouncer" class="visually-hidden" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- K-Cert Hub & AWS Sibling Navigation -->
+  <nav class="top-nav" aria-label="K-Cert Hub 및 AWS 자격증 통합 내비게이션">
+    <div class="top-nav-inner">
+      <div class="nav-group">
+        <a href="../../../index.html" class="nav-pill hub-root">🏠 K-Cert Hub 포털</a>
+        <a href="../index.html" class="nav-pill">☁️ AWS 자격증 허브</a>
+      </div>
+      <div class="nav-group" aria-label="AWS 5대 자격증 전환">
+        <a href="../clf-c02/index.html" class="nav-pill">CLF-C02 (Cloud Practitioner)</a>
+        <a href="../saa-c03/index.html" class="nav-pill">SAA-C03 (Solutions Architect)</a>
+        <a href="../dva-c02/index.html" class="nav-pill">DVA-C02 (Developer)</a>
+        <a href="../soa-c02/index.html" class="nav-pill active" aria-current="page">SOA-C02 (SysOps Admin)</a>
+        <a href="../sap-c02/index.html" class="nav-pill">SAP-C02 (SA Pro)</a>
+      </div>
+    </div>
+  </nav>
+
+  <header>
+    <div class="header-inner">
+      <div class="brand-wrap">
+        <h1 class="brand-title">
+          <span>⚙️ AWS SysOps Administrator - Associate (SOA-C02 / C03)</span>
+          <span class="brand-badge">Associate · 6대 도메인 · 100문항 RDB</span>
+        </h1>
+      </div>
+
+      <div class="header-controls">
+        <div class="mode-group" role="group" aria-label="학습 모드 선택">
+          <button type="button" class="mode-btn active" id="mode-solve">📝 실전 풀이</button>
+          <button type="button" class="mode-btn" id="mode-quick">⚡ 빠른 정답</button>
+          <button type="button" class="mode-btn" id="mode-study">🔍 상세 해설</button>
+        </div>
+
+        <div class="timer-box" aria-label="시험 타이머">
+          <span aria-hidden="true">⏱️</span>
+          <span class="timer-display" id="timerDisplay">130:00</span>
+          <button type="button" class="btn-sm" id="timer130Btn">130분</button>
+          <button type="button" class="btn-sm" id="timer30Btn">30분</button>
+          <button type="button" class="btn-sm" id="timerToggleBtn">시작</button>
+          <button type="button" class="btn-sm" id="timerResetBtn">초기화</button>
+        </div>
+
+        <button type="button" class="btn-sm" id="themeToggleBtn" aria-label="라이트/다크 색상 테마 전환">
+          <span class="theme-opt-light">☀️ 라이트</span>
+          <span class="theme-opt-dark">🌙 다크</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main-content" class="container" tabindex="-1">
+    <!-- Progress / Score HUD -->
+    <section class="kpi-grid" aria-label="학습 진도 및 점수 현황">
+      <div class="kpi-card">
+        <div class="kpi-label">전체 문항 &amp; 출처</div>
+        <div class="kpi-val" id="kpiTotal">100문항</div>
+        <div class="kpi-sub">공식 PDF 10 + Exam Guide 30 + MIT Bank 60</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">실전 풀이 진도</div>
+        <div class="kpi-val" id="kpiProgress">0 / 100</div>
+        <div class="progress-track" aria-hidden="true"><div class="progress-fill" id="progressBar"></div></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">정답률 (합격 기준 72%)</div>
+        <div class="kpi-val" id="kpiAccuracy">0%</div>
+        <div class="kpi-sub" id="kpiScoreDetail">정답 0 · 오답 0</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">내 오답노트(북마크)</div>
+        <div class="kpi-val" id="kpiBookmarks">0문항</div>
+        <div class="kpi-sub">
+          <button type="button" class="btn-sm" id="resetProgressBtn">풀이 기록 초기화</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Section Tabs -->
+    <nav class="tab-bar" aria-label="학습 영역 전환">
+      <button type="button" class="tab-btn active" id="tab-questions">📚 문제 은행 RDB (100문항)</button>
+      <button type="button" class="tab-btn" id="tab-analytics">📊 6대 도메인 출제 비중 &amp; 분석표</button>
+      <button type="button" class="tab-btn" id="tab-cheatsheet">🛠️ SysOps 핵심 요약 치트시트</button>
+    </nav>
+
+    <!-- Tab 1: Question Bank -->
+    <section id="panel-questions">
+      <div class="filter-bar">
+        <select id="filterRound" aria-label="라운드(세트) 필터">
+          <option value="ALL">전체 라운드 (4개 세트)</option>
+        </select>
+        <select id="filterDomain" aria-label="도메인 필터">
+          <option value="ALL">전체 도메인 (6대 공식 영역)</option>
+        </select>
+        <select id="filterSource" aria-label="출처 필터">
+          <option value="ALL">전체 출처 (PDF·Guide·MIT)</option>
+        </select>
+        <select id="filterStatus" aria-label="문항 상태 및 유형 필터">
+          <option value="ALL">전체 문항 보기</option>
+          <option value="SAVED">★ 오답노트(북마크)만 보기</option>
+          <option value="UNSOLVED">미풀이 문항만 보기</option>
+          <option value="WRONG">✕ 틀린 문항만 보기</option>
+          <option value="SINGLE">단일선택(Multiple Choice)만</option>
+          <option value="MULTI">복수선택(Select TWO)만</option>
+        </select>
+        <input type="search" id="searchInput" placeholder="키워드 검색 (CloudWatch, SSM, KMS, gp3, NACL...)" aria-label="문제 키워드 검색" />
+      </div>
+
+      <div class="filter-meta">
+        <span id="resultCount">데이터 로딩 중...</span>
+        <button type="button" class="btn-sm" id="resetFiltersBtn">필터 초기화</button>
+      </div>
+
+      <div id="questionList" class="card-list"></div>
+    </section>
+
+    <!-- Tab 2: Analytics Table -->
+    <section id="panel-analytics" class="hidden">
+      <div tabindex="0" role="region" aria-labelledby="analytics-caption" class="table-wrapper">
+        <table class="analytics-table">
+          <caption id="analytics-caption">AWS Certified SysOps Administrator - Associate (SOA-C02) 6대 공식 도메인별 비중 및 문항 분포</caption>
+          <thead>
+            <tr>
+              <th scope="col">공식 도메인</th>
+              <th scope="col">공식 비중</th>
+              <th scope="col">수록 문항</th>
+              <th scope="col">수록 비중</th>
+              <th scope="col">단일선택</th>
+              <th scope="col">복수선택</th>
+              <th scope="col">등장 라운드</th>
+              <th scope="col">핵심 출제 토픽</th>
+            </tr>
+          </thead>
+          <tbody id="analyticsBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Tab 3: SysOps Cheatsheet -->
+    <section id="panel-cheatsheet" class="hidden">
+      <div class="cheat-grid">
+        <article class="cheat-card">
+          <h2>1. 모니터링 · 로깅 · 자동 교정 (Domain 1 · 20%)</h2>
+          <pre class="code-block"># CloudWatch Agent 메모리/프로세스(procstat) 수집
+Namespace: CWAgent (mem_used_percent, disk_used_percent)
+IAM Role:  CloudWatchAgentServerPolicy 필수</pre>
+          <ul class="cheat-list">
+            <li><strong>StatusCheckFailed_System</strong>: 물리 호스트 장애 → CloudWatch Alarm <code>Recover</code> 액션</li>
+            <li><strong>StatusCheckFailed_Instance</strong>: OS/커널 장애 → <code>Reboot</code> 액션</li>
+            <li><strong>Metric Filter</strong>: 로그 패턴 수치화(알람), <code>DefaultValue=0</code> 미설정 시 무트래픽 <code>INSUFFICIENT_DATA</code></li>
+            <li><strong>Subscription Filter</strong>: 실시간 로그 스트리밍(Lambda, Kinesis, Firehose, OpenSearch)</li>
+            <li><strong>AWS Config + SSM Automation</strong>: 비규정 리소스 자동 교정(Auto-Remediation)</li>
+          </ul>
+        </article>
+
+        <article class="cheat-card">
+          <h2>2. 고가용성 · 백업 · 연속성 (Domain 2 · 16%)</h2>
+          <ul class="cheat-list">
+            <li><strong>RDS Multi-AZ</strong>: 동일 리전 타 AZ 동기 복제(RPO=0), 자동 페일오버, DNS TTL 60초 미만 권장</li>
+            <li><strong>RDS Read Replica</strong>: 비동기 복제, 읽기 분산·크로스 리전 DR(수동 Promote)</li>
+            <li><strong>Auto Scaling</strong>: <code>Target Tracking</code>(동적 목표 유지), <code>Lifecycle Hook</code>(Wait 상태 처리), <code>Warm Pool</code>(초기화 단축)</li>
+            <li><strong>AWS Backup vs DLM</strong>: EFS·RDS·DynamoDB 통합 + Vault Lock(<code>Compliance Mode</code> WORM) = AWS Backup / EBS·AMI 전용 = DLM</li>
+            <li><strong>Route 53</strong>: <code>Failover</code>(Active-Passive + Evaluate Target Health), <code>Calculated Health Check</code>(M/N 임계)</li>
+          </ul>
+        </article>
+
+        <article class="cheat-card">
+          <h2>3. 배포 · SSM 자동화 · 보안 (Domain 3 &amp; 4 · 34%)</h2>
+          <ul class="cheat-list">
+            <li><strong>CloudFormation</strong>: <code>StackSets</code>(멀티계정/리전), <code>Change Set</code>(사전 교체 검토), <code>Stack Policy</code>(업데이트 교체 차단), <code>Drift Detection</code></li>
+            <li><strong>Systems Manager</strong>: <code>Session Manager</code>(포트 22/배스천 제거), <code>Patch Manager</code>(Patch Baseline + Maintenance Window), <code>Run Command</code>(MaxConcurrency/MaxErrors)</li>
+            <li><strong>IAM 유효 권한</strong>: <code>Identity Policy ∩ Permission Boundary ∩ SCP</code> (명시적 Deny 최우선)</li>
+            <li><strong>보안 서비스 구분</strong>: <code>GuardDuty</code>(로그 기반 위협 탐지) vs <code>Inspector</code>(CVE 취약점 스캔) vs <code>Access Analyzer</code>(외부 공유 감사)</li>
+            <li><strong>S3 &amp; KMS</strong>: Account-level <code>Block Public Access</code>, Cross-Account KMS는 <code>Key Policy + IAM Policy</code> 양쪽 허용</li>
+          </ul>
+        </article>
+
+        <article class="cheat-card">
+          <h2>4. 네트워킹 · 비용 · 성능 최적화 (Domain 5 &amp; 6 · 30%)</h2>
+          <ul class="cheat-list">
+            <li><strong>SG vs NACL</strong>: SG(Stateful·ENI·Allow만) vs NACL(Stateless·서브넷·번호순 평가·Ephemeral Port 1024-65535 허용 필수)</li>
+            <li><strong>VPC 연결</strong>: <code>VPC Peering</code>(비전이적 1:1) vs <code>Transit Gateway</code>(허브 앤 스포크) vs <code>PrivateLink</code>(CIDR 중복 회피 SaaS)</li>
+            <li><strong>VPC 비용 절감</strong>: S3/DynamoDB는 무료 <code>Gateway Endpoint</code>(NAT GW 과금 우회), 미사용 EIP 해제</li>
+            <li><strong>CloudFront</strong>: S3 직접 차단 <code>OAC</code>, 장애조치 <code>Origin Group</code>, 유료 콘텐츠 <code>Signed URL/Cookie</code></li>
+            <li><strong>비용 최적화</strong>: <code>Compute Optimizer</code>(+CW Agent 메모리), <code>Compute Savings Plans</code>(EC2+Fargate+Lambda), <code>gp2→gp3</code>(기본 3,000 IOPS), <code>S3 Intelligent-Tiering</code>(&ge;128KB)</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const LETTERS = ['A', 'B', 'C', 'D', 'E'];
+    const BOOKMARK_KEY = 'k_cert_hub_soa_c02_bookmarks_v1';
+    const PROGRESS_KEY = 'k_cert_hub_soa_c02_progress_v1';
+
+    const STATE = {
+      data: null,
+      byId: new Map(),
+      mode: 'solve', // solve | quick | study
+      bookmarks: new Set(),
+      // solved[qid] = { selected: [indices], isCorrect: bool }
+      solved: {},
+      // drafts[qid] = [indices] currently toggled before pressing Check
+      drafts: {},
+      timerSeconds: 130 * 60,
+      timerPresetSeconds: 130 * 60,
+      timerInterval: null,
+    };
+
+    function announce(msg) {
+      const el = document.getElementById('liveAnnouncer');
+      if (el) el.textContent = msg;
+    }
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    // --- Theme Toggle & Cross-Tab Sync ---
+    function applyTheme(scheme) {
+      const next = scheme === 'dark' ? 'dark' : 'light';
+      document.documentElement.dataset.theme = next;
+      const meta = document.querySelector('meta[name="color-scheme"]');
+      if (meta) meta.content = next;
+    }
+
+    function toggleColorScheme() {
+      const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+      applyTheme(next);
+      try { localStorage.setItem('kcert_theme', next); } catch (e) {}
+    }
+
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'kcert_theme') {
+        applyTheme(e.newValue === 'dark' ? 'dark' : 'light');
+      }
+    });
+
+    // --- Persistence ---
+    function loadState() {
+      try {
+        const bm = localStorage.getItem(BOOKMARK_KEY);
+        if (bm) STATE.bookmarks = new Set(JSON.parse(bm));
+      } catch (e) {}
+      try {
+        const pr = localStorage.getItem(PROGRESS_KEY);
+        if (pr) STATE.solved = JSON.parse(pr) || {};
+      } catch (e) {}
+    }
+
+    function saveBookmarks() {
+      try { localStorage.setItem(BOOKMARK_KEY, JSON.stringify([...STATE.bookmarks])); } catch (e) {}
+      updateHUD();
+    }
+
+    function saveProgress() {
+      try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(STATE.solved)); } catch (e) {}
+      updateHUD();
+    }
+
+    function updateHUD() {
+      const total = STATE.data ? STATE.data.questions.length : 100;
+      const entries = Object.values(STATE.solved);
+      const solvedCount = entries.length;
+      const correctCount = entries.filter(x => x.isCorrect).length;
+      const wrongCount = solvedCount - correctCount;
+      const acc = solvedCount > 0 ? Math.round((correctCount / solvedCount) * 100) : 0;
+      const pct = total > 0 ? Math.round((solvedCount / total) * 100) : 0;
+
+      document.getElementById('kpiTotal').textContent = `${total}문항`;
+      document.getElementById('kpiProgress').textContent = `${solvedCount} / ${total}`;
+      document.getElementById('progressBar').style.width = `${pct}%`;
+      document.getElementById('kpiAccuracy').textContent = `${acc}%`;
+      document.getElementById('kpiScoreDetail').textContent = `정답 ${correctCount} · 오답 ${wrongCount}`;
+      document.getElementById('kpiBookmarks').textContent = `${STATE.bookmarks.size}문항`;
+    }
+
+    // --- Timer ---
+    function renderTimer() {
+      const m = Math.floor(STATE.timerSeconds / 60);
+      const s = STATE.timerSeconds % 60;
+      document.getElementById('timerDisplay').textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    function stopTimer() {
+      if (STATE.timerInterval) {
+        clearInterval(STATE.timerInterval);
+        STATE.timerInterval = null;
+      }
+      document.getElementById('timerToggleBtn').textContent = '시작';
+    }
+
+    function setTimerPreset(mins) {
+      stopTimer();
+      STATE.timerPresetSeconds = mins * 60;
+      STATE.timerSeconds = STATE.timerPresetSeconds;
+      renderTimer();
+    }
+
+    function toggleTimer() {
+      if (STATE.timerInterval) {
+        stopTimer();
+      } else {
+        document.getElementById('timerToggleBtn').textContent = '일시정지';
+        STATE.timerInterval = setInterval(() => {
+          if (STATE.timerSeconds > 0) {
+            STATE.timerSeconds--;
+            renderTimer();
+          } else {
+            stopTimer();
+            announce('설정한 시험 시간이 종료되었습니다.');
+            alert('설정한 시험 시간이 종료되었습니다!');
+          }
+        }, 1000);
+      }
+    }
+
+    function resetTimer() {
+      stopTimer();
+      STATE.timerSeconds = STATE.timerPresetSeconds;
+      renderTimer();
+    }
+
+    // --- Mode & Tab Switching ---
+    function setStudyMode(mode) {
+      STATE.mode = mode;
+      ['solve', 'quick', 'study'].forEach(m => {
+        document.getElementById(`mode-${m}`).classList.toggle('active', m === mode);
+      });
+      renderQuestions();
+    }
+
+    function switchTab(tab) {
+      ['questions', 'analytics', 'cheatsheet'].forEach(t => {
+        document.getElementById(`tab-${t}`).classList.toggle('active', t === tab);
+        document.getElementById(`panel-${t}`).classList.toggle('hidden', t !== tab);
+      });
+    }
+
+    // --- Filtering ---
+    function getFilteredQuestions() {
+      if (!STATE.data) return [];
+      const fRound = document.getElementById('filterRound').value;
+      const fDomain = document.getElementById('filterDomain').value;
+      const fSource = document.getElementById('filterSource').value;
+      const fStatus = document.getElementById('filterStatus').value;
+      const kw = document.getElementById('searchInput').value.trim().toLowerCase();
+
+      return STATE.data.questions.filter(q => {
+        if (fRound !== 'ALL' && String(q.round_id) !== fRound) return false;
+        if (fDomain !== 'ALL' && String(q.domain_id) !== fDomain) return false;
+        if (fSource !== 'ALL' && q.source !== fSource) return false;
+        if (fStatus === 'SAVED' && !STATE.bookmarks.has(q.question_id)) return false;
+        if (fStatus === 'UNSOLVED' && STATE.solved[q.question_id]) return false;
+        if (fStatus === 'WRONG' && (!STATE.solved[q.question_id] || STATE.solved[q.question_id].isCorrect)) return false;
+        if (fStatus === 'SINGLE' && q.select_count !== 1) return false;
+        if (fStatus === 'MULTI' && q.select_count <= 1) return false;
+        if (kw) {
+          const hay = [
+            q.round_title, q.domain_name, q.title, q.question_text,
+            q.options.join(' '), q.core_keywords, q.explanation, q.source
+          ].join(' ').toLowerCase();
+          if (!hay.includes(kw)) return false;
+        }
+        return true;
+      });
+    }
+
+    function renderQuestions() {
+      if (!STATE.data) return;
+      const filtered = getFilteredQuestions();
+      document.getElementById('resultCount').textContent = `검색 결과: ${filtered.length}문항 / 전체 ${STATE.data.questions.length}문항`;
+
+      const container = document.getElementById('questionList');
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="q-card" style="text-align:center;color:var(--text-muted);">조건에 일치하는 문항이 없습니다. 필터를 조정해 보세요.</div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(q => {
+        const qid = q.question_id;
+        const isSaved = STATE.bookmarks.has(qid);
+        const solvedInfo = STATE.solved[qid] || null;
+        const isMulti = q.select_count > 1;
+        const draft = STATE.drafts[qid] || [];
+        const activeSelected = solvedInfo ? solvedInfo.selected : draft;
+
+        let cardStatusClass = '';
+        let statusPill = '';
+        if (STATE.mode === 'solve' && solvedInfo) {
+          cardStatusClass = solvedInfo.isCorrect ? 'solved-correct' : 'solved-wrong';
+          statusPill = solvedInfo.isCorrect
+            ? `<span class="pill pill-correct">✓ 정답</span>`
+            : `<span class="pill pill-wrong">✕ 오답</span>`;
+        }
+
+        const keywordsHtml = (q.core_keywords || '').split(',').map(k => k.trim()).filter(Boolean)
+          .map(k => `<span class="kw-chip">#${escapeHtml(k)}</span>`).join('');
+
+        // Render options cleanly (no <ul>/<li> around radio/checkbox controls)
+        const optionsHtml = q.options.map((optText, idx) => {
+          const inputId = `q-${qid}-opt-${idx}`;
+          const isCorrOpt = q.correct_indices.includes(idx);
+          const isPicked = activeSelected.includes(idx);
+
+          let rowClass = 'option-row';
+          let optBadge = '';
+
+          if (STATE.mode === 'solve') {
+            if (solvedInfo) {
+              rowClass += ' is-readonly';
+              if (isCorrOpt) {
+                rowClass += ' is-correct';
+                optBadge = `<span class="option-status pill-correct">✓ 정답</span>`;
+              } else if (isPicked) {
+                rowClass += ' is-wrong-picked';
+                optBadge = `<span class="option-status pill-wrong">✕ 선택함</span>`;
+              }
+            }
+          } else {
+            rowClass += ' is-readonly';
+            if (isCorrOpt) {
+              rowClass += ' is-correct';
+              optBadge = `<span class="option-status pill-correct">✓ 정답</span>`;
+            }
+          }
+
+          const inputType = isMulti ? 'checkbox' : 'radio';
+          const checkedAttr = isPicked ? 'checked' : '';
+          const disabledAttr = (STATE.mode !== 'solve' || solvedInfo) ? 'disabled' : '';
+
+          return `
+            <label class="${rowClass}" for="${inputId}">
+              <input type="${inputType}" id="${inputId}" name="q-${qid}" value="${idx}" data-qid="${qid}" data-idx="${idx}" ${checkedAttr} ${disabledAttr} />
+              <span class="option-letter">${LETTERS[idx]}.</span>
+              <span class="option-text">${escapeHtml(optText)}</span>
+              ${optBadge}
+            </label>
+          `;
+        }).join('');
+
+        const answerBlock = `
+          <div class="answer-box">
+            <div class="answer-label">✅ 모범 정답</div>
+            <div class="answer-text">${escapeHtml(q.answer_text)}</div>
+            <div class="kw-row">${keywordsHtml}</div>
+          </div>
+        `;
+
+        const explainBlock = `
+          <div class="explain-box">
+            <div class="explain-label">💡 상세 해설 및 보기 분석</div>
+            <div>${escapeHtml(q.explanation)}</div>
+            <div class="escalation-note">📌 출제 포인트: ${escapeHtml(q.escalation_note)}</div>
+          </div>
+        `;
+
+        let bottomHtml = '';
+        if (STATE.mode === 'solve') {
+          if (!solvedInfo) {
+            bottomHtml = `
+              <div class="action-bar">
+                <button type="button" class="btn-primary js-check-btn" data-qid="${qid}">정답 확인</button>
+                <span class="select-hint" id="hint-${qid}">${isMulti ? `정답 ${q.select_count}개 선택 (현재 ${draft.length}/${q.select_count})` : '정답 1개 선택'}</span>
+              </div>
+            `;
+          } else {
+            bottomHtml = `
+              <div class="action-bar">
+                <button type="button" class="btn-sm js-retry-btn" data-qid="${qid}">↺ 다시 풀기</button>
+                <span class="select-hint">${solvedInfo.isCorrect ? '정확히 맞혔습니다!' : '오답노트에 북마크하여 복습해 보세요.'}</span>
+              </div>
+              ${answerBlock}
+              ${explainBlock}
+            `;
+          }
+        } else if (STATE.mode === 'quick') {
+          bottomHtml = answerBlock;
+        } else {
+          bottomHtml = answerBlock + explainBlock;
+        }
+
+        return `
+          <article class="q-card ${cardStatusClass}" id="card-${qid}">
+            <div class="q-meta">
+              <div class="badge-row">
+                <span class="pill pill-round">R${q.round_id} #${q.question_no}</span>
+                <span class="pill pill-domain">${escapeHtml(q.domain_name)}</span>
+                <span class="pill ${isMulti ? 'pill-multi' : 'pill-single'}">${isMulti ? `복수선택 (${q.select_count}개)` : '단일선택'}</span>
+                <span class="pill pill-source">${escapeHtml(q.source)}</span>
+                ${statusPill}
+              </div>
+              <button type="button" class="bookmark-btn js-bm-btn ${isSaved ? 'saved' : ''}" data-qid="${qid}">
+                ${isSaved ? '★ 오답노트 저장됨' : '☆ 오답노트'}
+              </button>
+            </div>
+            <h2 class="q-title">Q${qid}. ${escapeHtml(q.title)}</h2>
+            <div class="q-body">${escapeHtml(q.question_text)}</div>
+            <fieldset class="options-fieldset">
+              <legend class="visually-hidden">문항 ${qid} 선택지</legend>
+              ${optionsHtml}
+            </fieldset>
+            ${bottomHtml}
+          </article>
+        `;
+      }).join('');
+    }
+
+    function renderAnalytics() {
+      if (!STATE.data) return;
+      const tbody = document.getElementById('analyticsBody');
+      tbody.innerHTML = STATE.data.analytics.map(a => `
+        <tr>
+          <th scope="row">${escapeHtml(a.domain_name)}</th>
+          <td><strong>${a.official_weight_pct}%</strong></td>
+          <td>${a.total_questions}문항</td>
+          <td>${a.share_pct}%</td>
+          <td>${a.single_count}개</td>
+          <td>${a.multi_count}개</td>
+          <td>${a.round_appearances}개 라운드</td>
+          <td>${escapeHtml(a.primary_topics)}</td>
+        </tr>
+      `).join('');
+    }
+
+    // --- Event Delegation (zero inline JS text strings) ---
+    document.getElementById('questionList').addEventListener('change', (e) => {
+      const input = e.target;
+      if (!input.matches('input[data-qid]')) return;
+      const qid = Number(input.dataset.qid);
+      const idx = Number(input.dataset.idx);
+      const q = STATE.byId.get(qid);
+      if (!q || STATE.solved[qid]) return;
+
+      if (q.select_count === 1) {
+        STATE.drafts[qid] = [idx];
+      } else {
+        const prev = STATE.drafts[qid] ? [...STATE.drafts[qid]] : [];
+        if (input.checked) {
+          if (prev.length >= q.select_count) {
+            input.checked = false;
+            announce(`이 문항은 최대 ${q.select_count}개까지 선택할 수 있습니다.`);
+            return;
+          }
+          if (!prev.includes(idx)) prev.push(idx);
+        } else {
+          const pos = prev.indexOf(idx);
+          if (pos !== -1) prev.splice(pos, 1);
+        }
+        prev.sort((a, b) => a - b);
+        STATE.drafts[qid] = prev;
+        const hintEl = document.getElementById(`hint-${qid}`);
+        if (hintEl) hintEl.textContent = `정답 ${q.select_count}개 선택 (현재 ${prev.length}/${q.select_count})`;
+      }
+    });
+
+    document.getElementById('questionList').addEventListener('click', (e) => {
+      const bmBtn = e.target.closest('.js-bm-btn');
+      if (bmBtn) {
+        const qid = Number(bmBtn.dataset.qid);
+        if (STATE.bookmarks.has(qid)) STATE.bookmarks.delete(qid);
+        else STATE.bookmarks.add(qid);
+        saveBookmarks();
+        renderQuestions();
+        return;
+      }
+
+      const checkBtn = e.target.closest('.js-check-btn');
+      if (checkBtn) {
+        const qid = Number(checkBtn.dataset.qid);
+        const q = STATE.byId.get(qid);
+        if (!q) return;
+        const picked = (STATE.drafts[qid] || []).slice().sort((a, b) => a - b);
+        if (picked.length !== q.select_count) {
+          const msg = `정답 ${q.select_count}개를 먼저 선택해 주세요.`;
+          const hintEl = document.getElementById(`hint-${qid}`);
+          if (hintEl) {
+            hintEl.textContent = msg;
+            hintEl.style.color = 'var(--rose)';
+          }
+          announce(msg);
+          return;
+        }
+        const expected = q.correct_indices.slice().sort((a, b) => a - b);
+        const isCorrect = picked.length === expected.length && picked.every((v, i) => v === expected[i]);
+        STATE.solved[qid] = { selected: picked, isCorrect };
+        if (!isCorrect) {
+          STATE.bookmarks.add(qid);
+          saveBookmarks();
+        }
+        saveProgress();
+        renderQuestions();
+        announce(isCorrect ? `문항 ${qid} 정답입니다.` : `문항 ${qid} 오답입니다. 오답노트에 자동 추가되었습니다.`);
+        return;
+      }
+
+      const retryBtn = e.target.closest('.js-retry-btn');
+      if (retryBtn) {
+        const qid = Number(retryBtn.dataset.qid);
+        delete STATE.solved[qid];
+        delete STATE.drafts[qid];
+        saveProgress();
+        renderQuestions();
+      }
+    });
+
+    // Bind Controls
+    document.getElementById('themeToggleBtn').addEventListener('click', toggleColorScheme);
+    document.getElementById('mode-solve').addEventListener('click', () => setStudyMode('solve'));
+    document.getElementById('mode-quick').addEventListener('click', () => setStudyMode('quick'));
+    document.getElementById('mode-study').addEventListener('click', () => setStudyMode('study'));
+
+    document.getElementById('tab-questions').addEventListener('click', () => switchTab('questions'));
+    document.getElementById('tab-analytics').addEventListener('click', () => switchTab('analytics'));
+    document.getElementById('tab-cheatsheet').addEventListener('click', () => switchTab('cheatsheet'));
+
+    document.getElementById('timer130Btn').addEventListener('click', () => setTimerPreset(130));
+    document.getElementById('timer30Btn').addEventListener('click', () => setTimerPreset(30));
+    document.getElementById('timerToggleBtn').addEventListener('click', toggleTimer);
+    document.getElementById('timerResetBtn').addEventListener('click', resetTimer);
+
+    ['filterRound', 'filterDomain', 'filterSource', 'filterStatus'].forEach(id => {
+      document.getElementById(id).addEventListener('change', renderQuestions);
+    });
+    document.getElementById('searchInput').addEventListener('input', renderQuestions);
+
+    document.getElementById('resetFiltersBtn').addEventListener('click', () => {
+      document.getElementById('filterRound').value = 'ALL';
+      document.getElementById('filterDomain').value = 'ALL';
+      document.getElementById('filterSource').value = 'ALL';
+      document.getElementById('filterStatus').value = 'ALL';
+      document.getElementById('searchInput').value = '';
+      renderQuestions();
+    });
+
+    document.getElementById('resetProgressBtn').addEventListener('click', () => {
+      STATE.solved = {};
+      STATE.drafts = {};
+      saveProgress();
+      renderQuestions();
+      announce('실전 풀이 기록이 초기화되었습니다.');
+    });
+
+    async function initApp() {
+      loadState();
+      renderTimer();
+      try {
+        const res = await fetch('./data/soa_c02_rdb_export.json');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        STATE.data = await res.json();
+        STATE.data.questions.forEach(q => STATE.byId.set(q.question_id, q));
+
+        const roundSel = document.getElementById('filterRound');
+        STATE.data.rounds.forEach(r => {
+          const opt = document.createElement('option');
+          opt.value = r.round_id;
+          opt.textContent = r.round_title;
+          roundSel.appendChild(opt);
+        });
+
+        const domSel = document.getElementById('filterDomain');
+        STATE.data.domains.forEach(d => {
+          const opt = document.createElement('option');
+          opt.value = d.domain_id;
+          opt.textContent = `${d.domain_name} (${d.weight_pct}%)`;
+          domSel.appendChild(opt);
+        });
+
+        const srcSel = document.getElementById('filterSource');
+        Object.keys(STATE.data.meta.sources_summary || {}).forEach(src => {
+          const opt = document.createElement('option');
+          opt.value = src;
+          opt.textContent = `${src} (${STATE.data.meta.sources_summary[src]}문항)`;
+          srcSel.appendChild(opt);
+        });
+
+        updateHUD();
+        renderQuestions();
+        renderAnalytics();
+      } catch (err) {
+        document.getElementById('questionList').innerHTML =
+          `<div class="q-card" style="color:var(--rose);">데이터 로드 실패: 로컬 웹 서버(예: py -m http.server) 또는 GitHub Pages 환경에서 열어주세요. (${escapeHtml(err.message)})</div>`;
+      }
+    }
+
+    initApp();
+  </script>
+</body>
+</html>

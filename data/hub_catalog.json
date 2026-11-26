@@ -1,8 +1,8 @@
 {
   "meta": {
-    "title": "K-Cert Hub — 국가·민간 자격증 통합 RDB 학습 & 정보공유 채널",
-    "version": "1.2.0",
-    "updated_at": "2026-11-20",
+    "title": "K-Cert Hub — 국가·민간·AWS 자격증 통합 RDB 학습 & 정보공유 채널",
+    "version": "2.0.0",
+    "updated_at": "2026-11-26",
     "repo_url": "https://github.com/rlaguswls13/k-cert-hub",
     "pages_url": "https://rlaguswls13.github.io/k-cert-hub/"
   },
@@ -13,23 +13,24 @@
       "level": "기사 (Engineer)",
       "agency": "한국산업인력공단 (Q-Net)",
       "name": "정보처리기사",
-      "badge": "실기 LIVE · 필기 미니팩",
+      "badge": "필기·실기 FULL LIVE",
       "status": "active",
       "exam_structure": "written_and_practical",
       "available_stages": ["필기", "실기"],
       "url": "./certs/eip/index.html",
-      "question_count": 380,
+      "question_count": 753,
       "predicted_count": 20,
-      "rounds_range": "실기 2020년 1회 ~ 2026년 3회 (19개 전 회차) + 필기 5과목 핵심 기출",
+      "rounds_range": "실기 2020~2026년 22개 전 회차(440+20) · 필기 CBT 4회차(313)",
       "exam_type": "필기 CBT 객관식 100문항(150분) / 실기 필답형 20문항(150분)",
       "pass_criteria": "필기 과목당 40점·평균 60점 이상 / 실기 100점 중 60점 이상",
       "stages": {
         "written": {
-          "status": "mini",
+          "status": "active",
           "label": "필기 (5과목 CBT)",
-          "format": "객관식 4지선다 100문항 (SW설계·SW개발·DB구축·프로그래밍·정보시스템구축관리) / 150분",
+          "format": "객관식 4지선다 100문항 (SW설계·SW개발·DB구축·프로그래밍·구축관리) / 150분",
           "pass": "과목당 40점 이상, 전 과목 평균 60점 이상",
-          "count_label": "핵심 기출 5문항 (미니팩)"
+          "url": "./certs/eip-written/index.html",
+          "count_label": "전용 RDB 313문항 (+요약 60)"
         },
         "practical": {
           "status": "active",
@@ -37,10 +38,10 @@
           "format": "단답형·빈칸·C/Java/Python 코드 추론·SQL 20문항 / 150분",
           "pass": "100점 만점 중 60점 이상 (부분점수 적용)",
           "url": "./certs/eip/index.html",
-          "count_label": "전용 RDB 380+20문항"
+          "count_label": "전용 RDB 440+20문항 (22개 전 회차)"
         }
       },
-      "summary": "필기(5과목 CBT 핵심 이론)와 실기(2020~2026년 19개 회차 380문항 + 예상 20선 전수 RDB)를 분리·연계 학습할 수 있는 대표 IT 국가기술자격.",
+      "summary": "필기(2021~2022 4회차 실제 CBT 기출 313문항+5과목 요약)와 실기(2023년 1~3회 보강 포함 2020~2026 22개 전 회차 440문항+예상 20선) 전용 RDB를 완비했습니다.",
       "key_tags": [
         "C포인터",
         "Java상속",
@@ -50,58 +51,7 @@
         "디자인패턴",
         "정규화/회복"
       ],
-      "written_questions": [
-        {
-          "q_no": "정처기-필기-01",
-          "exam_stage": "필기",
-          "domain": "1과목 소프트웨어 설계",
-          "type": "객관식 핵심",
-          "title": "UML 관계(연관·집합·복합·의존·일반화·실체화) 구분",
-          "question": "UML 클래스 다이어그램에서 전체(Whole) 객체가 소멸할 때 부분(Part) 객체도 함께 소멸하는 강한 소유 관계(채워진 마름모 ◆)는 무엇인가?\n① 집합(Aggregation)  ② 복합(Composition)  ③ 의존(Dependency)  ④ 실체화(Realization)",
-          "answer": "② 복합(Composition)",
-          "explanation": "집합(빈 마름모 ◇)은 전체가 소멸해도 부분이 독립 존재할 수 있고, 복합(채워진 마름모 ◆)은 전체와 부분의 생명주기가 일치합니다."
-        },
-        {
-          "q_no": "정처기-필기-02",
-          "exam_stage": "필기",
-          "domain": "2과목 소프트웨어 개발",
-          "type": "객관식 핵심",
-          "title": "화이트박스 테스트 커버리지 포함 관계",
-          "question": "화이트박스 테스트의 논리 커버리지 중 조건 커버리지와 결정(분기) 커버리지를 동시에 만족하면서, 각 개별 조건식이 전체 결정 결과에 독립적으로 영향을 미치는지 검증하는 기준은?\n① 구문 커버리지  ② 분기 커버리지  ③ 조건/결정 커버리지  ④ 변경 조건/결정 커버리지(MC/DC)",
-          "answer": "④ 변경 조건/결정 커버리지(MC/DC)",
-          "explanation": "MC/DC는 항공·자동차 등 안전 필수 SW 표준에서 요구하며, 각 개별 조건이 다른 조건과 무관하게 전체 분기 결과를 독립적으로 바꿀 수 있음을 보장합니다."
-        },
-        {
-          "q_no": "정처기-필기-03",
-          "exam_stage": "필기",
-          "domain": "3과목 데이터베이스 구축",
-          "type": "객관식 핵심",
-          "title": "이상(Anomaly) 현상과 함수적 종속성 기반 정규화",
-          "question": "릴레이션에서 기본키가 아닌 일반 속성들 사이에 이행적 함수 종속(X → Y, Y → Z 이면 X → Z)을 제거하여 달성하는 정규형은?\n① 제1정규형(1NF)  ② 제2정규형(2NF)  ③ 제3정규형(3NF)  ④ BCNF",
-          "answer": "③ 제3정규형(3NF)",
-          "explanation": "정규화 암기법 '도-부-이-결-다-조': 1NF(도메인 원자값) → 2NF(부분 함수 종속 제거) → 3NF(이행적 함수 종속 제거) → BCNF(결정자 후보키)."
-        },
-        {
-          "q_no": "정처기-필기-04",
-          "exam_stage": "필기",
-          "domain": "4과목 프로그래밍 언어 활용",
-          "type": "객관식 핵심",
-          "title": "운영체제 페이지 교체 알고리즘과 Belady의 모순",
-          "question": "페이지 프레임을 더 많이 할당했음에도 오히려 페이지 부재(Page Fault) 횟수가 증가하는 'Belady의 모순(Anomaly)'이 발생하는 페이지 교체 알고리즘은?\n① FIFO  ② LRU  ③ OPT  ④ LFU",
-          "answer": "① FIFO",
-          "explanation": "FIFO는 스택 알고리즘(Stack Algorithm)이 아니므로 프레임 증가 시 페이지 부재가 늘어나는 Belady의 모순이 발생할 수 있습니다."
-        },
-        {
-          "q_no": "정처기-필기-05",
-          "exam_stage": "필기",
-          "domain": "5과목 정보시스템 구축관리",
-          "type": "객관식 핵심",
-          "title": "소프트웨어 비용 산정 모형 (COCOMO)",
-          "question": "Boehm이 제안한 COCOMO 모형에서 5만 라인 이하의 중소규모 사무용 소프트웨어에 해당하는 개발 유형은?\n① 조직형(Organic)  ② 반분리형(Semi-Detached)  ③ 내장형(Embedded)  ④ 점진형(Incremental)",
-          "answer": "① 조직형(Organic)",
-          "explanation": "COCOMO 3유형: 조직형(5만 라인 이하, 일반 업무용) / 반분리형(30만 라인 이하, 트랜잭션·DB) / 내장형(30만 라인 이상, 실시간·하드웨어 제어)."
-        }
-      ],
+      "written_questions": [],
       "practical_questions": []
     },
     {
@@ -110,14 +60,14 @@
       "level": "기술사 (Professional Engineer)",
       "agency": "한국산업인력공단 (Q-Net)",
       "name": "정보관리기술사",
-      "badge": "필기(논술) LIVE · 면접 가이드",
+      "badge": "필기 670+20 LIVE · 면접 가이드",
       "status": "active",
       "exam_structure": "written_and_interview",
       "available_stages": ["필기", "실기"],
       "url": "./certs/itpe/index.html",
-      "question_count": 102,
+      "question_count": 670,
       "predicted_count": 20,
-      "rounds_range": "필기 제120회(2020년) ~ 제140회(2026년) 21개 회차 + 구술 면접 대비",
+      "rounds_range": "필기 제120회(2020)~제140회(2026) 전 회차 1~4교시(670+20) + 구술 면접",
       "exam_type": "1차 필기 논술형 1~4교시(교시당 100분) / 2차 실기(구술 면접, 15~30분)",
       "pass_criteria": "필기·면접 각각 100점 만점 중 60점 이상",
       "stages": {
@@ -127,7 +77,7 @@
           "format": "1교시 단답형 10문항 선택, 2~4교시 서술형 4문항 선택 / 교시당 100분",
           "pass": "100점 만점 중 평균 60점 이상 (4단 목차·도해·비교표·실무 제언 채점)",
           "url": "./certs/itpe/index.html",
-          "count_label": "전용 RDB 102+20선"
+          "count_label": "전용 RDB 670+20선 (120~140회 전 교시)"
         },
         "practical": {
           "status": "mini",
@@ -137,7 +87,7 @@
           "count_label": "핵심 면접 3문항 (미니팩)"
         }
       },
-      "summary": "제120회~제140회 8대 도메인 필기 논술 기출을 기술사 표준 4단 목차 서브노트로 정제한 전용 RDB와 2차 구술 면접 대비 가이드를 함께 제공합니다.",
+      "summary": "IT위키·Q-Net 제120회~제140회 전 교시 공개 기출과 102개 정밀 4단 서브노트, 예상 20선까지 총 690토픽을 수록한 기술사 통합 RDB.",
       "key_tags": [
         "Agentic AI/RAG",
         "제로트러스트",
@@ -186,23 +136,24 @@
       "level": "기사 (Engineer)",
       "agency": "한국방송통신전파진흥원 (KCA) / KISA",
       "name": "정보보안기사",
-      "badge": "실기 LIVE · 필기 미니팩",
+      "badge": "필기·실기 FULL LIVE",
       "status": "active",
       "exam_structure": "written_and_practical",
       "available_stages": ["필기", "실기"],
       "url": "./certs/isec/index.html",
-      "question_count": 60,
+      "question_count": 310,
       "predicted_count": 15,
-      "rounds_range": "실기 제15회~제26회(2020~2026) 60+15문항 + 필기 5과목 핵심 기출",
+      "rounds_range": "실기 제10회~제26회(160+15) · 필기 5과목 CBT(150)",
       "exam_type": "필기 CBT 객관식 100문항(150분) / 실기 단답·서술·실무형(150분)",
       "pass_criteria": "필기 과목당 40점·평균 60점 이상 / 실기 100점 중 60점 이상",
       "stages": {
         "written": {
-          "status": "mini",
+          "status": "active",
           "label": "필기 (5과목 CBT)",
           "format": "객관식 100문항 (시스템·네트워크·애플리케이션·정보보안일반·관리및법규) / 150분",
           "pass": "과목당 40점 이상, 전 과목 평균 60점 이상",
-          "count_label": "핵심 기출 5문항 (미니팩)"
+          "url": "./certs/isec-written/index.html",
+          "count_label": "전용 RDB 150문항 (과목별 30)"
         },
         "practical": {
           "status": "active",
@@ -210,10 +161,10 @@
           "format": "단답형(3점) + 서술형(12점) + 실무·로그·설정형(14점) / 150분",
           "pass": "100점 만점 중 60점 이상",
           "url": "./certs/isec/index.html",
-          "count_label": "전용 RDB 60+15문항"
+          "count_label": "전용 RDB 160+15문항 (제10~26회)"
         }
       },
-      "summary": "필기 5과목 핵심 개념과 실기 제15회~제26회 60문항 + 예상 15선(Snort·iptables·Linux 설정·웹 로그·법규)을 구분해 집중 대비할 수 있는 보안 전문 RDB.",
+      "summary": "필기 5과목 CBT(2022~2025 복원 및 핵심 150문항)와 실기 제10회~제26회 복원·실무 160문항 + 예상 15선을 전용 RDB로 분리 구축했습니다.",
       "key_tags": [
         "Snort룰작성",
         "iptables/ACL",
@@ -222,58 +173,7 @@
         "SSRF·SQLi·BOF",
         "ISMS-P·개인정보법"
       ],
-      "written_questions": [
-        {
-          "q_no": "정보보안-필기-01",
-          "exam_stage": "필기",
-          "domain": "1과목 시스템 보안",
-          "type": "객관식 핵심",
-          "title": "리눅스 특수 권한 (SetUID · SetGID · Sticky Bit)",
-          "question": "리눅스 공용 디렉터리(`/tmp`)에 설정되어, 파일의 소유자 또는 root만 해당 파일을 삭제·변경할 수 있도록 제한하는 특수 권한과 8진수 값은?\n① SetUID (4000)  ② SetGID (2000)  ③ Sticky Bit (1000)  ④ umask (0022)",
-          "answer": "③ Sticky Bit (1000)",
-          "explanation": "`drwxrwxrwt`의 마지막 `t`가 Sticky Bit(1000)입니다. SetUID(4000, `s`)는 실행 시 파일 소유자 권한을 획득하므로 보안 점검 1순위입니다."
-        },
-        {
-          "q_no": "정보보안-필기-02",
-          "exam_stage": "필기",
-          "domain": "2과목 네트워크 보안",
-          "type": "객관식 핵심",
-          "title": "TCP 3-Way Handshake 악용 DoS 공격 (SYN Flooding)",
-          "question": "출발지 IP를 위조한 대량의 SYN 패킷을 전송하여 서버의 Backlog Queue를 고갈시키는 공격과 그 대응책으로 가장 적절한 것은?\n① Smurf — 브로드캐스트 차단  ② SYN Flooding — SYN Cookie 활성화  ③ Land Attack — ICMP 차단  ④ Teardrop — ARP 정적 등록",
-          "answer": "② SYN Flooding — SYN Cookie 활성화",
-          "explanation": "SYN Flooding은 Half-Open 연결로 Backlog Queue를 가득 채웁니다. 대응책은 SYN Cookie 활성화, Backlog Queue 크기 증가, SYN_RECEIVED 타임아웃 단축입니다."
-        },
-        {
-          "q_no": "정보보안-필기-03",
-          "exam_stage": "필기",
-          "domain": "3과목 애플리케이션 보안",
-          "type": "객관식 핵심",
-          "title": "XSS(Cross-Site Scripting) vs CSRF(Cross-Site Request Forgery)",
-          "question": "사용자가 악성 스크립트가 포함된 게시물을 열람할 때 브라우저에서 스크립트가 실행되어 세션 쿠키가 탈취되는 취약점과, 쿠키 탈취를 막기 위한 Set-Cookie 속성은?\n① CSRF / SameSite  ② Stored XSS / HttpOnly  ③ SQLi / Secure  ④ SSRF / Path",
-          "answer": "② Stored XSS / HttpOnly",
-          "explanation": "HttpOnly 속성을 설정하면 JavaScript(`document.cookie`)로 쿠키에 접근할 수 없어 XSS를 통한 세션 탈취를 방어합니다."
-        },
-        {
-          "q_no": "정보보안-필기-04",
-          "exam_stage": "필기",
-          "domain": "4과목 정보보안 일반",
-          "type": "객관식 핵심",
-          "title": "접근통제 모델 (Bell-LaPadula vs Biba)",
-          "question": "군사 보안 환경에서 기밀성(Confidentiality) 보장을 최우선으로 하며 'No Read Up, No Write Down' 규칙을 따르는 강제적 접근통제(MAC) 모델은?\n① Biba 모델  ② Clark-Wilson 모델  ③ Bell-LaPadula(BLP) 모델  ④ Chinese Wall 모델",
-          "answer": "③ Bell-LaPadula(BLP) 모델",
-          "explanation": "BLP는 기밀성(NRU/NWD), Biba는 무결성(No Read Down, No Write Up), Clark-Wilson은 상업용 무결성(직무분리·잘 정의된 트랜잭션) 모델입니다."
-        },
-        {
-          "q_no": "정보보안-필기-05",
-          "exam_stage": "필기",
-          "domain": "5과목 정보보안 관리 및 법규",
-          "type": "객관식 핵심",
-          "title": "개인정보 접속기록 보관 기간 및 점검 주기",
-          "question": "개인정보의 안전성 확보조치 기준상, 5만명 이상의 정보주체에 관한 개인정보 또는 고유식별정보·민감정보를 처리하는 시스템의 접속기록 최소 보관 기간과 정기 점검 주기는?\n① 6개월 이상 / 분기 1회  ② 1년 이상 / 반기 1회  ③ 2년 이상 / 월 1회 이상  ④ 3년 이상 / 연 1회",
-          "answer": "③ 2년 이상 / 월 1회 이상",
-          "explanation": "일반 개인정보처리시스템은 최소 1년 이상 보관, 5만명 이상·고유식별정보·민감정보 처리 시 최소 2년 이상 보관하며, 월 1회 이상 정기 점검이 의무입니다."
-        }
-      ],
+      "written_questions": [],
       "practical_questions": []
     },
     {
@@ -282,33 +182,35 @@
       "level": "기사 (Engineer)",
       "agency": "한국데이터산업진흥원 (K-Data)",
       "name": "빅데이터분석기사",
-      "badge": "필기·실기 미니 학습팩",
-      "status": "preview",
+      "badge": "필기·실기 FULL LIVE",
+      "status": "active",
       "exam_structure": "written_and_practical",
       "available_stages": ["필기", "실기"],
-      "url": "#preview-bda",
-      "question_count": 6,
+      "url": "./certs/bda/index.html",
+      "question_count": 110,
       "predicted_count": 0,
-      "rounds_range": "필기 4과목 핵심 기출(3문항) + 실기 작업형 제1~3유형 핵심 패턴(3문항)",
+      "rounds_range": "필기 4과목(64문항) + 실기 작업형 제1·2·3유형(46문항)",
       "exam_type": "필기 객관식 80문항(120분) / 실기 100% Python·R 작업형(180분)",
       "pass_criteria": "필기 과목당 40점·평균 60점 이상 / 실기 100점 중 60점 이상",
       "stages": {
         "written": {
-          "status": "mini",
+          "status": "active",
           "label": "필기 (4과목 객관식)",
           "format": "객관식 80문항 (분석기획·탐색·모델링·결과해석) / 120분",
           "pass": "과목당 40점 이상, 전 과목 평균 60점 이상",
-          "count_label": "핵심 기출 3문항"
+          "url": "./certs/bda/index.html",
+          "count_label": "전용 RDB 64문항 (과목별 16)"
         },
         "practical": {
-          "status": "mini",
+          "status": "active",
           "label": "실기 (작업형 제1~3유형)",
           "format": "제1유형 전처리(3) + 제2유형 ML 모델링(1) + 제3유형 통계가설검정(2) / 180분",
           "pass": "100점 만점 중 60점 이상 (Python/R 환경)",
-          "count_label": "핵심 코드 3문항"
+          "url": "./certs/bda/index.html#practical",
+          "count_label": "전용 RDB 46문항 (1·2·3유형)"
         }
       },
-      "summary": "필기 4과목(분석기획·탐색·모델링·결과해석)과 실기 100% 코딩 작업형(pandas 전처리, sklearn 모델링, scipy 가설검정)을 구분해 학습할 수 있는 데이터 국가기술자격.",
+      "summary": "필기 4과목(64문항)과 실기 작업형 제1유형(pandas 20)·제2유형(sklearn 14)·제3유형(가설검정 12)을 한 앱에서 탭으로 분리 학습할 수 있는 전용 RDB.",
       "key_tags": [
         "pandas전처리",
         "RandomForest",
@@ -317,70 +219,8 @@
         "scipy가설검정",
         "로지스틱회귀"
       ],
-      "written_questions": [
-        {
-          "q_no": "빅분기-필기-01",
-          "exam_stage": "필기",
-          "domain": "1과목 빅데이터 분석 기획",
-          "type": "객관식 핵심",
-          "title": "개인정보 비식별 조치 기법 (가명처리·총계처리·데이터마스킹)",
-          "question": "데이터 셋에서 개인을 식별할 수 있는 항목을 통계값(합계·평균 등)으로 대체하여 특정 개인을 알아볼 수 없게 하는 비식별 조치 기법은?\n① 가명처리  ② 총계처리  ③ 데이터 삭제  ④ 범주화",
-          "answer": "② 총계처리",
-          "explanation": "총계처리(Aggregation)는 개별 값을 합계·평균 등의 총계 값으로 대체하는 기법이며, 나이 27세를 '20대'로 바꾸는 것은 범주화(라운딩·상하단 코딩 포함)입니다."
-        },
-        {
-          "q_no": "빅분기-필기-02",
-          "exam_stage": "필기",
-          "domain": "2과목 빅데이터 탐색",
-          "type": "객관식 핵심",
-          "title": "결측치 메커니즘 (MCAR · MAR · MNAR) 구분",
-          "question": "결측값 발생 여부가 다른 관측된 변수들과는 관련이 있지만, 결측된 변수 자체의 값과는 무관한 결측 메커니즘은?\n① MCAR (완전 무작위 결측)  ② MAR (무작위 결측)  ③ MNAR (비무작위 결측)  ④ Listwise Deletion",
-          "answer": "② MAR (무작위 결측, Missing At Random)",
-          "explanation": "MCAR은 완전히 우연한 결측, MAR은 다른 관측 변수(예: 연령)에 조건부로 의존하는 결측, MNAR은 결측값 자체(예: 고소득자의 소득 미응답)에 의존하는 결측입니다."
-        },
-        {
-          "q_no": "빅분기-필기-03",
-          "exam_stage": "필기",
-          "domain": "3~4과목 모델링 및 결과해석",
-          "type": "객관식 핵심",
-          "title": "불균형 데이터 평가 지표 (ROC-AUC vs PR-AUC · F1-Score)",
-          "question": "정상 99%, 사기 1%처럼 극심한 클래스 불균형 이진 분류 문제에서 정밀도(Precision)와 재현율(Recall)의 조화평균으로 모델 성능을 평가하는 지표는?\n① Accuracy  ② F1-Score  ③ RMSE  ④ R²",
-          "answer": "② F1-Score",
-          "explanation": "F1 = 2 × (Precision × Recall) / (Precision + Recall). 불균형 데이터에서 Accuracy는 다수 클래스만 예측해도 99%가 나오는 함정이 있어 F1-Score나 PR-AUC를 사용합니다."
-        }
-      ],
-      "practical_questions": [
-        {
-          "q_no": "빅분기-실기-01",
-          "exam_stage": "실기",
-          "domain": "작업형 제1유형",
-          "type": "코드작성",
-          "title": "결측치 대체 및 이상치(IQR) 필터링 표준 템플릿",
-          "question": "데이터프레임 df의 'age' 컬럼 결측치를 중앙값(median)으로 대체한 후, IQR(사분위수 범위) 기준 이상치를 제외한 행들의 'age' 평균을 소수점 둘째 자리까지 출력하는 Python 코드를 작성하시오.",
-          "answer": "import pandas as pd\ndf['age'] = df['age'].fillna(df['age'].median())\nq1 = df['age'].quantile(0.25)\nq3 = df['age'].quantile(0.75)\niqr = q3 - q1\ncond = (df['age'] >= q1 - 1.5 * iqr) & (df['age'] <= q3 + 1.5 * iqr)\nprint(round(df.loc[cond, 'age'].mean(), 2))",
-          "explanation": "작업형 제1유형에서는 fillna(), quantile(0.25/0.75), groupby().agg(), 날짜/시간 파싱(pd.to_datetime) 조합이 매회 출제됩니다."
-        },
-        {
-          "q_no": "빅분기-실기-02",
-          "exam_stage": "실기",
-          "domain": "작업형 제2유형",
-          "type": "모델링 파이프라인",
-          "title": "RandomForest 분류기 학습·검증 및 예측 확률 제출 템플릿",
-          "question": "범주형 변수를 원-핫 인코딩(`pd.get_dummies`)한 뒤 `RandomForestClassifier`로 학습하고, 검증셋 ROC-AUC 확인 후 테스트셋 양성(1) 예측 확률을 `result.csv`로 저장하는 핵심 코드를 작성하시오.",
-          "answer": "from sklearn.model_selection import train_test_split\nfrom sklearn.ensemble import RandomForestClassifier\nfrom sklearn.metrics import roc_auc_score\n\nX_tr, X_val, y_tr, y_val = train_test_split(X, y, test_size=0.2, stratify=y, random_state=42)\nmodel = RandomForestClassifier(n_estimators=200, max_depth=8, random_state=42)\nmodel.fit(X_tr, y_tr)\nprint('VAL AUC:', roc_auc_score(y_val, model.predict_proba(X_val)[:, 1]))\npred = model.predict_proba(X_test)[:, 1]\npd.DataFrame({'pred': pred}).to_csv('result.csv', index=False)",
-          "explanation": "제2유형은 train/test 컬럼 정렬(`reindex(columns=X.columns, fill_value=0)`), 검증 점수 출력, `index=False` 저장 여부를 반드시 확인하세요."
-        },
-        {
-          "q_no": "빅분기-실기-03",
-          "exam_stage": "실기",
-          "domain": "작업형 제3유형",
-          "type": "통계검정",
-          "title": "독립표본 t-검정 및 등분산 검정(Levene / Bartlett)",
-          "question": "두 집단(group A, group B)의 평균 차이를 검정하기 위해 scipy.stats의 ttest_ind를 수행하고 검정통계량과 p-value를 구하는 코드를 작성하시오.",
-          "answer": "from scipy import stats\nstat, pval = stats.ttest_ind(group_a, group_b, equal_var=True)\nprint(round(stat, 4), round(pval, 4))",
-          "explanation": "제3유형에서는 대응표본(ttest_rel), 독립표본(ttest_ind), 일원분산분석(f_oneway), 카이제곱 독립성 검정(chi2_contingency), statsmodels의 logit/ols 요약표 해석이 핵심입니다."
-        }
-      ]
+      "written_questions": [],
+      "practical_questions": []
     },
     {
       "id": "sqld",
@@ -388,26 +228,27 @@
       "level": "국가공인 민간자격",
       "agency": "한국데이터산업진흥원 (K-Data)",
       "name": "SQLD (SQL 개발자)",
-      "badge": "필기 단일시험 · 미니팩",
-      "status": "preview",
+      "badge": "2024 개정 FULL LIVE",
+      "status": "active",
       "exam_structure": "written_only",
       "available_stages": ["필기"],
-      "url": "#preview-sqld",
-      "question_count": 4,
+      "url": "./certs/sqld/index.html",
+      "question_count": 110,
       "predicted_count": 0,
-      "rounds_range": "2024~2026년 개정 출제기준 반영 (필기 단일시험 핵심 4문항)",
+      "rounds_range": "2024~2026년 개정 출제기준 반영 (객관식 100 + 단답형 10)",
       "exam_type": "필기 단일시험 · 객관식 50문항 (1과목 10 + 2과목 40) / 90분 (실기 없음)",
       "pass_criteria": "총점 60점 이상 (과목당 40% 미만 과락)",
       "stages": {
         "written": {
-          "status": "mini",
+          "status": "active",
           "label": "필기 (단일시험 · 실기 없음)",
           "format": "객관식 50문항 (1과목 데이터 모델링 10 + 2과목 SQL 기본 및 활용 40) / 90분",
           "pass": "총점 60점 이상 (과목당 40% 미만 과락)",
-          "count_label": "핵심 기출 4문항"
+          "url": "./certs/sqld/index.html",
+          "count_label": "전용 RDB 110문항 (50문항 모의고사)"
         }
       },
-      "summary": "실기 없이 필기 단일시험으로 치러지며, 정보처리기사 실기 SQL 문항과 80% 이상 겹쳐 함께 취득하기 가장 좋은 데이터 필수 자격증.",
+      "summary": "2024 개정 출제기준(1과목 모델링 28문항 + 2과목 SQL 기본·활용·신유형 82문항)과 50문항 실전 모의고사 타이머를 갖춘 SQLD 전용 RDB.",
       "key_tags": [
         "윈도우함수",
         "ROLLUP/CUBE",
@@ -416,48 +257,7 @@
         "정규화/반정규화",
         "트랜잭션격리수준"
       ],
-      "written_questions": [
-        {
-          "q_no": "SQLD-필기-01",
-          "exam_stage": "필기",
-          "domain": "2과목 SQL 활용",
-          "type": "결과추론",
-          "title": "ROLLUP vs CUBE vs GROUPING SETS 집계 행 개수 비교",
-          "question": "GROUP BY 컬럼이 (A, B) 2개이고 A의 고유값이 3개, B의 고유값이 2개(모든 조합 존재)일 때, ROLLUP(A, B), CUBE(A, B), GROUPING SETS(A, B)가 출력하는 그룹핑 조합을 각각 비교하시오.",
-          "answer": "- ROLLUP(A, B): (A, B) + (A) + () → 총 3가지 레벨 집계\n- CUBE(A, B): (A, B) + (A) + (B) + () → 총 2^2 = 4가지 레벨 집계\n- GROUPING SETS(A, B): (A)별 집계 + (B)별 집계만 출력 (소계/총계 없음)",
-          "explanation": "ROLLUP은 계층적 소계+총계(N+1개 조합), CUBE는 모든 다차원 조합(2^N개 조합), GROUPING SETS는 명시된 그룹만 독립적으로 UNION ALL한 결과와 같습니다."
-        },
-        {
-          "q_no": "SQLD-필기-02",
-          "exam_stage": "필기",
-          "domain": "2과목 SQL 기본",
-          "type": "개념비교",
-          "title": "NOT IN과 NOT EXISTS에서 NULL 값 포함 시 동작 차이",
-          "question": "서브쿼리 결과 집합에 NULL 값이 포함되어 있을 때 WHERE col NOT IN (서브쿼리)의 결과 건수가 0건이 되는 이유와 해결 방법을 설명하시오.",
-          "answer": "NOT IN (10, 20, NULL)은 col != 10 AND col != 20 AND col != NULL로 풀어쓰여지며, col != NULL의 평가 결과가 UNKNOWN이므로 전체 AND 조건이 거짓(UNKNOWN)이 되어 0건이 반환됩니다. 서브쿼리에 WHERE target IS NOT NULL 조건을 추가하거나 NOT EXISTS를 사용해야 합니다.",
-          "explanation": "SQLD와 정보처리기사 실기 SQL 파트에서 가장 자주 출제되는 NULL 3값 논리(TRUE, FALSE, UNKNOWN) 함정 문제입니다."
-        },
-        {
-          "q_no": "SQLD-필기-03",
-          "exam_stage": "필기",
-          "domain": "2과목 SQL 활용",
-          "type": "순위함수",
-          "title": "RANK vs DENSE_RANK vs ROW_NUMBER 동점자 처리 차이",
-          "question": "점수가 (100, 90, 90, 80)인 4명의 학생에 대해 RANK(), DENSE_RANK(), ROW_NUMBER()를 내림차순 적용했을 때 각각의 출력 결과를 쓰시오.",
-          "answer": "- RANK(): 1, 2, 2, 4 (동점자 다음 순위 건너뜀)\n- DENSE_RANK(): 1, 2, 2, 3 (동점자 다음 순위 이어짐)\n- ROW_NUMBER(): 1, 2, 3, 4 (동점자여도 고유 순번 부여)",
-          "explanation": "윈도우 함수에서 RANGE vs ROWS 프레임 차이(`ROWS BETWEEN 1 PRECEDING AND CURRENT ROW`)도 함께 출제됩니다."
-        },
-        {
-          "q_no": "SQLD-필기-04",
-          "exam_stage": "필기",
-          "domain": "1과목 데이터 모델링",
-          "type": "모델링 핵심",
-          "title": "식별자 관계(실선) vs 비식별자 관계(점선) 선택 기준",
-          "question": "부모 엔터티의 주식별자가 자식 엔터티의 주식별자(PK)에 포함되는 관계와 일반 속성(FK)으로만 포함되는 관계의 차이점 및 비식별자 관계를 고려해야 하는 경우는?",
-          "answer": "- 식별자 관계(실선): 부모 PK가 자식 PK의 일부가 됨 (강한 종속, 1:1 또는 1:M)\n- 비식별자 관계(점선): 부모 PK가 자식의 일반 FK로 내려감\n- 비식별자 선택 기준: 부모 없이 자식 생성 가능, 여러 부모를 거쳐 PK 속성이 지나치게 길어져 SQL 조인이 복잡해질 때",
-          "explanation": "1과목에서 IE(까마귀발) 표기법과 Barker 표기법의 실선/점선 의미 및 Optionality(O / |) 구분이 단골 출제됩니다."
-        }
-      ],
+      "written_questions": [],
       "practical_questions": []
     },
     {
@@ -466,26 +266,27 @@
       "level": "국가공인 민간자격",
       "agency": "한국데이터산업진흥원 (K-Data)",
       "name": "ADsP (데이터분석 준전문가)",
-      "badge": "필기 단일시험 · 미니팩",
-      "status": "preview",
+      "badge": "필기 단일 FULL LIVE",
+      "status": "active",
       "exam_structure": "written_only",
       "available_stages": ["필기"],
-      "url": "#preview-adsp",
-      "question_count": 3,
+      "url": "./certs/adsp/index.html",
+      "question_count": 137,
       "predicted_count": 0,
-      "rounds_range": "제35회~제50회 빈출 이론 요약 (필기 단일시험 핵심 3문항)",
+      "rounds_range": "제15~36회 복원·퀴즈 + 출제기준 실전 (객관식 102 + 단답형 35)",
       "exam_type": "필기 단일시험 · 객관식 40 + 단답형 10 (총 50문항) / 90분 (실기 없음)",
       "pass_criteria": "총점 60점 이상 (과목당 40% 미만 과락)",
       "stages": {
         "written": {
-          "status": "mini",
+          "status": "active",
           "label": "필기 (단일시험 · 실기 없음)",
           "format": "객관식 40문항 + 단답형 10문항 (총 50문항) / 90분",
           "pass": "총점 60점 이상 (과목당 40% 미만 과락)",
-          "count_label": "핵심 기출 3문항"
+          "url": "./certs/adsp/index.html",
+          "count_label": "전용 RDB 137문항 (3과목 완비)"
         }
       },
-      "summary": "실기 없이 필기 단일시험으로 치러지는 데이터 분석 입문 자격증. 데이터 이해, 분석 마스터플랜(ISP), 데이터 마이닝 핵심 공식 및 단답형 완벽 정리.",
+      "summary": "제15회~36회 공개 기출·퀴즈 복원 129문항과 출제기준 핵심 8문항을 3과목(데이터 이해·분석 기획·데이터 분석)으로 정제한 전용 RDB.",
       "key_tags": [
         "연관규칙(LIFT)",
         "혼동행렬(F1)",
@@ -493,38 +294,103 @@
         "주성분분석(PCA)",
         "분석거버넌스"
       ],
-      "written_questions": [
+      "written_questions": [],
+      "practical_questions": []
+    },
+    {
+      "id": "aws",
+      "is_group": true,
+      "category": "AWS 클라우드 자격 (1레벨)",
+      "level": "Foundational · Associate · Professional",
+      "agency": "Amazon Web Services (Pearson VUE)",
+      "name": "AWS 공인 클라우드 자격 (대표 5종)",
+      "badge": "1레벨 허브 · 2레벨 5종 LIVE",
+      "status": "active",
+      "exam_structure": "written_only",
+      "available_stages": ["필기"],
+      "url": "./certs/aws/index.html",
+      "question_count": 565,
+      "predicted_count": 0,
+      "rounds_range": "CLF-C02(140) · SAA-C03(150) · DVA-C02(85) · SOA-C02(100) · SAP-C02(90)",
+      "exam_type": "Pearson VUE 상시 CBT · 단일 선택 및 복수 선택(Select TWO/THREE)",
+      "pass_criteria": "1000점 척도 평가 (Foundational 700 / Associate 720 / Professional 750)",
+      "summary": "AWS 1레벨 통합 허브 하위에 Foundational(CLF-C02), Associate 3종(SAA-C03·DVA-C02·SOA-C02), Professional(SAP-C02) 5개 2레벨 자격증 전용 RDB를 계층 구성했습니다.",
+      "key_tags": [
+        "VPC/IAM",
+        "S3/CloudFront",
+        "Lambda/API GW",
+        "DynamoDB",
+        "Organizations/SCP",
+        "Direct Connect"
+      ],
+      "children": [
         {
-          "q_no": "ADsP-필기-01",
-          "exam_stage": "필기",
-          "domain": "3과목 데이터 분석",
-          "type": "계산형",
-          "title": "연관규칙 분석(Association Rule) 지지도·신뢰도·향상도 공식",
-          "question": "전체 거래 100건 중 품목 A 구매가 20건, 품목 B 구매가 25건, A와 B 동시 구매가 10건일 때 규칙 A → B의 지지도(Support), 신뢰도(Confidence), 향상도(Lift)를 구하시오.",
-          "answer": "- 지지도 P(A∩B) = 10 / 100 = 0.1 (10%)\n- 신뢰도 P(A∩B) / P(A) = 0.1 / 0.2 = 0.5 (50%)\n- 향상도 P(B|A) / P(B) = 0.5 / 0.25 = 2.0 (양의 상관관계)",
-          "explanation": "향상도(Lift)가 1이면 두 품목은 독립, 1보다 크면 양의 상관관계(보완재), 1보다 작으면 음의 상관관계입니다."
+          "id": "aws-clf-c02",
+          "code": "CLF-C02",
+          "name": "Cloud Practitioner",
+          "ko_name": "클라우드 프랙티셔너",
+          "level": "Foundational",
+          "question_count": 140,
+          "pass_score": "700 / 1000",
+          "duration": "65문항 · 90분",
+          "source_summary": "공식 PDF 10 + MIT 오픈뱅크 130",
+          "url": "./certs/aws/clf-c02/index.html",
+          "tags": ["클라우드 개념", "공동 책임 모델", "요금/지원"]
         },
         {
-          "q_no": "ADsP-필기-02",
-          "exam_stage": "필기",
-          "domain": "1과목 데이터의 이해",
-          "type": "단답형 핵심",
-          "title": "DIKW 피라미드 4단계 구분",
-          "question": "객관적 사실(Data) → 패턴·맥락이 부여된 정보(Information) → 상호 연결된 지식(Knowledge) → 창의적 통찰과 의사결정인 최상위 단계는 무엇인가?",
-          "answer": "지혜 (Wisdom)",
-          "explanation": "DIKW(Data → Information → Knowledge → Wisdom)는 ADsP 1과목 객관식과 단답형에 반복 출제되는 대표 개념입니다."
+          "id": "aws-saa-c03",
+          "code": "SAA-C03",
+          "name": "Solutions Architect - Associate",
+          "ko_name": "솔루션스 아키텍트 어소시에이트",
+          "level": "Associate",
+          "question_count": 150,
+          "pass_score": "720 / 1000",
+          "duration": "65문항 · 130분",
+          "source_summary": "공식 PDF 10 + MIT 오픈뱅크 140",
+          "url": "./certs/aws/saa-c03/index.html",
+          "tags": ["보안/VPC", "고가용성/DR", "성능·비용 최적화"]
         },
         {
-          "q_no": "ADsP-필기-03",
-          "exam_stage": "필기",
-          "domain": "3과목 데이터 분석",
-          "type": "통계 핵심",
-          "title": "제1종 오류(α) vs 제2종 오류(β) 및 검정력",
-          "question": "귀무가설(H0)이 실제로 참인데도 이를 기각하는 오류와, 귀무가설이 거짓일 때 이를 올바르게 기각할 확률(1 - β)을 각각 무엇이라 하는가?",
-          "answer": "- 귀무가설이 참인데 기각: 제1종 오류(α, 유의수준)\n- 거짓인 귀무가설을 올바르게 기각할 확률(1 - β): 검정력(Power)",
-          "explanation": "α(제1종 오류)와 β(제2종 오류)는 트레이드오프 관계이며, 표본 크기(n)를 늘리면 두 오류를 동시에 줄일 수 있습니다."
+          "id": "aws-dva-c02",
+          "code": "DVA-C02",
+          "name": "Developer - Associate",
+          "ko_name": "디벨로퍼 어소시에이트",
+          "level": "Associate",
+          "question_count": 85,
+          "pass_score": "720 / 1000",
+          "duration": "65문항 · 130분",
+          "source_summary": "공식 PDF 10 + Exam Guide 도메인 75",
+          "url": "./certs/aws/dva-c02/index.html",
+          "tags": ["Lambda/SAM", "DynamoDB", "CI/CD·X-Ray"]
+        },
+        {
+          "id": "aws-soa-c02",
+          "code": "SOA-C02",
+          "name": "SysOps Administrator - Associate",
+          "ko_name": "시스옵스 어드미니스트레이터 어소시에이트",
+          "level": "Associate",
+          "question_count": 100,
+          "pass_score": "720 / 1000",
+          "duration": "65문항 · 130분",
+          "source_summary": "공식 PDF 10 + MIT 60 + Exam Guide 30",
+          "url": "./certs/aws/soa-c02/index.html",
+          "tags": ["CloudWatch/SSM", "Auto Scaling", "VPC Flow Logs"]
+        },
+        {
+          "id": "aws-sap-c02",
+          "code": "SAP-C02",
+          "name": "Solutions Architect - Professional",
+          "ko_name": "솔루션스 아키텍트 프로페셔널",
+          "level": "Professional",
+          "question_count": 90,
+          "pass_score": "750 / 1000",
+          "duration": "75문항 · 180분",
+          "source_summary": "공식 PDF 10 + Exam Guide 시나리오 80",
+          "url": "./certs/aws/sap-c02/index.html",
+          "tags": ["Organizations/SCP", "하이브리드/BGP", "대규모 마이그레이션"]
         }
       ],
+      "written_questions": [],
       "practical_questions": []
     }
   ],
@@ -535,7 +401,7 @@
       "round": "2026년 정기 1회 / 2회 / 3회",
       "written_period": "필기 CBT: 2~3월(1회) · 5월(2회) · 7~8월(3회)",
       "practical_period": "실기 필답형: 4월(1회) · 7월(2회) · 10월(3회)",
-      "tip": "필기는 5과목 기출 회독으로 60점 돌파, 실기는 C/Java/Python 코드 추론과 SQL(55%) 집중 훈련 필수"
+      "tip": "필기 313문항 RDB로 60점 돌파 후, 실기 22개 전 회차(440+20)에서 C/Java/Python 코드 추론과 SQL 집중 훈련"
     },
     {
       "cert_name": "정보보안기사",
@@ -543,7 +409,7 @@
       "round": "제25회(상반기) · 제26회(하반기)",
       "written_period": "필기 CBT: 3월(상반기) · 8월(하반기)",
       "practical_period": "실기 필답형: 5월(상반기) · 10~11월(하반기)",
-      "tip": "필기 5과목 이론을 익힌 뒤 실기는 Snort 룰, iptables/ACL, /etc/shadow·PAM, 개인정보보호법 개정 수치를 정확히 암기"
+      "tip": "필기 5과목 RDB(150문항)와 실기 제10~26회(160+15문항)의 Snort·iptables·PAM·개인정보법 수치 병행 학습"
     },
     {
       "cert_name": "정보관리기술사",
@@ -551,7 +417,7 @@
       "round": "제138회 · 제139회 · 제140회 (및 2027년 제141회)",
       "written_period": "필기 논술(1~4교시): 매년 1~2월 · 5월 · 8월 (연 3회)",
       "practical_period": "실기(구술 면접): 필기 합격 후 4월 · 7월 · 11월",
-      "tip": "1교시(10분/문항)와 2~4교시(25분/문항) 시간 배분 및 4단 목차(정의-구조도-비교표-실무제언) 체화가 당락 결정"
+      "tip": "제120~140회 전 교시 670+20문항의 4단 목차(정의-구조도-비교표-실무제언) 및 교시별 시간 배분 체화"
     },
     {
       "cert_name": "빅데이터분석기사",
@@ -559,7 +425,7 @@
       "round": "제12회 · 제13회 (연 2회)",
       "written_period": "필기 객관식: 4월(상반기) · 9월(하반기)",
       "practical_period": "실기 작업형(Python/R): 6월(상반기) · 11~12월(하반기)",
-      "tip": "필기는 통계·비식별·평가 지표 암기, 실기는 pandas 결측치/집계 및 sklearn RandomForest/LightGBM + scipy 가설검정 템플릿 암기"
+      "tip": "필기 4과목(64문항) + 실기 작업형 제1·2·3유형(46문항) 코드 템플릿 완숙"
     },
     {
       "cert_name": "SQLD / ADsP",
@@ -567,7 +433,15 @@
       "round": "연 4회 (분기별 1회 시행)",
       "written_period": "필기 단일시험: 3월 · 5~6월 · 8~9월 · 11월",
       "practical_period": "실기 없음 (필기 단일 90분으로 최종 합격)",
-      "tip": "정보처리기사·빅데이터분석기사 준비 전후로 응시하면 DB·SQL·통계 파트를 동시에 정복 가능"
+      "tip": "SQLD(110문항) 50문항 모의고사와 ADsP(137문항) 3과목 기출복원으로 단기 합격"
+    },
+    {
+      "cert_name": "AWS 클라우드 대표 5종",
+      "category": "글로벌 클라우드 자격 (Pearson VUE)",
+      "round": "연중 상시 응시 (온라인 감독 / 오프라인 센터)",
+      "written_period": "CLF-C02(90분) · SAA-C03/DVA-C02/SOA-C02(130분) · SAP-C02(180분)",
+      "practical_period": "실기 없음 (시나리오형 객관식 · 1000점 척도 700/720/750점 합격)",
+      "tip": "CLF-C02 ➔ SAA-C03 ➔ DVA/SOA ➔ SAP-C02 순서로 AWS 565문항 RDB를 단계별 정복"
     }
   ],
   "community_posts": [
@@ -581,7 +455,7 @@
       "date": "2026-10-26",
       "likes": 48,
       "summary": "2026년 3회차에서도 C언어 재귀+전역변수, 이중포인터, Java 오버라이딩+static, Python 슬라이싱이 그대로 나왔습니다. RDB 기출문제 은행에서 '코드 실행 결과 추론'만 먼저 3회독 돌린 것이 결정적이었습니다.",
-      "body": "### 1. 과목별 시간 투자 비율\n- **프로그래밍 언어(C/Java/Python) & SQL (70% 투자)**: 최근 회차(2025~2026년)는 코드와 SQL만 다 맞아도 55~60점이 나옵니다. 특히 `2026년 3회`에서는 C언어 구조체 배열 포인터(`(p+1)->score`), 2차원 배열 포인터(`*(*(arr+1)+2)`), Java `static` 변수와 인스턴스 메서드 오버라이딩 결합 문제가 출제되었습니다.\n- **이론 단답형 (30% 투자)**: RDB 분석 탭에서 **출제 예상 지수(🔥 1.0 이상)** 인 주제 위주로 봤습니다. 실제로 평균 주기가 도래했던 **병행제어(2PL)**, **라우팅(BGP/AS)**, **화이트박스 테스트(기본 경로/맥케이브 회전수)**, **Gof 디자인 패턴(Observer)** 이 2026년 3회에 적중했습니다!\n\n### 2. 실전 시험장 팁\n1. **실전 풀이 모드(문제만)** 로 두고 손으로 변수 표(메모리 주소/값 변화표)를 그리는 연습을 꼭 하세요.\n2. 출력 형식(`%d`, 줄바꿈 여부, 소수점 출력 여부)을 마지막 10분 동안 반드시 재검산하세요."
+      "body": "### 1. 과목별 시간 투자 비율\n- **프로그래밍 언어(C/Java/Python) & SQL (70% 투자)**: 최근 회차(2025~2026년)는 코드와 SQL만 다 맞아도 55~60점이 나옵니다. 특히 `2026년 3회`에서는 C언어 구조체 배열 포인터(`(p+1)->score`), 2차원 배열 포인터(`*(*(arr+1)+2)`), Java `static` 변수와 인스턴스 메서드 오버라이딩 결합 문제가 출제되었습니다.\n- **이론 단답형 (30% 투자)**: RDB 분석 탭에서 **출제 예상 지수(🔥 1.0 이상)** 인 주제 위주로 봤습니다. 실제로 평균 주기가 도래했던 **병행제어(2PL)**, **라우팅(BGP/AS)**, **화이트박스 테스트(기본 경로/맥케이브 회전수)**, **GoF 디자인 패턴(Observer)** 이 2026년 3회에 적중했습니다!\n\n### 2. 실전 시험장 팁\n1. **실전 풀이 모드(문제만)** 로 두고 손으로 변수 표(메모리 주소/값 변화표)를 그리는 연습을 꼭 하세요.\n2. 출력 형식(`%d`, 줄바꿈 여부, 소수점 출력 여부)을 마지막 10분 동안 반드시 재검산하세요."
     },
     {
       "id": "post-102",
@@ -593,7 +467,7 @@
       "date": "2026-10-25",
       "likes": 63,
       "summary": "정규화(1NF~5NF), 라우팅 프로토콜(RIP/OSPF/BGP), 결합도·응집도, 디자인 패턴은 정보처리기사 단답형으로 외워두면 SQLD와 정보관리기술사 1교시까지 그대로 재사용됩니다.",
-      "body": "### 1. 정규화 단계 두문자 (도·부·이·결·다·조)\n- **1NF (도메인 원자값)**: 모든 속성값이 원자값(Atomic Value)\n- **2NF (부분 함수 종속 제거)**: 기본키가 복합키일 때 일부분에만 종속되는 속성 분리\n- **3NF (이행적 함수 종속 제거)**: `A → B` 이고 `B → C` 일 때 `A → C` 제거\n- **BCNF (결정자 후보키)**: 모든 결정자가 후보키(Candidate Key)가 되도록 분해\n- **4NF (다치 종속 제거)** / **5NF (조인 종속 제거)**\n\n### 2. 라우팅 프로토콜 3대장 (RIP vs OSPF vs BGP)\n- **RIP (IGP / 거리 벡터)**: 벨만-포드 알고리즘, 최대 홉 수 15홉 제한, 30초 주기 전체 라우팅 테이블 브로드캐스트\n- **OSPF (IGP / 링크 상태)**: 다익스트라(Dijkstra) SPF 알고리즘, Area 분할, 토폴로지 변화 시에만 멀티캐스트(Flooding) 전파 (2026년 2회 4번 기출)\n- **BGP (EGP / 경로 벡터)**: 자율 시스템(AS, Autonomous System) 간 라우팅, TCP 179번 포트 사용 (2026년 3회 10번 기출)"
+      "body": "### 1. 정규화 단계 두문자 (도·부·이·결·다·조)\n- **1NF (도메인 원자값)**: 모든 속성값이 원자값(Atomic Value)\n- **2NF (부분 함수 종속 제거)**: 기본키가 복합키일 때 일부분에만 종속되는 속성 분리\n- **3NF (이행적 함수 종속 제거)**: `A → B` 이고 `B → C` 일 때 `A → C` 제거\n- **BCNF (결정자 후보키)**: 모든 결정자가 후보키(Candidate Key)가 되도록 분해\n- **4NF (다치 종속 제거)** / **5NF (조인 종속 제거)**\n\n### 2. 라우팅 프로토콜 3대장 (RIP vs OSPF vs BGP)\n- **RIP (IGP / 거리 벡터)**: 벨만-포드 알고리즘, 최대 홉 수 15홉 제한, 30초 주기 전체 라우팅 테이블 브로드캐스트\n- **OSPF (IGP / 링크 상태)**: 다익스트라(Dijkstra) SPF 알고리즘, Area 분할, 토폴로지 변화 시에만 멀티캐스트(Flooding) 전파\n- **BGP (EGP / 경로 벡터)**: 자율 시스템(AS, Autonomous System) 간 라우팅, TCP 179번 포트 사용"
     },
     {
       "id": "post-103",
@@ -605,31 +479,19 @@
       "date": "2026-10-27",
       "likes": 39,
       "summary": "기사 시험이 '정답 키워드 맞히기'라면 기술사 시험은 '출제위원을 설득하는 아키텍처 제안서 작성'입니다. 1교시 10분 / 2~4교시 25분 타이머를 켜고 4단 목차 구상 훈련을 반복하세요.",
-      "body": "### 1. 기사 지식에서 기술사 답안으로 확장하는 법\n예를 들어 **'OSPF'나 '제로트러스트(Zero Trust)'** 가 나왔을 때:\n- **정보처리기사**: `Dijkstra 알고리즘`, `Never Trust, Always Verify` 단답 키워드 작성\n- **정보관리기술사 1교시(10점)**:\n  - `I. 개요`: 등장배경(경계 기반 보안의 한계) + 핵심 정의\n  - `II. 아키텍처 및 핵심 구성요소`: PDP(정책결정) / PEP(정책집행) 구조도(ASCII/개념도) + 7대 핵심 요소(사용자, 기기, 네트워크, 워크로드 등)\n  - `III. 기존 경계 보안 vs 제로트러스트 비교표`: 신뢰 기준, 접근 통제 단위(IP vs 마이크로세그멘테이션), 인증 방식(일회성 vs 지속적 검증)\n  - `IV. 도입 시 고려사항 및 실무 제언`: 국가 망보안체계(N2SF) 연계 및 레거시 시스템 단계적 전환 전략"
+      "body": "### 1. 기사 지식에서 기술사 답안으로 확장하는 법\n예를 들어 **'OSPF'나 '제로트러스트(Zero Trust)'** 가 나왔을 때:\n- **정보처리기사**: `Dijkstra 알고리즘`, `Never Trust, Always Verify` 단답 키워드 작성\n- **정보관리기술사 1교시(10점)**:\n  - `I. 개요`: 등장배경(경계 기반 보안의 한계) + 핵심 정의\n  - `II. 아키텍처 및 핵심 구성요소`: PDP(정책결정) / PEP(정책집행) 구조도 + 7대 핵심 요소\n  - `III. 기존 경계 보안 vs 제로트러스트 비교표`: 신뢰 기준, 접근 통제 단위, 인증 방식\n  - `IV. 도입 시 고려사항 및 실무 제언`: 국가 망보안체계(N2SF) 연계 및 레거시 단계적 전환 전략"
     },
     {
       "id": "post-104",
       "category": "복원제보",
       "cert_id": "eip",
-      "cert_name": "정보처리기사 실기",
-      "title": "[2026년 3회 실기 복원 완료] 1번~20번 전 문항 가답안 및 코드 풀이 검증 정리",
-      "author": "chobopark_study",
-      "date": "2026-10-27",
-      "likes": 92,
-      "summary": "2026년 10월 24일 시행된 2026년 3회 정보처리기사 실기 20문항이 K-Cert Hub의 정보처리기사 RDB(제19회차, QID 361~380)에 전수 반영되었습니다.",
-      "body": "### 2026년 3회차 주요 복원 포인트 요약\n1. **코드 추론 (11문항)**:\n   - C언어: `static` 지역변수 + 재귀(`19`), 구조체 포인터 증감(`177`), `char*` 문자열 포인터 루프(`7`), 2차원 배열 포인터 역참조(`65`), 함수 포인터 배열(`13`), 이중 포인터 swap(`35`)\n   - Java: 상속 생성자 체이닝 및 동적 바인딩(`37`), `static` 필드 공유(`10 20`)\n   - Python: 음수 인덱스 슬라이싱 및 리스트 컴프리헨션(`NNA[9, 25]`), 세트 차집합/대칭차집합(`{1, 3} 4`)\n2. **SQL 및 DB (3문항)**:\n   - `LEFT OUTER JOIN` + `COALESCE` + `HAVING` 그룹 필터링\n   - 관계대수 순수 관계 연산자 기호(`σ`, `π`, `⋈`, `÷`)\n   - 병행제어 **2단계 로킹 규약(2PL, Two-Phase Locking)** (확장 단계 / 축소 단계)"
-    },
-    {
-      "id": "post-105",
-      "category": "복원제보",
-      "cert_id": "isec",
-      "cert_name": "정보보안기사 실기",
-      "title": "[정보보안기사 실기 전용 RDB 오픈] 제15회~제26회 60문항 + 최신 예상 15선 및 실무 치트시트 탑재",
-      "author": "sec_architect",
-      "date": "2026-11-20",
-      "likes": 54,
-      "summary": "KCA 주관 전환 이후 최신 기출 복원(/etc/shadow 해시, PAM, IPsec AH/ESP, Smurf, SSRF, DB 암호화, 개인정보 접속기록 개정 등) 60문항과 예상 15선이 정보보안기사 전용 RDB 앱으로 정식 탑재되었습니다.",
-      "body": "### 정보보안기사 실기 최신 출제 트렌드 요약\n1. **시스템·네트워크 실무 설정**: `/etc/shadow`(`$1$`/`$5$`/`$6$`), `/etc/login.defs`(`PASS_MIN_LEN`), PAM 4대 모듈, `iptables` 기본 DROP + 상태 기반 정책, `Snort` `threshold` 옵션이 반복 출제됩니다.\n2. **애플리케이션·최신 보안**: `SSRF`, `HTTP 헤더 인젝션(CRLF)`, `DB 암호화(API/Plug-in/TDE)` 비교, C언어 `strcpy` BOF 시큐어코딩이 핵심입니다.\n3. **법규 개정 필수 암기**: 개인정보 접속기록 보관 기간이 **일반 1년 이상 / 5만명·고유식별·민감정보 2년 이상**, 점검 주기는 **월 1회 이상**으로 강화된 기준을 반드시 숙지하세요."
+      "cert_name": "정보처리기사 · 기술사 · 보안기사",
+      "title": "[대규모 확장 완료] 정처기 2023 실기·필기 313제, 기술사 670제, 보안기사 310제, 데이터 3종 + AWS 5종 오픈",
+      "author": "kcert_maintainer",
+      "date": "2026-11-26",
+      "likes": 115,
+      "summary": "누락되었던 정처기 2023년 1~3회 실기(60문항)와 필기 CBT(313문항), 정보관리기술사 제120~140회 전 교시(670문항), 정보보안기사 필기·실기(310+15문항), SQLD·ADsP·빅분기 및 AWS 대표 5종(565문항) 전용 RDB가 모두 가동되었습니다.",
+      "body": "### v2.0.0 대규모 기출 확장 내역\n1. **정보처리기사**: 실기 2023년 1~3회 보강으로 2020~2026년 **22개 전 회차 440+20문항** 완성 + 필기 HWP/DOCX 실제 기출 **313문항** CBT 신설.\n2. **정보관리기술사**: IT위키·Q-Net 공식 기출 PDF 파싱으로 제120~140회 **670문항 + 예상 20선** 완성.\n3. **정보보안기사**: 실기 제10~26회 **160+15문항** 확장 + 필기 **150문항** CBT 신설.\n4. **데이터 3종 정식 승격**: 빅데이터분석기사(필기 64+작업형 46), SQLD(110), ADsP(137).\n5. **AWS 1레벨 → 2레벨 5종 신설**: CLF-C02(140), SAA-C03(150), DVA-C02(85), SOA-C02(100), SAP-C02(90) 총 **565문항**."
     }
   ]
 }

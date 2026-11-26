@@ -256,6 +256,58 @@
         border: 1px solid CanvasText;
       }
     }
+
+    /* Modern Web Guidance: accordion & search-hidden-content for AWS Level-1 -> Level-2 hierarchy */
+    summary.aws-group-summary {
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      cursor: pointer;
+      padding: 0.65rem 0.9rem;
+      border-radius: 0.75rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+    }
+    summary.aws-group-summary::-webkit-details-marker {
+      display: none;
+    }
+    summary.aws-group-summary:hover {
+      border-color: var(--accent);
+    }
+    summary.aws-group-summary::before {
+      content: "";
+      inline-size: 0.95em;
+      block-size: 0.95em;
+      flex-shrink: 0;
+      background-color: currentColor;
+      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") no-repeat center / contain;
+      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") no-repeat center / contain;
+      rotate: -90deg;
+    }
+    details.aws-group-disclosure[open] > summary.aws-group-summary::before {
+      rotate: 0deg;
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      summary.aws-group-summary::before {
+        transition: rotate 0.2s;
+      }
+      details.aws-group-disclosure::details-content {
+        transition: block-size, content-visibility, display;
+        transition-duration: 0.28s;
+        transition-timing-function: ease-in-out;
+        transition-behavior: allow-discrete;
+      }
+    }
+    details.aws-group-disclosure::details-content {
+      interpolate-size: allow-keywords;
+      overflow: clip;
+      contain: layout;
+    }
+    details.aws-group-disclosure:not([open])::details-content {
+      block-size: 0;
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col antialiased">
@@ -279,7 +331,7 @@
               </span>
             </div>
             <p class="text-xs mt-0.5" style="color: var(--text-muted);">
-              정보처리기사 · 정보관리기술사 · 정보보안기사 · 빅데이터분석기사 · SQLD · ADsP 기출 &amp; 커뮤니티
+              정보처리기사 · 정보관리기술사 · 정보보안기사 · 빅데이터분석기사 · SQLD · ADsP · AWS 클라우드 대표 5종 통합 RDB
             </p>
           </div>
         </div>
@@ -287,19 +339,29 @@
         <!-- Direct Quick-Launch Buttons + Theme Toggle -->
         <div class="flex flex-wrap items-center gap-2">
           <a href="./certs/eip/index.html"
-             class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 badge-practical hover:opacity-90">
-            <span>💻 정보처리기사 실기</span>
-            <span class="opacity-80">400문항</span>
+             class="px-2.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 badge-practical hover:opacity-90">
+            <span>💻 정처기 실기</span>
+            <span class="opacity-80">460</span>
+          </a>
+          <a href="./certs/eip-written/index.html"
+             class="px-2.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 badge-written hover:opacity-90">
+            <span>📝 정처기 필기</span>
+            <span class="opacity-80">313</span>
           </a>
           <a href="./certs/itpe/index.html"
-             class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 badge-written hover:opacity-90">
-            <span>🏛️ 정보관리기술사 필기</span>
-            <span class="opacity-80">122선</span>
+             class="px-2.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 badge-written hover:opacity-90">
+            <span>🏛️ 기술사</span>
+            <span class="opacity-80">690</span>
           </a>
           <a href="./certs/isec/index.html"
-             class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 badge-practical hover:opacity-90">
-            <span>🛡️ 정보보안기사 실기</span>
-            <span class="opacity-80">75문항</span>
+             class="px-2.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 badge-practical hover:opacity-90">
+            <span>🛡️ 보안기사</span>
+            <span class="opacity-80">175</span>
+          </a>
+          <a href="./certs/aws/index.html"
+             class="px-2.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 badge-amber hover:opacity-90">
+            <span>☁️ AWS 5종</span>
+            <span class="opacity-80">565</span>
           </a>
           <button type="button" id="themeToggleBtn" onclick="toggleTheme()"
              class="px-2.5 py-1.5 rounded-lg text-xs font-semibold pill-btn transition"
@@ -354,8 +416,8 @@
       <div class="surface-card rounded-xl p-4 flex flex-col justify-between gap-1">
         <span class="text-xs font-semibold" style="color: var(--text-muted);">수록 자격증 종목</span>
         <div class="flex items-baseline justify-between gap-2">
-          <span class="text-2xl font-extrabold" style="color: var(--text-main);" id="kpiCertCount">6종</span>
-          <span class="text-xs font-semibold" style="color: var(--accent);">국가기술 4 · 공인민간 2</span>
+          <span class="text-2xl font-extrabold" style="color: var(--text-main);" id="kpiCertCount">11종</span>
+          <span class="text-xs font-semibold" style="color: var(--accent);">국내 6 · AWS 5 (13개 RDB)</span>
         </div>
       </div>
       <div class="surface-card rounded-xl p-4 flex flex-col justify-between gap-1">
@@ -395,11 +457,13 @@
           </div>
           <div class="flex flex-wrap gap-1.5" role="group" aria-label="자격증 분류 필터">
             <button type="button" onclick="filterCertCards('ALL')" id="certFilter-ALL"
-              class="px-3 py-1.5 rounded-lg text-xs pill-btn-active transition">전체 (6종)</button>
+              class="px-3 py-1.5 rounded-lg text-xs pill-btn-active transition">전체 (국내 6 · AWS 5)</button>
             <button type="button" onclick="filterCertCards('국가기술자격')" id="certFilter-국가기술자격"
               class="px-3 py-1.5 rounded-lg text-xs font-semibold pill-btn transition">국가기술자격 (4종)</button>
             <button type="button" onclick="filterCertCards('민간자격')" id="certFilter-민간자격"
               class="px-3 py-1.5 rounded-lg text-xs font-semibold pill-btn transition">공인 민간자격 (2종)</button>
+            <button type="button" onclick="filterCertCards('AWS')" id="certFilter-AWS"
+              class="px-3 py-1.5 rounded-lg text-xs font-semibold pill-btn transition">☁️ AWS 클라우드 (1레벨 · 5종)</button>
           </div>
         </div>
 
@@ -437,6 +501,9 @@
           <button type="button" onclick="jumpToSearchKeyword('포인터')" class="px-3 py-1.5 rounded-lg text-xs font-semibold pill-btn transition">💻 C언어 구조체·포인터</button>
           <button type="button" onclick="jumpToSearchKeyword('JOIN')" class="px-3 py-1.5 rounded-lg text-xs font-semibold pill-btn transition">📊 SQL 조인 · ROLLUP</button>
           <button type="button" onclick="jumpToSearchKeyword('RAG')" class="px-3 py-1.5 rounded-lg text-xs font-semibold pill-btn transition">🤖 생성형 AI · RAG</button>
+          <button type="button" onclick="jumpToSearchKeyword('VPC')" class="px-3 py-1.5 rounded-lg text-xs font-semibold pill-btn transition">☁️ AWS VPC · IAM</button>
+          <button type="button" onclick="jumpToSearchKeyword('Lambda')" class="px-3 py-1.5 rounded-lg text-xs font-semibold pill-btn transition">⚡ AWS Lambda · DynamoDB</button>
+          <button type="button" onclick="jumpToSearchKeyword('Direct Connect')" class="px-3 py-1.5 rounded-lg text-xs font-semibold pill-btn transition">🌐 AWS Organizations · DX</button>
         </div>
       </div>
     </section>
@@ -450,7 +517,7 @@
           <div>
             <h2 class="text-base font-bold" style="color: var(--text-main);">🔍 전 자격증 RDB 통합 검색 (필기 · 실기 구분)</h2>
             <p class="text-xs mt-0.5" style="color: var(--text-muted);">
-              정보처리기사(실기 400 + 필기 5), 정보관리기술사(필기 122 + 면접 3), 정보보안기사(실기 75 + 필기 5), 빅데이터분석기사, SQLD, ADsP를 통합 검색합니다.
+              국내 6대 자격(정처기 필·실기, 기술사, 보안기사 필·실기, 빅분기 필·실기, SQLD, ADsP) + AWS 대표 5종을 통합 검색합니다.
             </p>
           </div>
           <span id="searchStatsBadge" class="px-3 py-1 rounded-full text-xs font-bold badge-accent">
@@ -460,7 +527,7 @@
 
         <div class="flex flex-wrap gap-2 items-center">
           <input type="search" id="mainCrossSearchInput" oninput="renderCrossSearchResults(this.value)"
-            placeholder="검색어 입력 (예: OSPF, 2PL, 정규화, Observer, 포인터, Snort, ROLLUP, 제로트러스트...)"
+            placeholder="검색어 입력 (예: OSPF, 2PL, 정규화, Snort, VPC, Lambda, Organizations...)"
             aria-label="통합 검색어 입력"
             class="flex-1 min-w-[220px] px-3.5 py-2 text-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/40"
             style="background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main);" />
@@ -483,6 +550,12 @@
             <option value="빅데이터분석기사">빅데이터분석기사 (필기/실기)</option>
             <option value="SQLD">SQLD (필기 단일)</option>
             <option value="ADsP">ADsP (필기 단일)</option>
+            <option value="AWS">☁️ AWS 클라우드 (전체 5종)</option>
+            <option value="CLF-C02">AWS CLF-C02 (Cloud Practitioner)</option>
+            <option value="SAA-C03">AWS SAA-C03 (Architect Assoc.)</option>
+            <option value="DVA-C02">AWS DVA-C02 (Developer Assoc.)</option>
+            <option value="SOA-C02">AWS SOA-C02 (SysOps Assoc.)</option>
+            <option value="SAP-C02">AWS SAP-C02 (Architect Pro)</option>
           </select>
         </div>
       </div>
@@ -559,26 +632,33 @@
             시험 범위가 겹치는 자격증을 순서대로 취득하면 필기·실기 학습 시간을 크게 단축할 수 있습니다.
           </p>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
           <div class="surface-elevated p-4 rounded-xl flex flex-col gap-2">
             <span class="font-bold" style="color: var(--accent);">🚀 트랙 A. SW 개발 · 아키텍트 루트</span>
             <div class="font-bold text-sm" style="color: var(--text-main);">SQLD ➔ 정보처리기사 ➔ 정보관리기술사</div>
             <p class="leading-relaxed" style="color: var(--text-secondary);">
-              1단계 <strong>SQLD(필기 단일)</strong>로 SQL·정규화를 익힌 뒤, 2단계 <strong>정보처리기사(필기·실기)</strong>에서 코드 추론과 SW공학을 완성하고, 3단계 <strong>정보관리기술사(필기 논술·면접)</strong>로 도약합니다.
+              1단계 <strong>SQLD(110문항)</strong>로 SQL·정규화를 익힌 뒤, 2단계 <strong>정보처리기사(필기 313·실기 460)</strong>에서 코드 추론과 SW공학을 완성하고, 3단계 <strong>정보관리기술사(690토픽)</strong>로 도약합니다.
             </p>
           </div>
           <div class="surface-elevated p-4 rounded-xl flex flex-col gap-2">
             <span class="font-bold" style="color: var(--practical);">📊 트랙 B. 데이터 분석 · AI 루트</span>
             <div class="font-bold text-sm" style="color: var(--text-main);">ADsP ➔ SQLD ➔ 빅데이터분석기사</div>
             <p class="leading-relaxed" style="color: var(--text-secondary);">
-              1단계 <strong>ADsP(필기 단일)</strong>로 데이터 마이닝·통계 이론을 다지고, 2단계 <strong>빅데이터분석기사(필기·작업형 실기)</strong>에서 pandas 전처리와 ML 파이프라인을 완성합니다.
+              1단계 <strong>ADsP(137문항)</strong>로 통계·마이닝 이론을 다지고, 2단계 <strong>빅데이터분석기사(필기 64·작업형 46)</strong>에서 pandas 전처리와 ML·가설검정 파이프라인을 완성합니다.
             </p>
           </div>
           <div class="surface-elevated p-4 rounded-xl flex flex-col gap-2">
             <span class="font-bold" style="color: var(--amber);">🛡️ 트랙 C. 보안 · 인프라 루트</span>
             <div class="font-bold text-sm" style="color: var(--text-main);">정보처리기사 ➔ 정보보안기사 ➔ 기술사</div>
             <p class="leading-relaxed" style="color: var(--text-secondary);">
-              <strong>정보처리기사</strong>의 네트워크·시큐어코딩·암호학을 기반으로 <strong>정보보안기사(필기·실기)</strong>의 리눅스 시스템 보안, Snort/iptables 실무 및 ISMS-P 법규까지 확장합니다.
+              <strong>정보처리기사</strong>의 네트워크·시큐어코딩을 기반으로 <strong>정보보안기사(필기 150·실기 175)</strong>의 리눅스 시스템 보안, Snort/iptables 실무 및 ISMS-P 법규까지 확장합니다.
+            </p>
+          </div>
+          <div class="surface-elevated p-4 rounded-xl flex flex-col gap-2">
+            <span class="font-bold" style="color: var(--written);">☁️ 트랙 D. AWS 클라우드 아키텍트 루트</span>
+            <div class="font-bold text-sm" style="color: var(--text-main);">CLF-C02 ➔ SAA/DVA/SOA ➔ SAP-C02</div>
+            <p class="leading-relaxed" style="color: var(--text-secondary);">
+              <strong>CLF-C02(140)</strong> 입문 후 <strong>SAA(150)·DVA(85)·SOA(100)</strong> 어소시에이트 3종을 거쳐 엔터프라이즈 최상위 <strong>SAP-C02(90)</strong>까지 총 565문항으로 정복합니다.
             </p>
           </div>
         </div>
@@ -615,12 +695,17 @@
   <footer class="border-t py-5 px-4 mt-8 text-xs" style="border-color: var(--border); background: var(--bg-card); color: var(--text-muted);">
     <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
       <div>
-        <strong style="color: var(--text-main);">K-Cert Hub</strong> — 국가기술자격(정보처리기사, 정보관리기술사, 정보보안기사, 빅데이터분석기사) &amp; 민간자격(SQLD, ADsP) 통합 학습 플랫폼
+        <strong style="color: var(--text-main);">K-Cert Hub</strong> — 국가기술자격(정처기·기술사·보안기사·빅분기) &amp; 민간자격(SQLD·ADsP) &amp; AWS 5종 통합 RDB 학습 플랫폼
       </div>
-      <div class="flex flex-wrap gap-4">
-        <a href="./certs/eip/index.html" class="hover:underline" style="color: var(--accent);">정보처리기사 실기 RDB</a>
-        <a href="./certs/itpe/index.html" class="hover:underline" style="color: var(--written);">정보관리기술사 필기 RDB</a>
-        <a href="./certs/isec/index.html" class="hover:underline" style="color: var(--practical);">정보보안기사 실기 RDB</a>
+      <div class="flex flex-wrap gap-3">
+        <a href="./certs/eip/index.html" class="hover:underline" style="color: var(--accent);">정처기 실기</a>
+        <a href="./certs/eip-written/index.html" class="hover:underline" style="color: var(--written);">정처기 필기</a>
+        <a href="./certs/itpe/index.html" class="hover:underline" style="color: var(--written);">기술사</a>
+        <a href="./certs/isec/index.html" class="hover:underline" style="color: var(--practical);">보안기사</a>
+        <a href="./certs/bda/index.html" class="hover:underline" style="color: var(--practical);">빅분기</a>
+        <a href="./certs/sqld/index.html" class="hover:underline" style="color: var(--accent);">SQLD</a>
+        <a href="./certs/adsp/index.html" class="hover:underline" style="color: var(--accent);">ADsP</a>
+        <a href="./certs/aws/index.html" class="hover:underline" style="color: var(--amber);">AWS 허브</a>
         <a href="./data/hub_catalog.json" target="_blank" class="hover:underline">카탈로그 JSON</a>
       </div>
     </div>
@@ -755,25 +840,85 @@
       renderCommunityPosts();
       handleHashNavigation();
 
-      // Background fetch full RDB datasets for Cross-Cert Unified Search
-      const [eipData, itpeData, isecData] = await Promise.all([
-        fetch('./certs/eip/data/eip_rdb_export.json').then(r => r.ok ? r.json() : null).catch(() => null),
-        fetch('./certs/itpe/data/itpe_rdb_export.json').then(r => r.ok ? r.json() : null).catch(() => null),
-        fetch('./certs/isec/data/isec_rdb_export.json').then(r => r.ok ? r.json() : null).catch(() => null)
+      // Background fetch all 13 RDB datasets in parallel for Cross-Cert Unified Search
+      const fetchJson = (path) => fetch(path).then(r => r.ok ? r.json() : null).catch(() => null);
+      const [
+        eipData, eipWrittenData, itpeData, isecData, isecWrittenData,
+        bdaData, sqldData, adspData,
+        awsClfData, awsSaaData, awsDvaData, awsSoaData, awsSapData
+      ] = await Promise.all([
+        fetchJson('./certs/eip/data/eip_rdb_export.json'),
+        fetchJson('./certs/eip-written/data/eip_written_rdb_export.json'),
+        fetchJson('./certs/itpe/data/itpe_rdb_export.json'),
+        fetchJson('./certs/isec/data/isec_rdb_export.json'),
+        fetchJson('./certs/isec-written/data/isec_written_rdb_export.json'),
+        fetchJson('./certs/bda/data/bda_rdb_export.json'),
+        fetchJson('./certs/sqld/data/sqld_rdb_export.json'),
+        fetchJson('./certs/adsp/data/adsp_rdb_export.json'),
+        fetchJson('./certs/aws/clf-c02/data/clf_c02_rdb_export.json'),
+        fetchJson('./certs/aws/saa-c03/data/saa_c03_rdb_export.json'),
+        fetchJson('./certs/aws/dva-c02/data/dva_c02_rdb_export.json'),
+        fetchJson('./certs/aws/soa-c02/data/soa_c02_rdb_export.json'),
+        fetchJson('./certs/aws/sap-c02/data/sap_c02_rdb_export.json')
       ]);
 
-      buildUnifiedSearchIndex(eipData, itpeData, isecData);
+      buildUnifiedSearchIndex({
+        eipData, eipWrittenData, itpeData, isecData, isecWrittenData,
+        bdaData, sqldData, adspData,
+        awsSets: [
+          { code: 'CLF-C02', data: awsClfData, link: './certs/aws/clf-c02/index.html' },
+          { code: 'SAA-C03', data: awsSaaData, link: './certs/aws/saa-c03/index.html' },
+          { code: 'DVA-C02', data: awsDvaData, link: './certs/aws/dva-c02/index.html' },
+          { code: 'SOA-C02', data: awsSoaData, link: './certs/aws/soa-c02/index.html' },
+          { code: 'SAP-C02', data: awsSapData, link: './certs/aws/sap-c02/index.html' }
+        ]
+      });
     }
 
-    function buildUnifiedSearchIndex(eipData, itpeData, isecData) {
-      UNIFIED_INDEX = [];
+    function pushStandardRdbItems(data, { cert, defaultStage, link, subCode = '' }) {
+      if (!data || !Array.isArray(data.questions)) return;
+      data.questions.forEach(q => {
+        const bodyParts = [q.question_text || q.question_body, q.architecture_context, q.code_or_log || q.code_snippet].filter(Boolean).join('\n\n');
+        const roundLabel = q.round_title || (q.round_id ? `Round ${q.round_id}` : '');
+        const noLabel = q.question_no || q.question_num || '';
+        const domainLabel = q.domain_name || q.subject_name || '';
+        const typeLabel = q.qtype_name || q.qtype || '';
+        const category = [domainLabel, typeLabel].filter(Boolean).join(' · ') || cert;
+        const expText = [
+          q.explanation || q.explanation_text || '',
+          q.solution_code ? `[모범 Python 코드]\n${q.solution_code}` : '',
+          q.escalation_note ? `📌 ${q.escalation_note}` : '',
+          q.exam_tip ? `💡 ${q.exam_tip}` : '',
+          q.study_tip ? `💡 ${q.study_tip}` : '',
+          q.source ? `[출처] ${q.source}` : ''
+        ].filter(Boolean).join('\n\n');
 
-      // 1. 정보처리기사 실기 (380 기출 + 20 예상) — exact JSON schema keys
+        UNIFIED_INDEX.push({
+          cert,
+          subCode,
+          exam_stage: q.exam_stage || defaultStage,
+          badge: `${roundLabel} #${noLabel}`.trim(),
+          category,
+          title: q.title || q.question_header || '(문항)',
+          question: bodyParts || q.title || '',
+          answer: q.answer_text || '',
+          explanation: expText,
+          link: (q.exam_stage === '실기' && link.includes('/bda/')) ? './certs/bda/index.html#practical' : link
+        });
+      });
+    }
+
+    function buildUnifiedSearchIndex(packs) {
+      UNIFIED_INDEX = [];
+      const { eipData, eipWrittenData, itpeData, isecData, isecWrittenData, bdaData, sqldData, adspData, awsSets } = packs;
+
+      // 1. 정보처리기사 실기 (440 기출 + 20 예상) & 필기 (313 기출)
       if (eipData && Array.isArray(eipData.questions)) {
         eipData.questions.forEach(q => {
           const bodyParts = [q.question_body, q.code_snippet].filter(Boolean).join('\n\n');
           UNIFIED_INDEX.push({
             cert: '정보처리기사',
+            subCode: '',
             exam_stage: '실기',
             badge: `${q.round_title || ''} ${q.question_num || ''}번`,
             category: `${q.major_name || ''} > ${q.minor_name || ''}`,
@@ -790,6 +935,7 @@
           const bodyParts = [p.question_body, p.code_snippet].filter(Boolean).join('\n\n');
           UNIFIED_INDEX.push({
             cert: '정보처리기사',
+            subCode: '',
             exam_stage: '실기',
             badge: `적중 예상 #${p.pred_id || ''}`,
             category: `${p.major_name || ''} > ${p.minor_name || ''}`,
@@ -801,21 +947,23 @@
           });
         });
       }
+      pushStandardRdbItems(eipWrittenData, { cert: '정보처리기사', defaultStage: '필기', link: './certs/eip-written/index.html' });
 
-      // 2. 정보관리기술사 필기 논술 (102 기출 + 20 예상) — exact JSON schema keys
+      // 2. 정보관리기술사 필기 논술 (670 기출 + 20 예상)
       if (itpeData && Array.isArray(itpeData.questions)) {
         itpeData.questions.forEach(q => {
           const outlineStr = Array.isArray(q.standard_outline) ? q.standard_outline.join(' → ') : (q.standard_outline || '');
           const promptsStr = Array.isArray(q.sub_prompts) ? q.sub_prompts.join('\n') : (q.sub_prompts || '');
           UNIFIED_INDEX.push({
             cert: '정보관리기술사',
+            subCode: '',
             exam_stage: '필기',
             badge: `${q.round_title || ''} · ${q.period_name || ''}`,
             category: q.domain_name || '기술사 서브노트',
             title: q.question_header || '(토픽)',
             question: promptsStr || q.question_header || '',
             answer: `[필수 키워드] ${q.core_keywords || ''}\n[4단 목차] ${outlineStr}`,
-            explanation: [q.model_answer_text, q.escalation_note ? `📌 ${q.escalation_note}` : ''].filter(Boolean).join('\n\n'),
+            explanation: [q.model_answer_text, q.escalation_note ? `📌 ${q.escalation_note}` : '', q.source ? `[출처] ${q.source}` : ''].filter(Boolean).join('\n\n'),
             link: './certs/itpe/index.html'
           });
         });
@@ -825,6 +973,7 @@
           const outlineStr = Array.isArray(p.standard_outline) ? p.standard_outline.join(' → ') : (p.standard_outline || '');
           UNIFIED_INDEX.push({
             cert: '정보관리기술사',
+            subCode: '',
             exam_stage: '필기',
             badge: `예상 #${p.pred_id || ''} (${p.target_period || ''})`,
             category: p.domain_name || '기술사 예상',
@@ -837,26 +986,13 @@
         });
       }
 
-      // 3. 정보보안기사 실기 (60 기출 + 15 예상)
-      if (isecData && Array.isArray(isecData.questions)) {
-        isecData.questions.forEach(q => {
-          UNIFIED_INDEX.push({
-            cert: '정보보안기사',
-            exam_stage: '실기',
-            badge: `${q.round_title || ''} #${q.question_no || ''}`,
-            category: `${q.domain_name || ''} (${q.qtype_name || ''})`,
-            title: q.title || '',
-            question: [q.question_text, q.code_or_log].filter(Boolean).join('\n\n'),
-            answer: q.answer_text || '',
-            explanation: [q.explanation, q.escalation_note ? `📌 ${q.escalation_note}` : ''].filter(Boolean).join('\n\n'),
-            link: './certs/isec/index.html'
-          });
-        });
-      }
+      // 3. 정보보안기사 실기 (160 기출 + 15 예상) & 필기 (150 기출)
+      pushStandardRdbItems(isecData, { cert: '정보보안기사', defaultStage: '실기', link: './certs/isec/index.html' });
       if (isecData && Array.isArray(isecData.predicted)) {
         isecData.predicted.forEach(p => {
           UNIFIED_INDEX.push({
             cert: '정보보안기사',
+            subCode: '',
             exam_stage: '실기',
             badge: `예상 #${p.pred_id || ''} (${p.probability || ''})`,
             category: `${p.domain_name || ''} (${p.qtype_name || ''})`,
@@ -868,15 +1004,27 @@
           });
         });
       }
+      pushStandardRdbItems(isecWrittenData, { cert: '정보보안기사', defaultStage: '필기', link: './certs/isec-written/index.html' });
 
-      // 4. Hub Catalog Mini Packs (Written + Practical/Interview)
+      // 4. 데이터 3종 RDB (빅데이터분석기사 필·실기 110, SQLD 110, ADsP 137)
+      pushStandardRdbItems(bdaData, { cert: '빅데이터분석기사', defaultStage: '필기', link: './certs/bda/index.html' });
+      pushStandardRdbItems(sqldData, { cert: 'SQLD', defaultStage: '필기', link: './certs/sqld/index.html' });
+      pushStandardRdbItems(adspData, { cert: 'ADsP', defaultStage: '필기', link: './certs/adsp/index.html' });
+
+      // 5. AWS 1레벨 하위 2레벨 5종 RDB (565문항)
+      (awsSets || []).forEach(s => {
+        pushStandardRdbItems(s.data, { cert: `AWS ${s.code}`, subCode: s.code, defaultStage: '필기', link: s.link });
+      });
+
+      // 6. Hub Catalog remaining Mini Packs (e.g. 기술사 구술 면접)
       if (HUB_DATA && Array.isArray(HUB_DATA.certifications)) {
         HUB_DATA.certifications.forEach(c => {
           const allMini = [...(c.written_questions || []), ...(c.practical_questions || [])];
           allMini.forEach(qq => {
             UNIFIED_INDEX.push({
               cert: c.name,
-              exam_stage: qq.exam_stage || '필기',
+              subCode: '',
+              exam_stage: qq.exam_stage || '실기',
               badge: qq.q_no,
               category: `${qq.domain} (${qq.type})`,
               title: qq.title,
@@ -913,8 +1061,9 @@
 
     function filterCertCards(filter) {
       currentCertFilter = filter;
-      ['ALL', '국가기술자격', '민간자격'].forEach(f => {
+      ['ALL', '국가기술자격', '민간자격', 'AWS'].forEach(f => {
         const btn = document.getElementById(`certFilter-${f}`);
+        if (!btn) return;
         btn.className = f === filter
           ? 'px-3 py-1.5 rounded-lg text-xs pill-btn-active transition'
           : 'px-3 py-1.5 rounded-lg text-xs font-semibold pill-btn transition';
@@ -965,6 +1114,58 @@
       `;
     }
 
+    function renderAwsHierarchyCard(c) {
+      const childrenHtml = (c.children || []).map(ch => `
+        <div class="p-3.5 rounded-xl flex flex-col justify-between gap-2.5" style="background: var(--bg-elevated); border: 1px solid var(--border);">
+          <div class="flex flex-col gap-1.5">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-xs font-extrabold" style="color: var(--amber);">${escapeHtml(ch.code)}</span>
+              <span class="px-2 py-0.5 rounded-full text-[11px] font-bold badge-written">${escapeHtml(ch.level)}</span>
+            </div>
+            <div class="text-sm font-extrabold" style="color: var(--text-main);">${escapeHtml(ch.name)}</div>
+            <div class="text-[11px]" style="color: var(--text-muted);">${escapeHtml(ch.ko_name)} · ${escapeHtml(ch.duration)} (합격 ${escapeHtml(ch.pass_score)})</div>
+            <div class="text-[11px] font-semibold" style="color: var(--text-secondary);">수록 ${ch.question_count}문항 (${escapeHtml(ch.source_summary)})</div>
+            <div class="flex flex-wrap gap-1 pt-0.5">
+              ${(ch.tags || []).map(t => `<span class="px-1.5 py-0.5 rounded text-[10px] font-semibold" style="background: var(--bg-card); border: 1px solid var(--border); color: var(--text-muted);">#${escapeHtml(t)}</span>`).join('')}
+            </div>
+          </div>
+          <div class="flex items-center justify-between gap-2 pt-2 border-t" style="border-color: var(--border);">
+            <button type="button" onclick="jumpToCertSearch('${escapeHtml(ch.code)}')" class="px-2.5 py-1 rounded-lg text-[11px] font-semibold pill-btn transition">🔍 검색</button>
+            <a href="${escapeHtml(ch.url)}" class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-white transition" style="background: var(--accent);">전용 RDB 열기 →</a>
+          </div>
+        </div>
+      `).join('');
+
+      return `
+        <article class="surface-card rounded-2xl p-5 flex flex-col gap-4 col-span-full">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div class="flex flex-col gap-1">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="text-[11px] font-bold" style="color: var(--amber);">${escapeHtml(c.category)} · ${escapeHtml(c.level)}</span>
+                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold badge-amber">${escapeHtml(c.badge)}</span>
+                <span class="px-2 py-0.5 rounded-md text-[11px] font-bold badge-written">📝 CBT 단일시험</span>
+              </div>
+              <h3 class="text-lg font-extrabold" style="color: var(--text-main);">☁️ ${escapeHtml(c.name)}</h3>
+              <p class="text-xs leading-relaxed" style="color: var(--text-secondary);">${escapeHtml(c.summary)}</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2 shrink-0">
+              <button type="button" onclick="jumpToCertSearch('AWS')" class="px-3 py-2 rounded-lg text-xs font-semibold pill-btn transition">🔍 AWS 565문항 검색</button>
+              <a href="${escapeHtml(c.url)}" class="px-3.5 py-2 rounded-lg text-xs font-bold text-white transition" style="background: var(--amber);">☁️ AWS 1레벨 허브 열기 →</a>
+            </div>
+          </div>
+
+          <details open class="aws-group-disclosure">
+            <summary class="aws-group-summary">
+              <span class="text-xs sm:text-sm font-bold">2레벨 AWS 대표 5종 개별 학습관 펼치기 / 접기 (총 ${c.question_count}문항)</span>
+            </summary>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 pt-3">
+              ${childrenHtml}
+            </div>
+          </details>
+        </article>
+      `;
+    }
+
     function renderCertCards() {
       const grid = document.getElementById('certCardsGrid');
       const certs = (HUB_DATA.certifications || []).filter(c => {
@@ -981,6 +1182,9 @@
       }
 
       grid.innerHTML = certs.map((c, idx) => {
+        if (c.is_group && Array.isArray(c.children)) {
+          return renderAwsHierarchyCard(c);
+        }
         const deferredClass = idx >= 4 ? 'heavy-section-deferred' : '';
         const isFullApp = c.status === 'active';
         const statusBadgeCls = isFullApp ? 'badge-practical' : 'badge-amber';
@@ -1162,7 +1366,10 @@
       const badge = document.getElementById('searchStatsBadge');
 
       const matches = UNIFIED_INDEX.filter(item => {
-        if (scope !== 'ALL' && !item.cert.includes(scope)) return false;
+        if (scope !== 'ALL') {
+          const scopeMatch = item.cert.includes(scope) || (item.subCode && item.subCode === scope);
+          if (!scopeMatch) return false;
+        }
         if (stageScope !== 'ALL' && item.exam_stage !== stageScope) return false;
         if (!q) return true;
         const hay = `${item.cert} ${item.exam_stage} ${item.badge} ${item.category} ${item.title} ${item.question} ${item.answer} ${item.explanation}`.toLowerCase();
