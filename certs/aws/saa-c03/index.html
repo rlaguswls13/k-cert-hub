@@ -80,6 +80,7 @@
     :root:has(> head > meta[name="color-scheme"][content="dark"]) .theme-opt-dark,
     :root[data-theme="dark"] .theme-opt-dark { display: none; }
 
+    html, body { overflow-x: clip; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
@@ -89,6 +90,33 @@
       line-height: 1.65;
       padding-bottom: 72px;
       overflow-wrap: break-word;
+    }
+    button, a, th, .pill, .mode-btn, .tab-btn, .sibling-pill { word-break: keep-all; }
+    .kcert-deeplink-highlight {
+      outline: 3px solid var(--accent);
+      outline-offset: 2px;
+      box-shadow: 0 0 0 6px rgba(29, 78, 216, 0.14);
+    }
+    .kcert-scroll-sentinel {
+      height: 1px; width: 1px; position: absolute; top: 0; left: 0; pointer-events: none;
+    }
+    .kcert-back-to-top {
+      position: fixed; bottom: 20px; right: 20px; z-index: 60;
+      min-height: 40px; padding: 8px 14px; border-radius: 999px;
+      background: var(--bg-card); color: var(--text-main);
+      border: 1px solid var(--border); box-shadow: 0 6px 18px rgba(0, 0, 0, 0.14);
+      font-size: 0.78rem; font-weight: 700; cursor: pointer;
+      visibility: hidden; opacity: 0; transform: translateY(12px);
+      transition: visibility 0.25s, opacity 0.25s ease, transform 0.25s ease, border-color 0.15s;
+    }
+    .kcert-back-to-top:hover { border-color: var(--accent); color: var(--accent); }
+    html.kcert-scrolled .kcert-back-to-top { visibility: visible; opacity: 1; transform: translateY(0); }
+    @media (max-width: 768px) {
+      .main-header { position: static !important; }
+      .global-topbar-inner { flex-wrap: nowrap !important; overflow-x: auto; padding: 8px 14px; scrollbar-width: none; }
+      .global-topbar-inner::-webkit-scrollbar { display: none; }
+      .topbar-left, .topbar-right, .sibling-list { flex-wrap: nowrap !important; }
+      .topbar-left > *, .sibling-list > * { flex-shrink: 0; white-space: nowrap; }
     }
 
     .visually-hidden:where(:not(:focus-within, :active)) {
@@ -755,7 +783,7 @@
     /* Cheatsheet */
     .cheat-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 310px), 1fr));
       gap: 16px;
     }
     .cheat-card {
@@ -1343,11 +1371,11 @@
 
         let actionBar = '';
         if (!grade) {
-          const hintReq = isMulti ? `${q.answer_indices.length}개 선택 후 채점` : '1개 선택 후 채점';
+          const hintReq = isMulti ? `${q.answer_indices.length}개 선택 후 채점 (${selectedSet.size}/${q.answer_indices.length})` : '1개 선택 후 채점';
           actionBar = `
             <div class="solve-actions">
               <button type="button" class="btn-primary" data-action="grade" data-qid="${qid}">✅ 정답 확인</button>
-              <span style="font-size:0.78rem;color:var(--text-muted);">${hintReq}</span>
+              <span id="hint-${qid}" role="status" aria-live="polite" style="font-size:0.78rem;color:var(--text-muted);font-weight:600;">${hintReq}</span>
             </div>
           `;
         } else {
@@ -1469,10 +1497,14 @@
       const picked = [...(STATE.drafts[qid] || [])].sort((a, b) => a - b);
       const needCount = q.answer_indices.length;
       if (picked.length === 0) {
+        const hEl = document.getElementById(`hint-${qid}`);
+        if (hEl) { hEl.textContent = '⚠️ 먼저 선택지를 골라주세요.'; hEl.style.color = 'var(--rose)'; }
         announce('선택지를 먼저 고른 뒤 채점해 주세요.');
         return;
       }
       if (q.qtype === 'MULTI' && picked.length !== needCount) {
+        const hEl = document.getElementById(`hint-${qid}`);
+        if (hEl) { hEl.textContent = `⚠️ 복수 선택 문항입니다. ${needCount}개를 선택해 주세요. (${picked.length}/${needCount})`; hEl.style.color = 'var(--rose)'; }
         announce(`복수 선택 문항입니다. ${needCount}개를 선택해 주세요.`);
         return;
       }
@@ -1601,8 +1633,24 @@
         if (!q) return;
         if (q.qtype === 'SINGLE') {
           STATE.drafts[qid] = [Number(input.value)];
+          const hEl = document.getElementById(`hint-${qid}`);
+          if (hEl) { hEl.textContent = '1개 선택됨 — [정답 확인] 클릭'; hEl.style.color = 'var(--text-muted)'; }
         } else {
-          const checked = [...qList.querySelectorAll(`input[name="choice-q-${qid}"]:checked`)].map(el => Number(el.value));
+          const maxPick = (q.answer_indices || []).length || 2;
+          let checked = [...qList.querySelectorAll(`input[name="choice-q-${qid}"]:checked`)].map(el => Number(el.value));
+          const hEl = document.getElementById(`hint-${qid}`);
+          if (checked.length > maxPick) {
+            input.checked = false;
+            checked = [...qList.querySelectorAll(`input[name="choice-q-${qid}"]:checked`)].map(el => Number(el.value));
+            if (hEl) {
+              hEl.textContent = `⚠️ 최대 ${maxPick}개까지 선택할 수 있습니다. (${checked.length}/${maxPick})`;
+              hEl.style.color = 'var(--rose)';
+            }
+            announce(`최대 ${maxPick}개까지 선택할 수 있습니다.`);
+          } else if (hEl) {
+            hEl.textContent = `${maxPick}개 선택 후 채점 (${checked.length}/${maxPick})`;
+            hEl.style.color = 'var(--text-muted)';
+          }
           STATE.drafts[qid] = checked;
         }
       });
@@ -1652,6 +1700,17 @@
         updateHud();
         renderQuestions();
         renderAnalytics();
+
+        const params = new URLSearchParams(location.search);
+        const qidParam = params.get('qid');
+        const qStr = params.get('q');
+        if (qidParam) {
+          const el = document.querySelector(`[data-qid-card="${qidParam}"]`);
+          if (el) { el.scrollIntoView({ behavior: 'auto', block: 'center' }); el.classList.add('kcert-deeplink-highlight'); }
+        } else if (qStr) {
+          const si = document.getElementById('searchInput');
+          if (si) { si.value = qStr; renderQuestions(); }
+        }
       } catch (err) {
         document.getElementById('questionList').innerHTML =
           `<div class="q-card" style="color:var(--rose);">데이터 로드 실패: 로컬 웹 서버(예: <code>py -m http.server</code>) 또는 GitHub Pages 환경에서 열어주세요. (${escapeHtml(err.message)})</div>`;
@@ -1659,6 +1718,32 @@
     }
 
     initApp();
+
+    (function initBackToTop() {
+      const sentinel = document.createElement('div');
+      sentinel.className = 'kcert-scroll-sentinel';
+      sentinel.setAttribute('aria-hidden', 'true');
+      document.body.prepend(sentinel);
+      const btn = document.getElementById('kcertBackToTop');
+      if ('IntersectionObserver' in window) {
+        const io = new IntersectionObserver((entries) => {
+          document.documentElement.classList.toggle('kcert-scrolled', !entries[0].isIntersecting);
+        }, { root: null, rootMargin: '320px 0px 0px 0px', threshold: 0 });
+        io.observe(sentinel);
+      }
+      if (btn) {
+        btn.addEventListener('click', () => {
+          const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
+        });
+        btn.addEventListener('focusout', () => {
+          if (!document.documentElement.classList.contains('kcert-scrolled')) {
+            document.querySelector('header a, header button, main')?.focus?.({ preventScroll: true });
+          }
+        });
+      }
+    })();
   </script>
+  <button type="button" id="kcertBackToTop" class="kcert-back-to-top" aria-label="페이지 맨 위로 이동" title="맨 위로 이동">↑ 맨 위로</button>
 </body>
 </html>

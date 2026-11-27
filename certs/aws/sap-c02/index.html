@@ -78,13 +78,57 @@
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
+    html, body { overflow-x: clip; }
+
     body {
       font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: var(--bg-main);
       color: var(--text-main);
       line-height: 1.65;
-      padding-bottom: 64px;
+      padding-bottom: 72px;
       overflow-wrap: break-word;
+    }
+
+    button, a, th, .pill, .mode-btn, .tab-btn, .aws-pill, .brand-badge { word-break: keep-all; }
+    .timer-box .btn-sm, .brand-badge { white-space: nowrap; }
+    [hidden] { display: none !important; }
+
+    .kcert-inline-code {
+      font-family: Consolas, 'Liberation Mono', Menlo, monospace;
+      font-size: 0.88em;
+      padding: 0.08em 0.36em;
+      border-radius: 4px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+    }
+    .kcert-deeplink-highlight {
+      outline: 3px solid var(--accent);
+      outline-offset: 2px;
+      box-shadow: 0 0 0 6px rgba(180, 83, 9, 0.14);
+    }
+    .kcert-scroll-sentinel {
+      height: 1px; width: 1px; position: absolute; top: 0; left: 0; pointer-events: none;
+    }
+    .kcert-back-to-top {
+      position: fixed; bottom: 20px; right: 20px; z-index: 60;
+      min-height: 40px; padding: 8px 14px; border-radius: 999px;
+      background: var(--bg-card); color: var(--text-main);
+      border: 1px solid var(--border); box-shadow: 0 6px 18px rgba(0, 0, 0, 0.14);
+      font-size: 0.78rem; font-weight: 700; cursor: pointer;
+      visibility: hidden; opacity: 0; transform: translateY(12px);
+      transition: visibility 0.25s, opacity 0.25s ease, transform 0.25s ease, border-color 0.15s;
+    }
+    .kcert-back-to-top:hover { border-color: var(--accent); color: var(--accent); }
+    html.kcert-scrolled .kcert-back-to-top { visibility: visible; opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 768px) {
+      .site-header { position: static !important; padding: 10px 14px; }
+      .topbar-inner { flex-wrap: nowrap !important; overflow-x: auto; padding: 7px 14px; scrollbar-width: none; }
+      .topbar-inner::-webkit-scrollbar { display: none; }
+      .topbar-left, .aws-pill-list { flex-wrap: nowrap !important; }
+      .topbar-left > *, .aws-pill-list > * { flex-shrink: 0; white-space: nowrap; }
+      .mode-group, .timer-box { flex-wrap: wrap; max-width: 100%; }
     }
 
     .visually-hidden:where(:not(:focus-within, :active)) {
@@ -749,7 +793,7 @@
     /* Cheatsheet Grid */
     .cheat-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
       gap: 16px;
     }
     .cheat-card {
@@ -1050,6 +1094,13 @@
         .replace(/'/g, '&#39;');
     }
 
+    function formatRichText(str) {
+      let s = escapeHtml(str);
+      s = s.replace(/`([^`\n]+)`/g, '<code class="kcert-inline-code">$1</code>');
+      s = s.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+      return s;
+    }
+
     function announce(msg) {
       const el = document.getElementById('liveAnnouncer');
       if (!el) return;
@@ -1293,7 +1344,7 @@
               ${STATE.mode === 'study' ? 'disabled' : ''}
             />
             <span class="option-letter">${escapeHtml(opt.label)})</span>
-            <span>${escapeHtml(opt.text)}${markTag}</span>
+            <span>${formatRichText(opt.text)}${markTag}</span>
           </label>
         `;
       }).join('');
@@ -1304,7 +1355,7 @@
       const answerBlock = `
         <div class="answer-box">
           <div class="answer-label">✅ 모범 정답 (${escapeHtml(q.correct_options.join(', '))})</div>
-          <div class="answer-text">${escapeHtml(q.answer_text)}</div>
+          <div class="answer-text">${formatRichText(q.answer_text)}</div>
           <div class="kw-row">${keywordsHtml}</div>
         </div>
       `;
@@ -1312,8 +1363,8 @@
       const explainBlock = `
         <div class="explain-box">
           <div class="explain-label">💡 아키텍처 심층 해설 및 오답 분석</div>
-          <div>${escapeHtml(q.explanation)}</div>
-          <div class="exam-tip">🎯 SAP-C02 실전 포인트: ${escapeHtml(q.exam_tip)}</div>
+          <div>${formatRichText(q.explanation)}</div>
+          <div class="exam-tip">🎯 SAP-C02 실전 포인트: ${formatRichText(q.exam_tip)}</div>
         </div>
       `;
 
@@ -1382,8 +1433,8 @@
               ${isSaved ? '★ 오답노트 저장됨' : '☆ 오답노트 추가'}
             </button>
           </div>
-          <h2 class="q-title">Q${qid}. ${escapeHtml(q.title)}</h2>
-          <div class="q-body">${escapeHtml(q.question_text)}</div>
+          <h2 class="q-title">Q${qid}. ${formatRichText(q.title)}</h2>
+          <div class="q-body">${formatRichText(q.question_text)}</div>
           ${q.architecture_context ? `<pre class="code-block">${escapeHtml(q.architecture_context)}</pre>` : ''}
           ${modeBottomHtml}
         </article>
@@ -1511,9 +1562,29 @@
         const q = STATE.questionMap.get(qid);
         if (!q) return;
 
-        const checked = [...document.querySelectorAll(`input[name="q-choice-${qid}"]:checked`)]
+        let checked = [...document.querySelectorAll(`input[name="q-choice-${qid}"]:checked`)]
           .map((el) => el.value)
           .sort();
+
+        if (q.select_count > 1 && checked.length > q.select_count) {
+          input.checked = false;
+          checked = [...document.querySelectorAll(`input[name="q-choice-${qid}"]:checked`)]
+            .map((el) => el.value)
+            .sort();
+          const fb = document.getElementById(`feedback-${qid}`);
+          if (fb) {
+            fb.hidden = false;
+            fb.className = 'grade-feedback warn';
+            fb.textContent = `⚠️ 최대 ${q.select_count}개까지만 선택할 수 있습니다. (현재 ${checked.length}/${q.select_count}개)`;
+          }
+          announce(`최대 ${q.select_count}개까지만 선택할 수 있습니다.`);
+        } else {
+          const fb = document.getElementById(`feedback-${qid}`);
+          if (fb && fb.classList.contains('warn')) {
+            fb.hidden = true;
+            fb.textContent = '';
+          }
+        }
         STATE.selections.set(qid, checked);
 
         const legend = input.closest('fieldset')?.querySelector('legend');
@@ -1645,6 +1716,20 @@
         updateHUD();
         renderQuestions();
         renderAnalytics();
+
+        const params = new URLSearchParams(location.search);
+        const qidParam = params.get('qid');
+        const qStr = params.get('q');
+        if (qidParam) {
+          const el = document.getElementById(`card-q-${qidParam}`);
+          if (el) {
+            el.scrollIntoView({ behavior: 'auto', block: 'center' });
+            el.classList.add('kcert-deeplink-highlight');
+          }
+        } else if (qStr) {
+          const si = document.getElementById('searchInput');
+          if (si) { si.value = qStr; renderQuestions(); }
+        }
       } catch (err) {
         document.getElementById('questionList').innerHTML =
           `<div class="q-card" style="color:var(--rose);">데이터 로드 실패: 로컬 웹 서버(<code>node server.js</code> 또는 <code>py -m http.server</code>)를 통해 열어주세요. (${escapeHtml(err.message)})</div>`;
@@ -1652,6 +1737,32 @@
     }
 
     initApp();
+
+    (function initBackToTop() {
+      const sentinel = document.createElement('div');
+      sentinel.className = 'kcert-scroll-sentinel';
+      sentinel.setAttribute('aria-hidden', 'true');
+      document.body.prepend(sentinel);
+      const btn = document.getElementById('kcertBackToTop');
+      if ('IntersectionObserver' in window) {
+        const io = new IntersectionObserver((entries) => {
+          document.documentElement.classList.toggle('kcert-scrolled', !entries[0].isIntersecting);
+        }, { root: null, rootMargin: '320px 0px 0px 0px', threshold: 0 });
+        io.observe(sentinel);
+      }
+      if (btn) {
+        btn.addEventListener('click', () => {
+          const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
+        });
+        btn.addEventListener('focusout', () => {
+          if (!document.documentElement.classList.contains('kcert-scrolled')) {
+            document.querySelector('header a, header button, main')?.focus?.({ preventScroll: true });
+          }
+        });
+      }
+    })();
   </script>
+  <button type="button" id="kcertBackToTop" class="kcert-back-to-top" aria-label="페이지 맨 위로 이동" title="맨 위로 이동">↑ 맨 위로</button>
 </body>
 </html>

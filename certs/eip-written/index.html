@@ -98,13 +98,52 @@
     :root[data-theme="dark"] .theme-opt-light { display: inline-flex; align-items: center; gap: 4px; }
     :root[data-theme="dark"] .theme-opt-dark { display: none; }
 
+    html, body { overflow-x: clip; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: var(--bg-main);
       color: var(--text-main);
       line-height: 1.65;
-      padding-bottom: 64px;
+      padding-bottom: 72px;
+    }
+    button, a, th, .pill, .mode-btn, .tab-btn, .hub-nav-link, .brand-badge { word-break: keep-all; }
+    .timer-box .btn-sm, .brand-badge { white-space: nowrap; }
+    .kcert-inline-code {
+      font-family: Consolas, 'Liberation Mono', Menlo, monospace;
+      font-size: 0.88em;
+      padding: 0.08em 0.36em;
+      border-radius: 4px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+    }
+    .kcert-deeplink-highlight {
+      outline: 3px solid var(--accent);
+      outline-offset: 2px;
+      box-shadow: 0 0 0 6px rgba(67, 56, 202, 0.14);
+    }
+    .kcert-scroll-sentinel {
+      height: 1px; width: 1px; position: absolute; top: 0; left: 0; pointer-events: none;
+    }
+    .kcert-back-to-top {
+      position: fixed; bottom: 20px; right: 20px; z-index: 60;
+      min-height: 40px; padding: 8px 14px; border-radius: 999px;
+      background: var(--bg-card); color: var(--text-main);
+      border: 1px solid var(--border); box-shadow: 0 6px 18px rgba(0, 0, 0, 0.14);
+      font-size: 0.78rem; font-weight: 700; cursor: pointer;
+      visibility: hidden; opacity: 0; transform: translateY(12px);
+      transition: visibility 0.25s, opacity 0.25s ease, transform 0.25s ease, border-color 0.15s;
+    }
+    .kcert-back-to-top:hover { border-color: var(--accent); color: var(--accent); }
+    html.kcert-scrolled .kcert-back-to-top { visibility: visible; opacity: 1; transform: translateY(0); }
+    @media (max-width: 768px) {
+      header.site-header { position: static !important; padding: 10px 14px; }
+      .hub-topbar-inner { flex-wrap: nowrap !important; overflow-x: auto; padding: 7px 14px; scrollbar-width: none; }
+      .hub-topbar-inner::-webkit-scrollbar { display: none; }
+      .hub-topbar-left, .hub-topbar-right { flex-wrap: nowrap !important; }
+      .hub-topbar-left > *, .hub-topbar-right > * { flex-shrink: 0; white-space: nowrap; }
+      .mode-group, .timer-box { flex-wrap: wrap; max-width: 100%; }
     }
 
     :where(a, button, input, select, summary):focus-visible {
@@ -760,7 +799,7 @@
     /* Study Notes Grid */
     .notes-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 330px), 1fr));
       gap: 16px;
     }
     .note-card {
@@ -804,10 +843,11 @@
         <span>필기·실기 구분 RDB 학습 채널</span>
       </div>
       <div class="hub-topbar-right">
-        <a href="../eip-written/index.html" class="hub-nav-link active" aria-current="page">📝 정보처리기사 필기 (313)</a>
-        <a href="../eip/index.html" class="hub-nav-link">💻 정보처리기사 실기 (460)</a>
-        <a href="../itpe/index.html" class="hub-nav-link">🏛️ 정보관리기술사 필기 (122)</a>
-        <a href="../isec/index.html" class="hub-nav-link">🛡️ 정보보안기사 실기 (75)</a>
+        <a href="../eip-written/index.html" class="hub-nav-link active" aria-current="page">📝 정처기 필기 (313)</a>
+        <a href="../eip/index.html" class="hub-nav-link">💻 정처기 실기 (460)</a>
+        <a href="../itpe/index.html" class="hub-nav-link">🏛️ 기술사 (690)</a>
+        <a href="../isec/index.html" class="hub-nav-link">🛡️ 보안기사 실기 (175)</a>
+        <a href="../aws/index.html" class="hub-nav-link">☁️ AWS 5종 (565)</a>
         <a href="../../index.html#section-community" class="hub-nav-link">💬 정보공유 라운지</a>
       </div>
     </div>
@@ -1088,6 +1128,13 @@
         .replace(/"/g, '&quot;');
     }
 
+    function formatRichText(str) {
+      let s = escapeHtml(str);
+      s = s.replace(/`([^`\n]+)`/g, '<code class="kcert-inline-code">$1</code>');
+      s = s.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+      return s;
+    }
+
     function isChoiceCorrect(q, idx) {
       const valid = Array.isArray(q.answer_indices) && q.answer_indices.length
         ? q.answer_indices
@@ -1286,7 +1333,7 @@
             <label for="${inputId}" class="${cls}">
               <input type="radio" id="${inputId}" name="q-${qid}" value="${cIdx}" ${isPicked ? 'checked' : ''} onchange="selectOption(${qid}, ${cIdx})" />
               <span class="choice-num">${CIRCLE_MARKS[cIdx]}</span>
-              <span class="choice-text">${escapeHtml(cText)}</span>
+              <span class="choice-text">${formatRichText(cText)}</span>
               ${statusTag}
             </label>
           `;
@@ -1297,7 +1344,7 @@
         const answerBoxHtml = `
           <div class="answer-box">
             <div class="answer-label">✅ 정답</div>
-            <div class="answer-text">${escapeHtml(q.answer_text)}</div>
+            <div class="answer-text">${formatRichText(q.answer_text)}</div>
             <div class="kw-row">${keywordsHtml}</div>
           </div>
         `;
@@ -1305,7 +1352,7 @@
         const explainBoxHtml = `
           <div class="explain-box">
             <div class="explain-label">💡 핵심 해설</div>
-            <div class="explain-body">${escapeHtml(q.explanation)}</div>
+            <div class="explain-body">${formatRichText(q.explanation)}</div>
             <div class="source-note">출처: ${escapeHtml(q.source)}</div>
           </div>
         `;
@@ -1350,10 +1397,14 @@
           modeFooterHtml = answerBoxHtml + explainBoxHtml;
         }
 
-        const showSeparateBody = q.question_text && q.question_text.trim() !== q.title.trim();
+        const normTitle = String(q.title || '').replace(/\.\.\.$/, '').replace(/…$/, '').replace(/\s+/g, ' ').trim();
+        const normBody = String(q.question_text || '').replace(/\s+/g, ' ').trim();
+        const isTruncatedDup = Boolean(normTitle && normBody && (normBody === normTitle || (normTitle.length >= 10 && normBody.startsWith(normTitle))));
+        const headingText = isTruncatedDup ? q.question_text : q.title;
+        const showSeparateBody = Boolean(q.question_text && !isTruncatedDup);
 
         return `
-          <article class="q-card ${deferClass}">
+          <article class="q-card ${deferClass}" id="card-q-${qid}">
             <div class="q-meta">
               <div class="badge-row">
                 <span class="pill pill-round">${escapeHtml(q.round_title)} #${q.question_no}</span>
@@ -1365,8 +1416,8 @@
                 ${isSaved ? '★ 오답노트됨' : '☆ 오답노트'}
               </button>
             </div>
-            <h2 class="q-title">Q${q.question_no}. ${escapeHtml(q.title)}</h2>
-            ${showSeparateBody ? `<div class="q-body">${escapeHtml(q.question_text)}</div>` : ''}
+            <h2 class="q-title">Q${q.question_no}. ${formatRichText(headingText)}</h2>
+            ${showSeparateBody ? `<div class="q-body">${formatRichText(q.question_text)}</div>` : ''}
             ${q.code_or_log ? `<pre class="code-block">${escapeHtml(q.code_or_log)}</pre>` : ''}
             <fieldset class="choice-fieldset">
               <legend class="visually-hidden">${escapeHtml(q.round_title)} ${q.question_no}번 보기 선택</legend>
@@ -1496,6 +1547,26 @@
         updateHUD();
         renderSubjectPills();
         renderQuestions();
+
+        const params = new URLSearchParams(location.search);
+        const qidParam = params.get('qid');
+        const qStr = params.get('q');
+        if (qidParam && WRITTEN_DATA && Array.isArray(WRITTEN_DATA.questions)) {
+          const idx = WRITTEN_DATA.questions.findIndex(q => String(q.question_id) === String(qidParam));
+          if (idx !== -1) {
+            if (idx >= VISIBLE_LIMIT) {
+              VISIBLE_LIMIT = idx + 10;
+              renderQuestions();
+            }
+            requestAnimationFrame(() => {
+              const el = document.getElementById(`card-q-${qidParam}`);
+              if (el) { el.scrollIntoView({ behavior: 'auto', block: 'center' }); el.classList.add('kcert-deeplink-highlight'); }
+            });
+          }
+        } else if (qStr) {
+          const si = document.getElementById('searchInput');
+          if (si) { si.value = qStr; renderQuestions(); }
+        }
       } catch (err) {
         document.getElementById('questionList').innerHTML =
           `<div class="q-card" style="color:var(--rose);">데이터 로드 실패: 로컬 서버 또는 GitHub Pages 환경에서 열어주세요. (${escapeHtml(err.message)})</div>`;
@@ -1503,6 +1574,32 @@
     }
 
     initApp();
+
+    (function initBackToTop() {
+      const sentinel = document.createElement('div');
+      sentinel.className = 'kcert-scroll-sentinel';
+      sentinel.setAttribute('aria-hidden', 'true');
+      document.body.prepend(sentinel);
+      const btn = document.getElementById('kcertBackToTop');
+      if ('IntersectionObserver' in window) {
+        const io = new IntersectionObserver((entries) => {
+          document.documentElement.classList.toggle('kcert-scrolled', !entries[0].isIntersecting);
+        }, { root: null, rootMargin: '320px 0px 0px 0px', threshold: 0 });
+        io.observe(sentinel);
+      }
+      if (btn) {
+        btn.addEventListener('click', () => {
+          const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
+        });
+        btn.addEventListener('focusout', () => {
+          if (!document.documentElement.classList.contains('kcert-scrolled')) {
+            document.querySelector('header a, header button, main')?.focus?.({ preventScroll: true });
+          }
+        });
+      }
+    })();
   </script>
+  <button type="button" id="kcertBackToTop" class="kcert-back-to-top" aria-label="페이지 맨 위로 이동" title="맨 위로 이동">↑ 맨 위로</button>
 </body>
 </html>

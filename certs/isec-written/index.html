@@ -69,13 +69,52 @@
     :root[data-theme="dark"] .theme-opt-light { display: inline-flex; align-items: center; gap: 4px; }
     :root[data-theme="dark"] .theme-opt-dark { display: none; }
 
+    html, body { overflow-x: clip; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: var(--bg-main);
       color: var(--text-main);
       line-height: 1.65;
-      padding-bottom: 64px;
+      padding-bottom: 72px;
+    }
+    button, a, th, .pill, .mode-btn, .tab-btn, .top-link, .brand-badge { word-break: keep-all; }
+    .timer-box .btn-sm, .brand-badge { white-space: nowrap; }
+    .kcert-inline-code {
+      font-family: Consolas, 'Liberation Mono', Menlo, monospace;
+      font-size: 0.88em;
+      padding: 0.08em 0.36em;
+      border-radius: 4px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+    }
+    .kcert-deeplink-highlight {
+      outline: 3px solid var(--accent);
+      outline-offset: 2px;
+      box-shadow: 0 0 0 6px rgba(15, 118, 110, 0.14);
+    }
+    .kcert-scroll-sentinel {
+      height: 1px; width: 1px; position: absolute; top: 0; left: 0; pointer-events: none;
+    }
+    .kcert-back-to-top {
+      position: fixed; bottom: 20px; right: 20px; z-index: 60;
+      min-height: 40px; padding: 8px 14px; border-radius: 999px;
+      background: var(--bg-card); color: var(--text-main);
+      border: 1px solid var(--border); box-shadow: 0 6px 18px rgba(0, 0, 0, 0.14);
+      font-size: 0.78rem; font-weight: 700; cursor: pointer;
+      visibility: hidden; opacity: 0; transform: translateY(12px);
+      transition: visibility 0.25s, opacity 0.25s ease, transform 0.25s ease, border-color 0.15s;
+    }
+    .kcert-back-to-top:hover { border-color: var(--accent); color: var(--accent); }
+    html.kcert-scrolled .kcert-back-to-top { visibility: visible; opacity: 1; transform: translateY(0); }
+    @media (max-width: 768px) {
+      header { position: static !important; padding: 10px 14px; }
+      .topbar-inner { flex-wrap: nowrap !important; overflow-x: auto; padding: 7px 14px; scrollbar-width: none; }
+      .topbar-inner::-webkit-scrollbar { display: none; }
+      .topbar-links { flex-wrap: nowrap !important; }
+      .topbar-links > * { flex-shrink: 0; white-space: nowrap; }
+      .mode-group, .timer-box { flex-wrap: wrap; max-width: 100%; }
     }
 
     :focus-visible {
@@ -546,7 +585,7 @@
     /* Cheatsheet Grid */
     .cheat-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 330px), 1fr));
       gap: 16px;
     }
     .cheat-card {
@@ -574,10 +613,12 @@
         <span>필기·실기 구분 RDB 학습 채널</span>
       </div>
       <nav class="topbar-links" aria-label="다른 자격증 학습 채널">
-        <a href="../eip/index.html" class="top-link">💻 정보처리기사 실기 (400)</a>
-        <a href="../itpe/index.html" class="top-link">🏛️ 정보관리기술사 필기 (122)</a>
-        <a href="../isec-written/index.html" class="top-link active" id="topBarWrittenLink">📝 정보보안기사 필기 CBT (150)</a>
-        <a href="../isec/index.html" class="top-link">🛡️ 정보보안기사 실기</a>
+        <a href="../eip/index.html" class="top-link">💻 정처기 실기 (460)</a>
+        <a href="../eip-written/index.html" class="top-link">📝 정처기 필기 (313)</a>
+        <a href="../itpe/index.html" class="top-link">🏛️ 기술사 (690)</a>
+        <a href="../isec-written/index.html" class="top-link active" id="topBarWrittenLink">📝 보안기사 필기 (150)</a>
+        <a href="../isec/index.html" class="top-link">🛡️ 보안기사 실기 (175)</a>
+        <a href="../aws/index.html" class="top-link">☁️ AWS 5종 (565)</a>
         <a href="../../index.html#section-community" class="top-link">💬 정보공유 라운지</a>
       </nav>
     </div>
@@ -879,6 +920,20 @@
         .replace(/"/g, '&quot;');
     }
 
+    function formatRichText(str) {
+      let s = escapeHtml(str);
+      s = s.replace(/`([^`\n]+)`/g, '<code class="kcert-inline-code">$1</code>');
+      s = s.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+      return s;
+    }
+
+    function isDuplicateTitle(title, body) {
+      const t = String(title || '').replace(/\.\.\.$/, '').replace(/…$/, '').replace(/\s+/g, ' ').trim();
+      const b = String(body || '').replace(/\s+/g, ' ').trim();
+      if (!t || !b) return false;
+      return b === t || (t.length >= 10 && b.startsWith(t));
+    }
+
     function toggleColorScheme() {
       const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
       document.documentElement.dataset.theme = next;
@@ -1014,7 +1069,7 @@
             <label class="${cls}">
               <input type="radio" name="q-radio-${q.question_id}" value="${idx}" data-qid="${q.question_id}" ${checkedAttr} />
               <span class="choice-num">${circled[idx]}</span>
-              <span>${escapeHtml(c)}</span>
+              <span>${formatRichText(c)}</span>
             </label>
           `;
         }).join('');
@@ -1029,7 +1084,7 @@
         const answerBlock = `
           <div class="answer-box">
             <div class="answer-label">✅ 정답</div>
-            <div class="answer-text">${escapeHtml(q.answer_text)}</div>
+            <div class="answer-text">${formatRichText(q.answer_text)}</div>
             <div class="kw-row">${keywordsHtml}</div>
           </div>
         `;
@@ -1037,7 +1092,7 @@
         const explainBlock = `
           <div class="explain-box">
             <div class="explain-label">💡 핵심 해설</div>
-            <div>${escapeHtml(q.explanation)}</div>
+            <div>${formatRichText(q.explanation)}</div>
           </div>
         `;
 
@@ -1069,8 +1124,9 @@
           bottomBlock = answerBlock + explainBlock;
         }
 
+        const dupStem = isDuplicateTitle(q.title, q.question_text);
         return `
-          <article class="q-card">
+          <article class="q-card" id="card-q-${q.question_id}">
             <div class="q-meta">
               <div class="badge-row">
                 <span class="pill pill-round">${escapeHtml(q.round_title)} #${q.question_no}</span>
@@ -1082,8 +1138,8 @@
                 ${isSaved ? '★ 오답노트됨' : '☆ 오답/북마크'}
               </button>
             </div>
-            <h2 class="q-title">Q${q.question_id}. ${escapeHtml(q.title)}</h2>
-            <div class="q-body">${escapeHtml(q.question_text)}</div>
+            <h2 class="q-title">Q${q.question_id}. ${formatRichText(dupStem ? q.question_text : q.title)}</h2>
+            ${dupStem ? '' : `<div class="q-body">${formatRichText(q.question_text)}</div>`}
             ${q.code_or_log ? `<pre class="code-block">${escapeHtml(q.code_or_log)}</pre>` : ''}
             <fieldset class="choice-fieldset">
               <legend class="sr-only">문항 ${q.question_id} 선택지</legend>
@@ -1253,6 +1309,17 @@
         updateScoreHUD();
         renderQuestions();
         renderAnalytics();
+
+        const params = new URLSearchParams(location.search);
+        const qidParam = params.get('qid');
+        const qStr = params.get('q');
+        if (qidParam) {
+          const el = document.getElementById(`card-q-${qidParam}`);
+          if (el) { el.scrollIntoView({ behavior: 'auto', block: 'center' }); el.classList.add('kcert-deeplink-highlight'); }
+        } else if (qStr) {
+          const si = document.getElementById('searchInput');
+          if (si) { si.value = qStr; renderQuestions(); }
+        }
       } catch (err) {
         document.getElementById('questionList').innerHTML =
           `<div class="q-card" style="color:var(--rose);">데이터 로드 실패: 로컬 웹 서버 또는 GitHub Pages 환경에서 열어주세요. (${escapeHtml(err.message)})</div>`;
@@ -1260,6 +1327,32 @@
     }
 
     initApp();
+
+    (function initBackToTop() {
+      const sentinel = document.createElement('div');
+      sentinel.className = 'kcert-scroll-sentinel';
+      sentinel.setAttribute('aria-hidden', 'true');
+      document.body.prepend(sentinel);
+      const btn = document.getElementById('kcertBackToTop');
+      if ('IntersectionObserver' in window) {
+        const io = new IntersectionObserver((entries) => {
+          document.documentElement.classList.toggle('kcert-scrolled', !entries[0].isIntersecting);
+        }, { root: null, rootMargin: '320px 0px 0px 0px', threshold: 0 });
+        io.observe(sentinel);
+      }
+      if (btn) {
+        btn.addEventListener('click', () => {
+          const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
+        });
+        btn.addEventListener('focusout', () => {
+          if (!document.documentElement.classList.contains('kcert-scrolled')) {
+            document.querySelector('header a, header button, main')?.focus?.({ preventScroll: true });
+          }
+        });
+      }
+    })();
   </script>
+  <button type="button" id="kcertBackToTop" class="kcert-back-to-top" aria-label="페이지 맨 위로 이동" title="맨 위로 이동">↑ 맨 위로</button>
 </body>
 </html>

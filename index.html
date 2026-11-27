@@ -78,12 +78,106 @@
       --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
     }
 
+    html, body {
+      overflow-x: clip;
+    }
+
     body {
       background-color: var(--bg-main);
       color: var(--text-main);
       font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       line-height: 1.65;
       overflow-wrap: break-word;
+      padding-bottom: 72px;
+    }
+
+    :focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    button, a, th, .pill-btn, .nav-btn {
+      word-break: keep-all;
+    }
+
+    .kcert-inline-code {
+      font-family: Consolas, 'Liberation Mono', Menlo, monospace;
+      font-size: 0.88em;
+      padding: 0.08em 0.36em;
+      border-radius: 4px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+    }
+    .kcert-md-h4 {
+      font-size: 0.94rem;
+      font-weight: 800;
+      margin-top: 0.9rem;
+      margin-bottom: 0.35rem;
+      color: var(--text-main);
+    }
+    .kcert-md-h4:first-child { margin-top: 0; }
+    .kcert-md-list {
+      margin: 0.35rem 0 0.55rem 1.2rem;
+      padding: 0;
+      list-style: disc;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .kcert-scroll-sentinel {
+      height: 1px;
+      width: 1px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+    }
+
+    .kcert-back-to-top {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 60;
+      min-height: 40px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: var(--bg-card);
+      color: var(--text-main);
+      border: 1px solid var(--border-strong);
+      box-shadow: var(--shadow-md);
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      visibility: hidden;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: visibility 0.25s, opacity 0.25s ease, transform 0.25s ease, border-color 0.15s;
+    }
+    .kcert-back-to-top:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    html.kcert-scrolled .kcert-back-to-top {
+      visibility: visible;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 768px) {
+      header.hub-sticky-header {
+        position: static !important;
+      }
+      .hub-quick-strip {
+        flex-wrap: nowrap !important;
+        overflow-x: auto;
+        max-width: 100%;
+        padding-bottom: 4px;
+        scrollbar-width: none;
+      }
+      .hub-quick-strip::-webkit-scrollbar { display: none; }
+      .hub-quick-strip > * { flex-shrink: 0; white-space: nowrap; }
     }
 
     h1, h2, h3, h4, th {
@@ -311,95 +405,96 @@
   </style>
 </head>
 <body class="min-h-screen flex flex-col antialiased">
+  <div class="kcert-scroll-sentinel" aria-hidden="true"></div>
 
   <!-- Sticky Global Header -->
-  <header class="sticky top-0 z-30 border-b" style="background: var(--bg-card); border-color: var(--border); box-shadow: var(--shadow-sm);">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col gap-3">
-      <div class="flex flex-wrap items-center justify-between gap-3">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl flex items-center justify-center font-extrabold text-sm text-white shrink-0"
+  <header class="hub-sticky-header sticky top-0 z-30 border-b" style="background: var(--bg-card); border-color: var(--border); box-shadow: var(--shadow-sm);">
+    <div class="max-w-7xl mx-auto px-4 py-2.5 flex flex-col gap-2">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-9 h-9 rounded-xl flex items-center justify-center font-extrabold text-xs text-white shrink-0"
                style="background: linear-gradient(135deg, #2563eb, #0f766e);">
             HUB
           </div>
-          <div>
+          <div class="min-w-0">
             <div class="flex flex-wrap items-center gap-2">
-              <h1 class="text-base sm:text-lg font-extrabold tracking-tight" style="color: var(--text-main);">
+              <h1 class="text-sm sm:text-base font-extrabold tracking-tight" style="color: var(--text-main);">
                 K-Cert Hub · 국가·민간 자격증 통합 학습 채널
               </h1>
-              <span class="hidden sm:inline-block px-2 py-0.5 text-xs font-bold rounded-full badge-accent">
+              <span class="hidden sm:inline-block px-2 py-0.5 text-[11px] font-bold rounded-full badge-accent">
                 필기 · 실기 구분 RDB
               </span>
             </div>
-            <p class="text-xs mt-0.5" style="color: var(--text-muted);">
+            <p class="text-[11px] mt-0.5 hidden sm:block" style="color: var(--text-muted);">
               정보처리기사 · 정보관리기술사 · 정보보안기사 · 빅데이터분석기사 · SQLD · ADsP · AWS 클라우드 대표 5종 통합 RDB
             </p>
           </div>
         </div>
 
         <!-- Direct Quick-Launch Buttons + Theme Toggle -->
-        <div class="flex flex-wrap items-center gap-2">
+        <div class="hub-quick-strip flex flex-wrap items-center gap-1.5">
           <a href="./certs/eip/index.html"
-             class="px-2.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 badge-practical hover:opacity-90">
+             class="px-2 py-1 rounded-lg text-[11px] font-bold transition flex items-center gap-1 badge-practical hover:opacity-90">
             <span>💻 정처기 실기</span>
             <span class="opacity-80">460</span>
           </a>
           <a href="./certs/eip-written/index.html"
-             class="px-2.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 badge-written hover:opacity-90">
+             class="px-2 py-1 rounded-lg text-[11px] font-bold transition flex items-center gap-1 badge-written hover:opacity-90">
             <span>📝 정처기 필기</span>
             <span class="opacity-80">313</span>
           </a>
           <a href="./certs/itpe/index.html"
-             class="px-2.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 badge-written hover:opacity-90">
+             class="px-2 py-1 rounded-lg text-[11px] font-bold transition flex items-center gap-1 badge-written hover:opacity-90">
             <span>🏛️ 기술사</span>
             <span class="opacity-80">690</span>
           </a>
           <a href="./certs/isec/index.html"
-             class="px-2.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 badge-practical hover:opacity-90">
+             class="px-2 py-1 rounded-lg text-[11px] font-bold transition flex items-center gap-1 badge-practical hover:opacity-90">
             <span>🛡️ 보안기사</span>
             <span class="opacity-80">175</span>
           </a>
           <a href="./certs/aws/index.html"
-             class="px-2.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 badge-amber hover:opacity-90">
+             class="px-2 py-1 rounded-lg text-[11px] font-bold transition flex items-center gap-1 badge-amber hover:opacity-90">
             <span>☁️ AWS 5종</span>
             <span class="opacity-80">565</span>
           </a>
           <button type="button" id="themeToggleBtn" onclick="toggleTheme()"
-             class="px-2.5 py-1.5 rounded-lg text-xs font-semibold pill-btn transition"
+             class="px-2 py-1 rounded-lg text-[11px] font-semibold pill-btn transition"
              aria-label="화면 테마 전환">
             🌙 다크 모드
           </button>
           <a href="https://github.com/rlaguswls13/k-cert-hub" target="_blank" rel="noopener"
-             class="px-2.5 py-1.5 rounded-lg text-xs font-semibold pill-btn transition">
+             class="px-2 py-1 rounded-lg text-[11px] font-semibold pill-btn transition">
             GitHub ↗
           </a>
         </div>
       </div>
 
       <!-- Navigation Tabs & Cross-Certification Search Bar -->
-      <div class="flex flex-wrap items-center justify-between gap-2 pt-2.5 border-t" style="border-color: var(--border);">
-        <nav class="flex flex-wrap gap-1.5" aria-label="포털 주요 메뉴">
+      <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t" style="border-color: var(--border);">
+        <nav class="flex flex-wrap gap-1" aria-label="포털 주요 메뉴">
           <button type="button" onclick="switchHubTab('study')" id="hubTab-study"
-            class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all nav-btn-active">
+            class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all nav-btn-active">
             🎓 자격증 통합 학습관
           </button>
           <button type="button" onclick="switchHubTab('search')" id="hubTab-search"
-            class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all nav-btn">
+            class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all nav-btn">
             🔍 전 종목 통합 검색 (<span id="totalIndexedCount">...</span>문항)
           </button>
           <button type="button" onclick="switchHubTab('community')" id="hubTab-community"
-            class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all nav-btn">
+            class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all nav-btn">
             💬 합격수기 · 정보공유 라운지
           </button>
           <button type="button" onclick="switchHubTab('roadmap')" id="hubTab-roadmap"
-            class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all nav-btn">
+            class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all nav-btn">
             📅 시험일정 · 테크트리
           </button>
         </nav>
 
         <!-- Unified Search Input -->
-        <div class="relative flex items-center w-full sm:w-80">
+        <div class="relative flex items-center w-full sm:w-72">
           <input type="search" id="quickHubSearch" oninput="triggerCrossSearch(this.value)"
-            placeholder="통합 검색 (예: OSPF, 정규화, 포인터, Snort, RAG...)"
+            placeholder="통합 검색 (예: OSPF, 정규화, 포인터, Snort...)"
             aria-label="전 자격증 기출 및 서브노트 통합 검색"
             class="w-full px-3 py-1.5 text-xs rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/40"
             style="background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main);" />
@@ -768,6 +863,82 @@
         .replace(/"/g, '&quot;');
     }
 
+    function formatRichText(str) {
+      let s = escapeHtml(str);
+      s = s.replace(/`([^`\n]+)`/g, '<code class="kcert-inline-code">$1</code>');
+      s = s.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+      return s;
+    }
+
+    function formatCommunityBody(str) {
+      const lines = String(str ?? '').replace(/\r\n/g, '\n').split('\n');
+      const out = [];
+      let inList = false;
+      const closeList = () => {
+        if (inList) {
+          out.push('</ul>');
+          inList = false;
+        }
+      };
+      for (const rawLine of lines) {
+        const line = rawLine.trimEnd();
+        if (/^###\s+/.test(line)) {
+          closeList();
+          out.push(`<h4 class="kcert-md-h4">${formatRichText(line.replace(/^###\s+/, ''))}</h4>`);
+        } else if (/^[-•]\s+/.test(line.trim())) {
+          if (!inList) {
+            out.push('<ul class="kcert-md-list">');
+            inList = true;
+          }
+          out.push(`<li>${formatRichText(line.trim().replace(/^[-•]\s+/, ''))}</li>`);
+        } else if (/^\d+\.\s+/.test(line.trim())) {
+          if (!inList) {
+            out.push('<ul class="kcert-md-list" style="list-style:decimal;">');
+            inList = true;
+          }
+          out.push(`<li>${formatRichText(line.trim().replace(/^\d+\.\s+/, ''))}</li>`);
+        } else if (!line.trim()) {
+          closeList();
+        } else {
+          closeList();
+          out.push(`<p style="margin:0.25rem 0;line-height:1.65;">${formatRichText(line)}</p>`);
+        }
+      }
+      closeList();
+      return out.join('');
+    }
+
+    const TAG_QUERY_MAP = {
+      'C포인터': '포인터',
+      'Java상속': '상속',
+      'Python문자열': '파이썬',
+      'SQL조인/집계': 'JOIN/GROUP BY',
+      '라우팅(OSPF)': 'OSPF',
+      '정규화/회복': '정규화/회복',
+      'Agentic AI/RAG': 'Agentic/RAG',
+      'MSA/K8s': 'MSA/Kubernetes',
+      'Snort룰작성': 'Snort',
+      '/etc/shadow·PAM': 'shadow/PAM',
+      'IPsec·Smurf': 'IPsec/Smurf',
+      'SSRF·SQLi·BOF': 'SSRF/SQL Injection/BOF',
+      'ISMS-P·개인정보법': 'ISMS-P/개인정보',
+      'pandas전처리': 'pandas',
+      'ROC-AUC/F1': 'AUC/F1',
+      'scipy가설검정': 'scipy/검정',
+      'NULL연산': 'NULL',
+      '계층형질의': '계층',
+      '정규화/반정규화': '정규화',
+      '분석거버넌스': '거버넌스',
+      'Lambda/API GW': 'Lambda/API Gateway'
+    };
+
+    function normalizeTagQuery(tag) {
+      if (TAG_QUERY_MAP[tag]) return TAG_QUERY_MAP[tag];
+      return String(tag || '').replace(/\(.*\)/g, '').trim();
+    }
+
+    let searchResultLimit = 40;
+
     function updateThemeBtnLabel() {
       const btn = document.getElementById('themeToggleBtn');
       if (!btn) return;
@@ -893,6 +1064,10 @@
           q.source ? `[출처] ${q.source}` : ''
         ].filter(Boolean).join('\n\n');
 
+        const baseLink = (q.exam_stage === '실기' && link.includes('/bda/'))
+          ? `./certs/bda/index.html?qid=${q.question_id}#practical`
+          : `${link}?qid=${q.question_id}`;
+
         UNIFIED_INDEX.push({
           cert,
           subCode,
@@ -903,7 +1078,7 @@
           question: bodyParts || q.title || '',
           answer: q.answer_text || '',
           explanation: expText,
-          link: (q.exam_stage === '실기' && link.includes('/bda/')) ? './certs/bda/index.html#practical' : link
+          link: baseLink
         });
       });
     }
@@ -926,7 +1101,7 @@
             question: bodyParts || q.question_header || '',
             answer: q.answer_text || '',
             explanation: q.explanation_text || '',
-            link: './certs/eip/index.html'
+            link: `./certs/eip/index.html?qid=${q.question_id}`
           });
         });
       }
@@ -943,7 +1118,7 @@
             question: bodyParts || p.question_header || '',
             answer: p.answer_text || '',
             explanation: [p.basis ? `[선정근거] ${p.basis}` : '', p.explanation_text].filter(Boolean).join('\n\n'),
-            link: './certs/eip/index.html'
+            link: `./certs/eip/index.html?pred=${p.pred_id}`
           });
         });
       }
@@ -964,7 +1139,7 @@
             question: promptsStr || q.question_header || '',
             answer: `[필수 키워드] ${q.core_keywords || ''}\n[4단 목차] ${outlineStr}`,
             explanation: [q.model_answer_text, q.escalation_note ? `📌 ${q.escalation_note}` : '', q.source ? `[출처] ${q.source}` : ''].filter(Boolean).join('\n\n'),
-            link: './certs/itpe/index.html'
+            link: `./certs/itpe/index.html?qid=${q.question_id}`
           });
         });
       }
@@ -981,7 +1156,7 @@
             question: p.basis || p.question_header || '',
             answer: `[필수 키워드] ${p.core_keywords || ''}\n[4단 목차] ${outlineStr}`,
             explanation: p.model_answer_text || '',
-            link: './certs/itpe/index.html'
+            link: `./certs/itpe/index.html?pred=${p.pred_id}`
           });
         });
       }
@@ -1000,7 +1175,7 @@
             question: [p.question_text, p.code_or_log].filter(Boolean).join('\n\n'),
             answer: p.answer_text || '',
             explanation: p.rationale || '',
-            link: './certs/isec/index.html'
+            link: `./certs/isec/index.html?pred=${p.pred_id}`
           });
         });
       }
@@ -1226,7 +1401,7 @@
 
               <div class="flex flex-wrap gap-1.5">
                 ${(c.key_tags || []).map(tag => `
-                  <button type="button" onclick="jumpToSearchKeyword('${escapeHtml(tag.replace(/\(.*\)/, ''))}')"
+                  <button type="button" onclick="jumpToSearchKeyword('${escapeHtml(normalizeTagQuery(tag))}')"
                     class="px-2 py-0.5 rounded-md text-[11px] pill-btn transition">
                     #${escapeHtml(tag)}
                   </button>
@@ -1329,36 +1504,64 @@
       }).join('');
     }
 
+    function syncDualSearchInputs(val) {
+      const qh = document.getElementById('quickHubSearch');
+      const mc = document.getElementById('mainCrossSearchInput');
+      if (qh && qh.value !== val) qh.value = val;
+      if (mc && mc.value !== val) mc.value = val;
+    }
+
     function triggerCrossSearch(val) {
+      searchResultLimit = 40;
+      syncDualSearchInputs(val);
       if (val && val.trim().length > 0) {
         switchHubTab('search');
-        const mainInput = document.getElementById('mainCrossSearchInput');
-        mainInput.value = val;
-        renderCrossSearchResults(val);
+        renderCrossSearchResults(val, false);
+      } else if (!document.getElementById('section-search').classList.contains('hidden')) {
+        renderCrossSearchResults('', false);
       }
     }
 
     function jumpToSearchKeyword(kw) {
+      searchResultLimit = 40;
       switchHubTab('search');
       document.getElementById('searchCertScope').value = 'ALL';
       document.getElementById('searchStageScope').value = 'ALL';
-      const mainInput = document.getElementById('mainCrossSearchInput');
-      mainInput.value = kw;
-      renderCrossSearchResults(kw);
+      syncDualSearchInputs(kw);
+      renderCrossSearchResults(kw, false);
+      document.getElementById('section-search').scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
     }
 
     function jumpToCertSearch(certName) {
+      searchResultLimit = 40;
       switchHubTab('search');
       const scopeEl = document.getElementById('searchCertScope');
       const matchOpt = Array.from(scopeEl.options).find(o => o.value !== 'ALL' && certName.includes(o.value));
       scopeEl.value = matchOpt ? matchOpt.value : 'ALL';
       document.getElementById('searchStageScope').value = 'ALL';
-      const mainInput = document.getElementById('mainCrossSearchInput');
-      mainInput.value = '';
-      renderCrossSearchResults('');
+      syncDualSearchInputs('');
+      renderCrossSearchResults('', false);
+      document.getElementById('section-search').scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
     }
 
-    function renderCrossSearchResults(query) {
+    function matchesSearchQuery(hay, q) {
+      if (!q) return true;
+      if (/[\/·]/.test(q)) {
+        const alts = q.split(/[\/·]/).map(s => s.trim()).filter(Boolean);
+        return alts.some(alt => hay.includes(alt));
+      }
+      const tokens = q.split(/\s+/).filter(Boolean);
+      return tokens.every(tok => hay.includes(tok));
+    }
+
+    function loadMoreCrossSearch() {
+      searchResultLimit += 40;
+      renderCrossSearchResults(document.getElementById('mainCrossSearchInput').value, true);
+    }
+
+    function renderCrossSearchResults(query, keepLimit = false) {
+      if (!keepLimit) searchResultLimit = 40;
+      syncDualSearchInputs(query || '');
       const q = (query || '').trim().toLowerCase();
       const scope = document.getElementById('searchCertScope').value;
       const stageScope = document.getElementById('searchStageScope').value;
@@ -1373,12 +1576,12 @@
         if (stageScope !== 'ALL' && item.exam_stage !== stageScope) return false;
         if (!q) return true;
         const hay = `${item.cert} ${item.exam_stage} ${item.badge} ${item.category} ${item.title} ${item.question} ${item.answer} ${item.explanation}`.toLowerCase();
-        return hay.includes(q);
+        return matchesSearchQuery(hay, q);
       });
 
-      badge.textContent = `검색 결과: 총 ${matches.length}건 (상위 40건 표시)`;
+      const sliced = matches.slice(0, searchResultLimit);
+      badge.textContent = `검색 결과: 총 ${matches.length}건 (${sliced.length}건 표시)`;
 
-      const sliced = matches.slice(0, 40);
       if (!sliced.length) {
         container.innerHTML = `
           <div class="surface-card p-8 rounded-xl text-center text-sm" style="color: var(--text-muted);">
@@ -1388,12 +1591,13 @@
         return;
       }
 
-      container.innerHTML = sliced.map((item, idx) => {
+      const cardsHtml = sliced.map((item, idx) => {
         const deferredClass = idx >= 4 ? 'heavy-section-deferred' : '';
         const isExternalApp = item.link && item.link.startsWith('./certs/');
         const stageBadge = item.exam_stage === '필기'
           ? '<span class="px-2 py-0.5 rounded-md text-xs font-bold badge-written">📝 필기</span>'
           : '<span class="px-2 py-0.5 rounded-md text-xs font-bold badge-practical">⚙️ 실기</span>';
+        const showStemPre = item.question && item.question.trim() !== (item.title || '').trim();
 
         return `
           <article class="${deferredClass} surface-card rounded-xl p-4 flex flex-col gap-2.5">
@@ -1406,18 +1610,28 @@
               </div>
               ${isExternalApp ? `<a href="${escapeHtml(item.link)}" class="text-xs font-bold hover:underline" style="color: var(--accent);">전용 학습관에서 열기 ↗</a>` : ''}
             </div>
-            <h3 class="text-sm font-bold" style="color: var(--text-main);">${escapeHtml(item.title)}</h3>
-            <pre class="p-3 rounded-lg text-xs whitespace-pre-wrap overflow-x-auto leading-relaxed" style="background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-main);">${escapeHtml(item.question.slice(0, 460))}${item.question.length > 460 ? '...' : ''}</pre>
+            <h3 class="text-sm font-bold" style="color: var(--text-main);">${formatRichText(item.title)}</h3>
+            ${showStemPre ? `<pre class="p-3 rounded-lg text-xs whitespace-pre-wrap overflow-x-auto leading-relaxed" style="background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-main);">${escapeHtml(item.question.slice(0, 460))}${item.question.length > 460 ? '...' : ''}</pre>` : ''}
             <details class="rounded-lg p-2.5 badge-practical">
               <summary class="cursor-pointer text-xs font-bold">✅ 정답 및 핵심 해설 확인</summary>
               <div class="mt-2 pt-2 border-t text-xs flex flex-col gap-1.5" style="border-color: var(--practical-border);">
-                <div class="font-bold whitespace-pre-wrap" style="color: var(--text-main);">${escapeHtml(item.answer)}</div>
-                <div class="whitespace-pre-wrap leading-relaxed" style="color: var(--text-secondary);">${escapeHtml(item.explanation)}</div>
+                <div class="font-bold whitespace-pre-wrap" style="color: var(--text-main);">${formatRichText(item.answer)}</div>
+                <div class="whitespace-pre-wrap leading-relaxed" style="color: var(--text-secondary);">${formatRichText(item.explanation)}</div>
               </div>
             </details>
           </article>
         `;
       }).join('');
+
+      const moreHtml = matches.length > searchResultLimit
+        ? `<div class="flex justify-center pt-2">
+             <button type="button" onclick="loadMoreCrossSearch()" class="px-4 py-2 rounded-xl text-xs font-bold pill-btn transition">
+               검색 결과 더 보기 (+40건 · 남은 ${matches.length - searchResultLimit}건)
+             </button>
+           </div>`
+        : '';
+
+      container.innerHTML = cardsHtml + moreHtml;
     }
 
     function filterCommunityPosts(cat) {
@@ -1470,7 +1684,7 @@
           <span>대상 자격증: <strong style="color: var(--accent);">${escapeHtml(post.cert_name)}</strong> | 작성자: ${escapeHtml(post.author)}</span>
           <span>${escapeHtml(post.date)}</span>
         </div>
-        <div class="p-4 rounded-xl text-xs sm:text-sm whitespace-pre-wrap leading-relaxed" style="background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-main);">${escapeHtml(post.body)}</div>
+        <div class="p-4 rounded-xl text-xs sm:text-sm leading-relaxed" style="background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-main);">${formatCommunityBody(post.body)}</div>
       `;
       dlg.showModal();
     }
@@ -1560,6 +1774,29 @@
     }
 
     initHub();
+
+    (function initBackToTop() {
+      const sentinel = document.querySelector('.kcert-scroll-sentinel');
+      const btn = document.getElementById('kcertBackToTop');
+      if (sentinel && 'IntersectionObserver' in window) {
+        const io = new IntersectionObserver((entries) => {
+          document.documentElement.classList.toggle('kcert-scrolled', !entries[0].isIntersecting);
+        }, { root: null, rootMargin: '320px 0px 0px 0px', threshold: 0 });
+        io.observe(sentinel);
+      }
+      if (btn) {
+        btn.addEventListener('click', () => {
+          const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
+        });
+        btn.addEventListener('focusout', () => {
+          if (!document.documentElement.classList.contains('kcert-scrolled')) {
+            document.querySelector('header a, header button, main')?.focus?.({ preventScroll: true });
+          }
+        });
+      }
+    })();
   </script>
+  <button type="button" id="kcertBackToTop" class="kcert-back-to-top" aria-label="페이지 맨 위로 이동" title="맨 위로 이동">↑ 맨 위로</button>
 </body>
 </html>

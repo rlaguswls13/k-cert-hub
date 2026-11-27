@@ -94,6 +94,7 @@
     :root[data-theme="dark"] .theme-opt-light { display: inline-flex; align-items: center; gap: 4px; }
     :root[data-theme="dark"] .theme-opt-dark { display: none; }
 
+    html, body { overflow-x: clip; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
@@ -101,8 +102,49 @@
       background: var(--bg-main);
       color: var(--text-main);
       line-height: 1.65;
-      padding-bottom: 64px;
+      padding-bottom: 72px;
       accent-color: var(--accent);
+    }
+
+    button, a, th, .pill, .mode-btn, .tab-btn, .portal-link, .brand-badge { word-break: keep-all; }
+    .timer-box .btn-sm, .brand-badge { white-space: nowrap; }
+
+    .kcert-inline-code {
+      font-family: Consolas, 'Liberation Mono', Menlo, monospace;
+      font-size: 0.88em;
+      padding: 0.08em 0.36em;
+      border-radius: 4px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+    }
+    .kcert-deeplink-highlight {
+      outline: 3px solid var(--accent);
+      outline-offset: 2px;
+      box-shadow: 0 0 0 6px rgba(15, 118, 110, 0.14);
+    }
+    .kcert-scroll-sentinel {
+      height: 1px; width: 1px; position: absolute; top: 0; left: 0; pointer-events: none;
+    }
+    .kcert-back-to-top {
+      position: fixed; bottom: 20px; right: 20px; z-index: 60;
+      min-height: 40px; padding: 8px 14px; border-radius: 999px;
+      background: var(--bg-card); color: var(--text-main);
+      border: 1px solid var(--border); box-shadow: 0 6px 18px rgba(0, 0, 0, 0.14);
+      font-size: 0.78rem; font-weight: 700; cursor: pointer;
+      visibility: hidden; opacity: 0; transform: translateY(12px);
+      transition: visibility 0.25s, opacity 0.25s ease, transform 0.25s ease, border-color 0.15s;
+    }
+    .kcert-back-to-top:hover { border-color: var(--accent); color: var(--accent); }
+    html.kcert-scrolled .kcert-back-to-top { visibility: visible; opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 768px) {
+      header { position: static !important; padding: 10px 14px; }
+      .portal-inner { flex-wrap: nowrap !important; overflow-x: auto; padding: 7px 14px; scrollbar-width: none; }
+      .portal-inner::-webkit-scrollbar { display: none; }
+      .portal-links { flex-wrap: nowrap !important; }
+      .portal-links > * { flex-shrink: 0; white-space: nowrap; }
+      .mode-group, .timer-box { flex-wrap: wrap; max-width: 100%; }
     }
 
     :focus-visible {
@@ -698,7 +740,7 @@
     /* Cheatsheet */
     .cheat-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
       gap: 16px;
     }
     .cheat-card {
@@ -1036,6 +1078,13 @@ UNPIVOT (CNT FOR DEPTNO IN ("10", "20", "30"));</pre>
         .replace(/"/g, '&quot;');
     }
 
+    function formatRichText(str) {
+      let s = escapeHtml(str);
+      s = s.replace(/`([^`\n]+)`/g, '<code class="kcert-inline-code">$1</code>');
+      s = s.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+      return s;
+    }
+
     function normalizeAnswer(str) {
       return String(str || '').trim().replace(/\s+/g, ' ').toUpperCase();
     }
@@ -1224,7 +1273,7 @@ UNPIVOT (CNT FOR DEPTNO IN ("10", "20", "30"));</pre>
           }
           return `<button type="button" class="${cls}" data-action="${isMock ? 'mock-choice' : 'solve-choice'}" data-qid="${q.question_id}" data-choice="${idx}">
             <span class="choice-num">${CIRCLED[idx]}</span>
-            <span>${escapeHtml(c)}</span>
+            <span>${formatRichText(c)}</span>
           </button>`;
         }).join('')}</div>`;
       } else {
@@ -1246,7 +1295,7 @@ UNPIVOT (CNT FOR DEPTNO IN ("10", "20", "30"));</pre>
         const ok = isMock ? isMockQuestionCorrect(q) : state.correct;
         feedbackHtml = `
           <div class="solve-feedback ${ok ? 'ok' : 'bad'}">
-            <span>${ok ? '✅ 정답입니다!' : `❌ 오답입니다. 모범 정답: ${escapeHtml(q.answer_text)}`}</span>
+            <span>${ok ? '✅ 정답입니다!' : `❌ 오답입니다. 모범 정답: ${formatRichText(q.answer_text)}`}</span>
             <button type="button" class="btn-sm" data-action="toggle-explain" data-qid="${q.question_id}">💡 해설 보기/접기</button>
           </div>
         `;
@@ -1255,7 +1304,7 @@ UNPIVOT (CNT FOR DEPTNO IN ("10", "20", "30"));</pre>
       const answerBlock = `
         <div class="answer-box">
           <div class="answer-label">✅ 모범 정답</div>
-          <div class="answer-text">${escapeHtml(q.answer_text)}</div>
+          <div class="answer-text">${formatRichText(q.answer_text)}</div>
           <div class="kw-row">${keywordsHtml}</div>
         </div>
       `;
@@ -1263,8 +1312,8 @@ UNPIVOT (CNT FOR DEPTNO IN ("10", "20", "30"));</pre>
       const explainBlock = `
         <div class="explain-box">
           <div class="explain-label">💡 핵심 해설</div>
-          <div>${escapeHtml(q.explanation)}</div>
-          <div class="study-tip">📌 암기 포인트: ${escapeHtml(q.study_tip)}</div>
+          <div>${formatRichText(q.explanation)}</div>
+          <div class="study-tip">📌 암기 포인트: ${formatRichText(q.study_tip)}</div>
           <div class="source-tag">출처: ${escapeHtml(q.source)}</div>
         </div>
       `;
@@ -1287,7 +1336,7 @@ UNPIVOT (CNT FOR DEPTNO IN ("10", "20", "30"));</pre>
       const displayNo = isMock ? `모의 ${options.mockIndex + 1}번 (DB #${q.question_no})` : `#${q.question_no}`;
 
       return `
-        <article class="q-card ${cardStateClass}" data-card-qid="${q.question_id}">
+        <article class="q-card ${cardStateClass}" id="card-q-${q.question_id}" data-card-qid="${q.question_id}">
           <div class="q-meta">
             <div class="badge-row">
               <span class="pill ${subjClass}">${q.subject_id === 1 ? '1과목' : '2과목'} · ${displayNo}</span>
@@ -1298,8 +1347,8 @@ UNPIVOT (CNT FOR DEPTNO IN ("10", "20", "30"));</pre>
               ${isSaved ? '★ 오답노트됨' : '☆ 오답/북마크'}
             </button>
           </div>
-          <h2 class="q-title">Q. ${escapeHtml(q.title)}</h2>
-          <div class="q-body">${escapeHtml(q.question_text)}</div>
+          <h2 class="q-title">Q. ${formatRichText(q.title)}</h2>
+          <div class="q-body">${formatRichText(q.question_text)}</div>
           ${q.code_or_log ? `<pre class="code-block">${escapeHtml(q.code_or_log)}</pre>` : ''}
           ${interactiveHtml}
           ${feedbackHtml}
@@ -1576,6 +1625,20 @@ UNPIVOT (CNT FOR DEPTNO IN ("10", "20", "30"));</pre>
         updateHUD();
         renderQuestions();
         renderAnalytics();
+
+        const params = new URLSearchParams(location.search);
+        const qidParam = params.get('qid');
+        const qStr = params.get('q');
+        if (qidParam) {
+          const el = document.getElementById(`card-q-${qidParam}`);
+          if (el) {
+            el.scrollIntoView({ behavior: 'auto', block: 'center' });
+            el.classList.add('kcert-deeplink-highlight');
+          }
+        } else if (qStr) {
+          const si = document.getElementById('searchInput');
+          if (si) { si.value = qStr; renderQuestions(); }
+        }
       } catch (err) {
         document.getElementById('questionList').innerHTML =
           `<div class="q-card" style="color:var(--rose);">데이터 로드 실패: 로컬 서버 또는 GitHub Pages 환경에서 열어주세요. (${escapeHtml(err.message)})</div>`;
@@ -1583,6 +1646,32 @@ UNPIVOT (CNT FOR DEPTNO IN ("10", "20", "30"));</pre>
     }
 
     initApp();
+
+    (function initBackToTop() {
+      const sentinel = document.createElement('div');
+      sentinel.className = 'kcert-scroll-sentinel';
+      sentinel.setAttribute('aria-hidden', 'true');
+      document.body.prepend(sentinel);
+      const btn = document.getElementById('kcertBackToTop');
+      if ('IntersectionObserver' in window) {
+        const io = new IntersectionObserver((entries) => {
+          document.documentElement.classList.toggle('kcert-scrolled', !entries[0].isIntersecting);
+        }, { root: null, rootMargin: '320px 0px 0px 0px', threshold: 0 });
+        io.observe(sentinel);
+      }
+      if (btn) {
+        btn.addEventListener('click', () => {
+          const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
+        });
+        btn.addEventListener('focusout', () => {
+          if (!document.documentElement.classList.contains('kcert-scrolled')) {
+            document.querySelector('header a, header button, main')?.focus?.({ preventScroll: true });
+          }
+        });
+      }
+    })();
   </script>
+  <button type="button" id="kcertBackToTop" class="kcert-back-to-top" aria-label="페이지 맨 위로 이동" title="맨 위로 이동">↑ 맨 위로</button>
 </body>
 </html>

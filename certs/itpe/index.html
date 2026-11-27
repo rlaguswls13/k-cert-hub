@@ -56,13 +56,53 @@
       --purple: #c4b5fd;
       --purple-soft: rgba(167, 139, 250, 0.15);
     }
+    html, body { overflow-x: clip; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: var(--bg-main);
       color: var(--text-main);
       line-height: 1.65;
-      padding-bottom: 60px;
+      padding-bottom: 72px;
+    }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    button, a, th, .badge, .mode-btn, .tab-btn, .brand-badge { word-break: keep-all; }
+    .timer-box .btn-sm, .brand-badge { white-space: nowrap; }
+    .kcert-inline-code {
+      font-family: Consolas, 'Liberation Mono', Menlo, monospace;
+      font-size: 0.88em;
+      padding: 0.08em 0.36em;
+      border-radius: 4px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+    }
+    .kcert-deeplink-highlight {
+      outline: 3px solid var(--accent);
+      outline-offset: 2px;
+      box-shadow: 0 0 0 6px rgba(67, 56, 202, 0.14);
+    }
+    .kcert-scroll-sentinel {
+      height: 1px; width: 1px; position: absolute; top: 0; left: 0; pointer-events: none;
+    }
+    .kcert-back-to-top {
+      position: fixed; bottom: 20px; right: 20px; z-index: 60;
+      min-height: 40px; padding: 8px 14px; border-radius: 999px;
+      background: var(--bg-card); color: var(--text-main);
+      border: 1px solid var(--border); box-shadow: 0 6px 18px rgba(0, 0, 0, 0.14);
+      font-size: 0.78rem; font-weight: 700; cursor: pointer;
+      visibility: hidden; opacity: 0; transform: translateY(12px);
+      transition: visibility 0.25s, opacity 0.25s ease, transform 0.25s ease, border-color 0.15s;
+    }
+    .kcert-back-to-top:hover { border-color: var(--accent); color: var(--accent); }
+    html.kcert-scrolled .kcert-back-to-top { visibility: visible; opacity: 1; transform: translateY(0); }
+    @media (max-width: 768px) {
+      header { position: static !important; padding: 10px 14px; }
+      .itpe-topbar-inner { flex-wrap: nowrap !important; overflow-x: auto; padding: 7px 14px !important; scrollbar-width: none; }
+      .itpe-topbar-inner::-webkit-scrollbar { display: none; }
+      .itpe-topbar-links { flex-wrap: nowrap !important; }
+      .itpe-topbar-links > * { flex-shrink: 0; white-space: nowrap; }
+      .mode-group, .timer-box { flex-wrap: wrap; max-width: 100%; }
     }
     header {
       position: sticky;
@@ -420,17 +460,19 @@
 
   <!-- K-Cert Hub Global Top Bar -->
   <div style="background:var(--bg-elevated); border-bottom:1px solid var(--border); font-family:Pretendard,system-ui,sans-serif; font-size:12px; color:var(--text-muted);">
-    <div style="max-width:1400px; margin:0 auto; padding:7px 24px; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px;">
-      <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+    <div class="itpe-topbar-inner" style="max-width:1400px; margin:0 auto; padding:7px 24px; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px;">
+      <div class="itpe-topbar-links" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
         <a href="../../index.html" style="display:inline-flex; align-items:center; gap:6px; color:var(--accent); font-weight:700; text-decoration:none; padding:4px 10px; border-radius:7px; background:var(--bg-card); border:1px solid var(--border);">
           <span>🏠 K-Cert Hub 통합 포털</span>
         </a>
         <span>필기·실기 구분 RDB 학습 채널</span>
       </div>
-      <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-        <a href="../eip/index.html" style="color:var(--text-main); text-decoration:none; padding:4px 9px; border-radius:7px; background:var(--bg-card); border:1px solid var(--border);">💻 정보처리기사 실기 (400)</a>
-        <a href="../itpe/index.html" style="color:var(--accent); font-weight:700; text-decoration:none; padding:4px 9px; border-radius:7px; background:var(--bg-card); border:1px solid var(--accent);">🏛️ 정보관리기술사 필기 (<span id="navItpeCount">670+20</span>)</a>
-        <a href="../isec/index.html" style="color:var(--text-main); text-decoration:none; padding:4px 9px; border-radius:7px; background:var(--bg-card); border:1px solid var(--border);">🛡️ 정보보안기사 실기 (75)</a>
+      <div class="itpe-topbar-links" style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+        <a href="../eip/index.html" style="color:var(--text-main); text-decoration:none; padding:4px 9px; border-radius:7px; background:var(--bg-card); border:1px solid var(--border);">💻 정처기 실기 (460)</a>
+        <a href="../eip-written/index.html" style="color:var(--text-main); text-decoration:none; padding:4px 9px; border-radius:7px; background:var(--bg-card); border:1px solid var(--border);">📝 정처기 필기 (313)</a>
+        <a href="../itpe/index.html" style="color:var(--accent); font-weight:700; text-decoration:none; padding:4px 9px; border-radius:7px; background:var(--bg-card); border:1px solid var(--accent);">🏛️ 기술사 (<span id="navItpeCount">670+20</span>)</a>
+        <a href="../isec/index.html" style="color:var(--text-main); text-decoration:none; padding:4px 9px; border-radius:7px; background:var(--bg-card); border:1px solid var(--border);">🛡️ 보안기사 실기 (175)</a>
+        <a href="../aws/index.html" style="color:var(--text-main); text-decoration:none; padding:4px 9px; border-radius:7px; background:var(--bg-card); border:1px solid var(--border);">☁️ AWS 5종 (565)</a>
         <a href="../../index.html#section-community" style="color:var(--text-main); text-decoration:none; padding:4px 9px; border-radius:7px; background:var(--bg-card); border:1px solid var(--border);">💬 정보공유 라운지</a>
       </div>
     </div>
@@ -444,29 +486,29 @@
       </div>
       <div class="header-controls">
         <div class="mode-group" role="group" aria-label="학습 모드 선택">
-          <button class="mode-btn" id="mode-exam" onclick="setStudyMode('exam')" title="단축키 1">① 실전 구상 모드 (문제+목차초안)</button>
-          <button class="mode-btn" id="mode-compare" onclick="setStudyMode('compare')" title="단축키 2">② 목차·키워드 비교 모드</button>
-          <button class="mode-btn active" id="mode-explain" onclick="setStudyMode('explain')" title="단축키 3">③ 서브노트 해설 모드</button>
+          <button type="button" class="mode-btn" id="mode-exam" onclick="setStudyMode('exam')" title="단축키 1">① 실전 구상 모드 (문제+목차초안)</button>
+          <button type="button" class="mode-btn" id="mode-compare" onclick="setStudyMode('compare')" title="단축키 2">② 목차·키워드 비교 모드</button>
+          <button type="button" class="mode-btn active" id="mode-explain" onclick="setStudyMode('explain')" title="단축키 3">③ 서브노트 해설 모드</button>
         </div>
         <div class="timer-box">
           <span>⏱️ 실전 타이머</span>
           <span class="timer-display" id="timerDisplay">10:00</span>
-          <button class="btn-sm" onclick="startTimer(10)">1교시(10분)</button>
-          <button class="btn-sm" onclick="startTimer(25)">2~4교시(25분)</button>
-          <button class="btn-sm" onclick="stopTimer()">정지</button>
+          <button type="button" class="btn-sm" onclick="startTimer(10)">1교시(10분)</button>
+          <button type="button" class="btn-sm" onclick="startTimer(25)">2~4교시(25분)</button>
+          <button type="button" class="btn-sm" onclick="stopTimer()">정지</button>
         </div>
-        <button class="btn-sm" onclick="toggleTheme()" id="themeBtn">☀️ 라이트 모드</button>
-        <button class="btn-sm" onclick="window.print()">🖨️ 서브노트 인쇄</button>
+        <button type="button" class="btn-sm" onclick="toggleTheme()" id="themeBtn">☀️ 라이트 모드</button>
+        <button type="button" class="btn-sm" onclick="window.print()">🖨️ 서브노트 인쇄</button>
       </div>
     </div>
   </header>
 
   <main class="container">
     <nav class="tabs-bar">
-      <button class="tab-btn active" id="tabbtn-bank" onclick="switchTab('bank')">📚 기출 서브노트 문제은행 (<span id="totalQCount">0</span>)</button>
-      <button class="tab-btn" id="tabbtn-analytics" onclick="switchTab('analytics')">📊 8대 도메인 & 교시별 출제경향 분석</button>
-      <button class="tab-btn" id="tabbtn-predict" onclick="switchTab('predict')">🎯 제141회 대비 적중 예상 20선</button>
-      <button class="tab-btn" id="tabbtn-schema" onclick="switchTab('schema')">🗄️ RDB 스키마 & REST API</button>
+      <button type="button" class="tab-btn active" id="tabbtn-bank" onclick="switchTab('bank')">📚 기출 서브노트 문제은행 (<span id="totalQCount">0</span>)</button>
+      <button type="button" class="tab-btn" id="tabbtn-analytics" onclick="switchTab('analytics')">📊 8대 도메인 & 교시별 출제경향 분석</button>
+      <button type="button" class="tab-btn" id="tabbtn-predict" onclick="switchTab('predict')">🎯 제141회 대비 적중 예상 20선</button>
+      <button type="button" class="tab-btn" id="tabbtn-schema" onclick="switchTab('schema')">🗄️ RDB 스키마 & REST API</button>
     </nav>
 
     <div class="score-banner">
@@ -477,8 +519,8 @@
         <span>📝 내 목차 초안 작성: <strong id="statDrafted" style="color:var(--amber)">0</strong>문항</span>
       </div>
       <div style="display:flex; gap:8px;">
-        <button class="btn-sm" id="btnFilterReview" onclick="toggleReviewOnly()">🔍 보완 필요(X) 토픽만 모아보기</button>
-        <button class="btn-sm" onclick="resetProgress()">🔄 학습 기록 초기화</button>
+        <button type="button" class="btn-sm" id="btnFilterReview" onclick="toggleReviewOnly()">🔍 보완 필요(X) 토픽만 모아보기</button>
+        <button type="button" class="btn-sm" onclick="resetProgress()">🔄 학습 기록 초기화</button>
       </div>
     </div>
 
@@ -487,27 +529,27 @@
       <div class="filter-grid">
         <div class="filter-item">
           <label for="selRound">시행 회차 (제120회~제140회)</label>
-          <select id="selRound" onchange="renderQuestions()"><option value="ALL">전체 회차 (2020~2026년)</option></select>
+          <select id="selRound" onchange="itpeVisibleLimit=30; renderQuestions()"><option value="ALL">전체 회차 (2020~2026년)</option></select>
         </div>
         <div class="filter-item">
           <label for="selPeriod">교시 및 배점 구분 (카테고리2)</label>
-          <select id="selPeriod" onchange="renderQuestions()"><option value="ALL">전체 교시 (1교시 10점 + 2~4교시 25점)</option></select>
+          <select id="selPeriod" onchange="itpeVisibleLimit=30; renderQuestions()"><option value="ALL">전체 교시 (1교시 10점 + 2~4교시 25점)</option></select>
         </div>
         <div class="filter-item">
           <label for="selDomain">8대 핵심 기술 도메인 (카테고리1)</label>
-          <select id="selDomain" onchange="renderQuestions()"><option value="ALL">전체 8대 기술 도메인</option></select>
+          <select id="selDomain" onchange="itpeVisibleLimit=30; renderQuestions()"><option value="ALL">전체 8대 기술 도메인</option></select>
         </div>
         <div class="filter-item">
           <label for="selFormat">세부 출제 방식</label>
-          <select id="selFormat" onchange="renderQuestions()"><option value="ALL">전체 출제 방식</option></select>
+          <select id="selFormat" onchange="itpeVisibleLimit=30; renderQuestions()"><option value="ALL">전체 출제 방식</option></select>
         </div>
         <div class="filter-item">
           <label for="selSource">수록 출처 구분</label>
-          <select id="selSource" onchange="renderQuestions()"><option value="ALL">전체 출처 (정밀 서브노트 + 공개 기출)</option></select>
+          <select id="selSource" onchange="itpeVisibleLimit=30; renderQuestions()"><option value="ALL">전체 출처 (정밀 서브노트 + 공개 기출)</option></select>
         </div>
         <div class="filter-item">
           <label for="inpSearch">토픽·키워드·해설 통합 검색 (단축키 /)</label>
-          <input type="text" id="inpSearch" placeholder="예: RAG, 비인간 신원, 투명성, WBS, 동형암호..." oninput="renderQuestions()" />
+          <input type="text" id="inpSearch" placeholder="예: RAG, 비인간 신원, 투명성, WBS, 동형암호..." oninput="itpeVisibleLimit=30; renderQuestions()" />
         </div>
       </div>
       <div id="questionContainer" class="q-list"></div>
@@ -581,6 +623,15 @@
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
     }
+
+    function formatRichText(str) {
+      let s = escapeHtml(str);
+      s = s.replace(/`([^`\n]+)`/g, '<code class="kcert-inline-code">$1</code>');
+      s = s.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+      return s;
+    }
+
+    let itpeVisibleLimit = 30;
 
     async function initApp() {
       let res = await fetch('./data/itpe_rdb_export.json').catch(() => null);
@@ -754,14 +805,15 @@
         return true;
       });
 
-      document.getElementById('statFiltered').textContent = filtered.length;
+      const sliced = filtered.slice(0, itpeVisibleLimit);
+      document.getElementById('statFiltered').textContent = `${sliced.length} / ${filtered.length}`;
       const container = document.getElementById('questionContainer');
       if (!filtered.length) {
         container.innerHTML = `<div class="q-card">조건에 일치하는 기출 토픽이 없습니다. 필터를 초기화해 주세요.</div>`;
         return;
       }
 
-      container.innerHTML = filtered.map(q => {
+      const cardsHtml = sliced.map(q => {
         const key = `q_${q.question_id}`;
         const localMode = cardReveal[key] || studyMode;
         const showOutline = localMode === 'compare' || localMode === 'explain';
@@ -771,12 +823,12 @@
         const isCurated = q.source === 'ITPE 정밀 4단 서브노트';
         const srcLabel = q.source || 'ITPE 정밀 4단 서브노트';
 
-        const promptsHtml = (q.sub_prompts || []).map(p => `<div>• ${escapeHtml(p)}</div>`).join('');
-        const outlineHtml = (q.standard_outline || []).map(o => `<div class="outline-step">${escapeHtml(o)}</div>`).join('');
+        const promptsHtml = (q.sub_prompts || []).map(p => `<div>• ${formatRichText(p)}</div>`).join('');
+        const outlineHtml = (q.standard_outline || []).map(o => `<div class="outline-step">${formatRichText(o)}</div>`).join('');
         const kwChips = (q.core_keywords || '').split(',').map(k => `<span class="kw-chip">${escapeHtml(k.trim())}</span>`).join('');
 
         return `
-          <article class="q-card">
+          <article class="q-card" id="card-q-${q.question_id}">
             <div class="q-meta">
               <div class="badge-row">
                 <span class="badge b-round">${escapeHtml(q.round_title)} · ${q.period_id}교시 ${q.question_no}번</span>
@@ -786,12 +838,12 @@
                 <span class="badge ${isCurated ? 'b-source-curated' : 'b-source-pub'}">${isCurated ? '✨ ' : '📄 '}${escapeHtml(srcLabel)}</span>
               </div>
               <div class="badge-row">
-                <button class="btn-sm" style="${status === 'O' ? 'border-color:var(--green);color:var(--green);' : ''}" onclick="markQuestionStatus(${q.question_id}, 'O')">✅ 숙지 완료(O)</button>
-                <button class="btn-sm" style="${status === 'X' ? 'border-color:var(--rose);color:var(--rose);' : ''}" onclick="markQuestionStatus(${q.question_id}, 'X')">⚠️ 보완 필요(X)</button>
+                <button type="button" class="btn-sm" style="${status === 'O' ? 'border-color:var(--green);color:var(--green);' : ''}" onclick="markQuestionStatus(${q.question_id}, 'O')">✅ 숙지 완료(O)</button>
+                <button type="button" class="btn-sm" style="${status === 'X' ? 'border-color:var(--rose);color:var(--rose);' : ''}" onclick="markQuestionStatus(${q.question_id}, 'X')">⚠️ 보완 필요(X)</button>
               </div>
             </div>
 
-            <h3 class="q-title">Q${q.question_id}. ${escapeHtml(q.question_header)}</h3>
+            <h3 class="q-title">Q${q.question_id}. ${formatRichText(q.question_header)}</h3>
             <div class="sub-prompts">${promptsHtml}</div>
 
             ${studyMode === 'exam' ? `
@@ -814,26 +866,35 @@
                 <div class="section-label">📊 핵심 비교표 / 구조화 요약표</div>
                 ${renderComparisonTable(q.comparison_table)}
                 <div class="section-label">📘 완결형 서브노트 모범 해설</div>
-                <div class="answer-prose">${escapeHtml(q.model_answer_text)}</div>
-                <span class="escalation-banner">🔗 출제 계보 & 경향: ${escapeHtml(q.escalation_note)}</span>
+                <div class="answer-prose">${formatRichText(q.model_answer_text)}</div>
+                <span class="escalation-banner">🔗 출제 계보 & 경향: ${formatRichText(q.escalation_note)}</span>
               </div>
             ` : ''}
 
             <div class="card-actions">
-              <div style="display:flex; gap:8px;">
+              <div style="display:flex; gap:8px; flex-wrap:wrap;">
                 ${studyMode === 'exam' ? `
-                  <button class="btn-sm" onclick="toggleQuestionReveal(${q.question_id}, 'compare')">${localMode === 'compare' ? '🙈 목차·키워드 닫기' : '🧭 목차·키워드만 힌트 보기'}</button>
-                  <button class="btn-sm" onclick="toggleQuestionReveal(${q.question_id}, 'explain')">${localMode === 'explain' ? '🙈 서브노트 해설 닫기' : '📘 서브노트 전체 해설 열기'}</button>
+                  <button type="button" class="btn-sm" onclick="toggleQuestionReveal(${q.question_id}, 'compare')">${localMode === 'compare' ? '🙈 목차·키워드 닫기' : '🧭 목차·키워드만 힌트 보기'}</button>
+                  <button type="button" class="btn-sm" onclick="toggleQuestionReveal(${q.question_id}, 'explain')">${localMode === 'explain' ? '🙈 서브노트 해설 닫기' : '📘 서브노트 전체 해설 열기'}</button>
                 ` : ''}
                 ${studyMode === 'compare' ? `
-                  <button class="btn-sm" onclick="toggleQuestionReveal(${q.question_id}, 'explain')">${localMode === 'explain' ? '🙈 상세 해설 닫기' : '📘 비교표 + 서브노트 상세 해설 열기'}</button>
+                  <button type="button" class="btn-sm" onclick="toggleQuestionReveal(${q.question_id}, 'explain')">${localMode === 'explain' ? '🙈 상세 해설 닫기' : '📘 비교표 + 서브노트 상세 해설 열기'}</button>
                 ` : ''}
               </div>
-              <button class="btn-sm" onclick="startTimer(${q.recommended_minutes})">⏱️ 이 문제 실전 타이머 (${q.recommended_minutes}분) 시작</button>
+              <button type="button" class="btn-sm" onclick="startTimer(${q.recommended_minutes})">⏱️ 이 문제 실전 타이머 (${q.recommended_minutes}분) 시작</button>
             </div>
           </article>
         `;
       }).join('');
+
+      const moreHtml = filtered.length > itpeVisibleLimit
+        ? `<div style="display:flex;justify-content:center;gap:10px;padding:12px 0;flex-wrap:wrap;">
+             <button type="button" class="btn-sm" style="padding:8px 16px;font-weight:700;" onclick="itpeVisibleLimit += 30; renderQuestions();">더 보기 (+30토픽 · 남은 ${filtered.length - itpeVisibleLimit}건)</button>
+             <button type="button" class="btn-sm" style="padding:8px 16px;" onclick="itpeVisibleLimit = 9999; renderQuestions();">전체 ${filtered.length}토픽 펼치기</button>
+           </div>`
+        : '';
+
+      container.innerHTML = cardsHtml + moreHtml;
     }
 
     function filterByDomain(domainId) {
@@ -1019,7 +1080,58 @@
       }
     });
 
-    initApp();
+    initApp().then(() => {
+      try {
+        const params = new URLSearchParams(location.search);
+        const qidParam = params.get('qid');
+        const predParam = params.get('pred');
+        const qStr = params.get('q');
+        if (qidParam && typeof RDB !== 'undefined' && RDB && Array.isArray(RDB.questions)) {
+          const idx = RDB.questions.findIndex(q => String(q.question_id) === String(qidParam));
+          if (idx !== -1) {
+            if (idx >= itpeVisibleLimit) {
+              itpeVisibleLimit = idx + 10;
+              renderQuestions();
+            }
+            requestAnimationFrame(() => {
+              const el = document.getElementById(`card-q-${qidParam}`);
+              if (el) { el.scrollIntoView({ behavior: 'auto', block: 'center' }); el.classList.add('kcert-deeplink-highlight'); }
+            });
+          }
+        } else if (predParam) {
+          switchTab('predict');
+        } else if (qStr) {
+          const inp = document.getElementById('inpSearch');
+          if (inp) { inp.value = qStr; renderQuestions(); }
+        }
+      } catch (e) {}
+    });
+
+    (function initBackToTop() {
+      const sentinel = document.createElement('div');
+      sentinel.className = 'kcert-scroll-sentinel';
+      sentinel.setAttribute('aria-hidden', 'true');
+      document.body.prepend(sentinel);
+      const btn = document.getElementById('kcertBackToTop');
+      if ('IntersectionObserver' in window) {
+        const io = new IntersectionObserver((entries) => {
+          document.documentElement.classList.toggle('kcert-scrolled', !entries[0].isIntersecting);
+        }, { root: null, rootMargin: '320px 0px 0px 0px', threshold: 0 });
+        io.observe(sentinel);
+      }
+      if (btn) {
+        btn.addEventListener('click', () => {
+          const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
+        });
+        btn.addEventListener('focusout', () => {
+          if (!document.documentElement.classList.contains('kcert-scrolled')) {
+            document.querySelector('header a, header button, main')?.focus?.({ preventScroll: true });
+          }
+        });
+      }
+    })();
   </script>
+  <button type="button" id="kcertBackToTop" class="kcert-back-to-top" aria-label="페이지 맨 위로 이동" title="맨 위로 이동">↑ 맨 위로</button>
 </body>
 </html>
